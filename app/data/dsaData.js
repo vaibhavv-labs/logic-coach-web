@@ -8,7 +8,10 @@ export const DSA_TOPICS = [
       { id: "step1", text: "What is an array?", visualType: "array", visualState: "empty" },
       { id: "step2", text: "How is it stored in memory?", visualType: "array", visualState: "memory" },
       { id: "step3", text: "How to access an element by index?", visualType: "array", visualState: "access" },
-      { id: "step4", text: "How to traverse it?", visualType: "array", visualState: "traverse" }
+      { id: "step4", text: "How to traverse it?", visualType: "array", visualState: "traverse" },
+      { id: "step5", text: "Multidimensional Arrays", visualType: "array", visualState: "memory" },
+      { id: "step6", text: "Pass-by-Value and Pass-by-Reference", visualType: "text", visualState: "math" },
+      { id: "step7", text: "Dynamic Memory Allocation", visualType: "text", visualState: "math" }
     ]
   },
   {
@@ -75,7 +78,8 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Nodes and Pointers", visualType: "linkedlist", visualState: "node" },
       { id: "step2", text: "Connecting Nodes (Singly)", visualType: "linkedlist", visualState: "singly" },
       { id: "step3", text: "Traversing a Linked List", visualType: "linkedlist", visualState: "traverse" },
-      { id: "step4", text: "Doubly Linked Lists", visualType: "linkedlist", visualState: "doubly" }
+      { id: "step4", text: "Doubly Linked Lists", visualType: "linkedlist", visualState: "doubly" },
+      { id: "step5", text: "Circular Linked List", visualType: "linkedlist", visualState: "singly" }
     ]
   },
   {
@@ -87,7 +91,15 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Stack: Last In, First Out (LIFO)", visualType: "stack", visualState: "push" },
       { id: "step2", text: "Stack Pop operation", visualType: "stack", visualState: "pop" },
       { id: "step3", text: "Queue: First In, First Out (FIFO)", visualType: "queue", visualState: "enqueue" },
-      { id: "step4", text: "Queue Dequeue operation", visualType: "queue", visualState: "dequeue" }
+      { id: "step4", text: "Queue Dequeue operation", visualType: "queue", visualState: "dequeue" },
+      { id: "step5", text: "Stack using Array", visualType: "text", visualState: "math" },
+      { id: "step6", text: "Stack using Linked List", visualType: "text", visualState: "math" },
+      { id: "step7", text: "Queue using Array", visualType: "text", visualState: "math" },
+      { id: "step8", text: "Queue using Linked List", visualType: "text", visualState: "math" },
+      { id: "step9", text: "Stack Using Queue", visualType: "text", visualState: "math" },
+      { id: "step10", text: "Circular Queue", visualType: "queue", visualState: "enqueue" },
+      { id: "step11", text: "Priority Queue", visualType: "text", visualState: "math" },
+      { id: "step12", text: "Double Ended Queue", visualType: "queue", visualState: "enqueue" }
     ]
   },
   {
@@ -99,7 +111,11 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Hierarchical structure (Root, Leaves)", visualType: "tree", visualState: "basic" },
       { id: "step2", text: "Binary Trees", visualType: "tree", visualState: "binary" },
       { id: "step3", text: "Binary Search Tree (BST) property", visualType: "tree", visualState: "bst" },
-      { id: "step4", text: "Tree Traversals (In-order, Pre-order)", visualType: "tree", visualState: "traverse" }
+      { id: "step4", text: "Tree Traversals (In-order, Pre-order)", visualType: "tree", visualState: "traverse" },
+      { id: "step5", text: "Inorder Traversal", visualType: "tree", visualState: "traverse" },
+      { id: "step6", text: "Preorder Traversal", visualType: "tree", visualState: "traverse" },
+      { id: "step7", text: "Postorder Traversal", visualType: "tree", visualState: "traverse" },
+      { id: "step8", text: "Types of Binary Tree", visualType: "text", visualState: "math" }
     ]
   },
   {
@@ -111,7 +127,12 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Why do we need sorting?", visualType: "sorting", visualState: "unsorted" },
       { id: "step2", text: "Bubble Sort (Swapping adjacent)", visualType: "sorting", visualState: "bubble" },
       { id: "step3", text: "Selection Sort (Finding minimum)", visualType: "sorting", visualState: "selection" },
-      { id: "step4", text: "Merge Sort (Divide and conquer)", visualType: "sorting", visualState: "merge" }
+      { id: "step4", text: "Merge Sort (Divide and conquer)", visualType: "sorting", visualState: "merge" },
+      { id: "step5", text: "Insertion Sort", visualType: "sorting", visualState: "unsorted" },
+      { id: "step6", text: "Quick Sort", visualType: "sorting", visualState: "unsorted" },
+      { id: "step7", text: "Counting Sort", visualType: "sorting", visualState: "unsorted" },
+      { id: "step8", text: "Radix Sort", visualType: "sorting", visualState: "unsorted" },
+      { id: "step9", text: "Bucket Sort", visualType: "sorting", visualState: "unsorted" }
     ]
   },
   {
@@ -121,7 +142,8 @@ export const DSA_TOPICS = [
     icon: "🔍",
     teachingSteps: [
       { id: "step1", text: "Linear Search (Checking one by one)", visualType: "search", visualState: "linear" },
-      { id: "step2", text: "Binary Search (Divide in half)", visualType: "search", visualState: "binary" }
+      { id: "step2", text: "Binary Search (Divide in half)", visualType: "search", visualState: "binary" },
+      { id: "step3", text: "Ternary Search", visualType: "search", visualState: "binary" }
     ]
   },
   {
