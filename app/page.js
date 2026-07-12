@@ -6,14 +6,15 @@ import { problems } from "./data/problems";
 const MAX_CHARS = 2000;
 
 export default function Home() {
-  const [user, setUser] = useState(null);
-  const [nameInput, setNameInput] = useState("");
+  const [screen, setScreen] = useState("landing"); // 'landing' | 'app'
   const [activeProblem, setActiveProblem] = useState(null);
   const [messages, setMessages] = useState({});
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [language, setLanguage] = useState("Hinglish (Default)");
+  const [solvedProblems, setSolvedProblems] = useState(new Set()); // Session-based solved tracking
+  
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -22,24 +23,10 @@ export default function Home() {
   }, [messages, activeProblem, isLoading]);
 
   useEffect(() => {
-    if (activeProblem) inputRef.current?.focus();
-  }, [activeProblem]);
-
-  const handleLogin = (name) => {
-    if (!name.trim()) return;
-    setUser({ name: name.trim() });
-  };
-
-  const handleGuestLogin = () => {
-    setUser({ name: "Guest Student", isGuest: true });
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setActiveProblem(null);
-    setMessages({});
-    setShowUserMenu(false);
-  };
+    if (activeProblem && screen === "app") {
+      inputRef.current?.focus();
+    }
+  }, [activeProblem, screen]);
 
   const handleSelectProblem = (problem) => {
     setActiveProblem(problem);
@@ -50,21 +37,36 @@ export default function Home() {
         [problem.id]: [
           {
             role: "coach",
-            content: `Welcome! 🎯 You've selected **"${problem.title}"**.\n\n${problem.description}\n\nLet's work through this together! Before we start coding, tell me — what do you think is the very first thing we need to figure out to solve this problem?`,
+            content: `Hi! Let's solve **"${problem.title}"** together.\n\nHere is the problem: ${problem.description}\n\nWhat do you think is the first logical step to approach this?`,
           },
         ],
       }));
     }
   };
 
-  const handleSend = async () => {
-    if (!inputText.trim() || isLoading || !activeProblem) return;
-    if (inputText.length > MAX_CHARS) return;
+  const toggleSolved = () => {
+    if (!activeProblem) return;
+    setSolvedProblems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(activeProblem.id)) {
+        newSet.delete(activeProblem.id);
+      } else {
+        newSet.add(activeProblem.id);
+      }
+      return newSet;
+    });
+  };
 
-    const userMessage = inputText.trim();
-    setInputText("");
+  const handleSend = async (overrideText = null) => {
+    const textToSend = overrideText || inputText;
+    
+    if (!textToSend.trim() || isLoading || !activeProblem) return;
+    if (textToSend.length > MAX_CHARS) return;
+
+    if (!overrideText) setInputText("");
     setIsLoading(true);
 
+    const userMessage = textToSend.trim();
     const currentMessages = messages[activeProblem.id] || [];
     const updatedMessages = [
       ...currentMessages,
@@ -91,6 +93,7 @@ export default function Home() {
             title: activeProblem.title,
             description: activeProblem.description,
           },
+          language: language
         }),
       });
 
@@ -114,8 +117,7 @@ export default function Home() {
           ...prev[activeProblem.id],
           {
             role: "error",
-            content:
-              "Oops! Something went wrong. Please check your internet connection and try again.",
+            content: `Error: ${error.message}`, // Exposing real error
           },
         ],
       }));
@@ -131,80 +133,26 @@ export default function Home() {
     }
   };
 
-  // ==================== LOGIN SCREEN ====================
-  if (!user) {
+  // ==================== LANDING PAGE ====================
+  if (screen === "landing") {
     return (
-      <div className="login-container">
-        <div className="login-card">
-          <div className="login-logo">🧠</div>
-          <h1 className="login-title">Logic Coach</h1>
-          <p className="login-subtitle">
-            Learn to think like a programmer. Build coding logic step-by-step
-            through interactive Socratic dialogue.
-          </p>
-
-          <div className="login-features">
-            <div className="login-feature">
-              <div className="login-feature-icon">💬</div>
-              <div className="login-feature-text">
-                <h4>Socratic Conversations</h4>
-                <p>Guided with clues, never direct answers</p>
-              </div>
-            </div>
-            <div className="login-feature">
-              <div className="login-feature-icon">🌐</div>
-              <div className="login-feature-text">
-                <h4>Multi-Lingual Support</h4>
-                <p>English, Hindi, Marathi, or Hinglish</p>
-              </div>
-            </div>
-            <div className="login-feature">
-              <div className="login-feature-icon">🧩</div>
-              <div className="login-feature-text">
-                <h4>Curated Logic Challenges</h4>
-                <p>Master core computing fundamentals</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="login-input-group">
-            <input
-              className="login-input"
-              type="text"
-              placeholder="Enter your name to begin..."
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLogin(nameInput)}
-              maxLength={50}
-              id="name-input"
-            />
-          </div>
-
-          <button
-            className="login-btn"
-            onClick={() => handleLogin(nameInput)}
-            disabled={!nameInput.trim()}
-            id="login-button"
-          >
-            Start Learning →
-          </button>
-
-          <button
-            className="login-guest"
-            onClick={handleGuestLogin}
-            id="guest-button"
-          >
-            Continue as Guest
-          </button>
-        </div>
+      <div className="landing-container">
+        <div className="landing-icon">🧠</div>
+        <h1 className="landing-title">Logic Coach</h1>
+        <h2 className="landing-tagline">Seekho khud sochke, copy-paste karke nahi</h2>
+        <p className="landing-desc">
+          Your personal Socratic AI tutor. We never give you the direct code answers. 
+          Instead, we guide you through questions to help you discover the logic yourself.
+        </p>
+        <button className="start-btn" onClick={() => setScreen("app")}>
+          Start Learning →
+        </button>
       </div>
     );
   }
 
   // ==================== MAIN APP ====================
-  const currentMessages = activeProblem
-    ? messages[activeProblem.id] || []
-    : [];
+  const currentMessages = activeProblem ? messages[activeProblem.id] || [] : [];
 
   return (
     <>
@@ -217,15 +165,9 @@ export default function Home() {
           ☰
         </button>
         <div className="sidebar-brand">
-          <div className="sidebar-logo">🧠</div>
           <h2>Logic Coach</h2>
         </div>
-        <button
-          className="sidebar-user-btn"
-          onClick={() => setShowUserMenu(!showUserMenu)}
-        >
-          {user.name[0].toUpperCase()}
-        </button>
+        <div style={{ width: 24 }}></div> {/* Spacer */}
       </div>
 
       <div className="app-layout">
@@ -242,32 +184,7 @@ export default function Home() {
               <div className="sidebar-logo">🧠</div>
               <h2>Logic Coach</h2>
             </div>
-            <button
-              className="sidebar-user-btn"
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              id="user-menu-btn"
-            >
-              {user.name[0].toUpperCase()}
-            </button>
           </div>
-
-          {showUserMenu && (
-            <div className="user-dropdown">
-              <div className="user-dropdown-name">
-                <p>{user.name}</p>
-                <span>{user.isGuest ? "Guest Mode" : "Student"}</span>
-              </div>
-              <button
-                className="user-dropdown-item danger"
-                onClick={handleLogout}
-                id="logout-btn"
-              >
-                🚪 Sign Out
-              </button>
-            </div>
-          )}
-
-          <div className="sidebar-section-title">Logic Problems</div>
 
           <div className="sidebar-problems">
             {problems.map((problem) => (
@@ -277,43 +194,35 @@ export default function Home() {
                   activeProblem?.id === problem.id ? "active" : ""
                 }`}
                 onClick={() => handleSelectProblem(problem)}
-                id={`problem-${problem.id}`}
               >
                 <div className="problem-icon">{problem.icon}</div>
                 <div className="problem-info">
-                  <h4>{problem.title}</h4>
+                  <h4>
+                    {problem.title}
+                    {solvedProblems.has(problem.id) && (
+                      <span className="problem-status-icon" title="Solved">✅</span>
+                    )}
+                  </h4>
                   <div className="problem-meta">
                     <span
                       className={`problem-difficulty ${problem.difficulty.toLowerCase()}`}
                     >
                       {problem.difficulty}
                     </span>
-                    <span className="problem-category">
-                      {problem.category}
-                    </span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="sidebar-footer">
-            <button className="logout-btn" onClick={handleLogout} id="sidebar-logout">
-              🚪 Sign Out
-            </button>
-          </div>
         </aside>
 
         {/* Main Content */}
-        <main className="main-content" onClick={() => setShowUserMenu(false)}>
+        <main className="main-content">
           {!activeProblem ? (
-            <div className="empty-state">
-              <div className="empty-icon">🎯</div>
-              <h2>Ready to Think?</h2>
-              <p>
-                Select a logic problem from the sidebar to start your Socratic
-                learning journey. Your AI coach will guide you step-by-step!
-              </p>
+            <div className="landing-container" style={{ background: 'none' }}>
+              <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
+              <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Challenge</h2>
+              <p style={{ color: 'var(--text-secondary)' }}>Select a problem from the sidebar to begin.</p>
             </div>
           ) : (
             <>
@@ -328,13 +237,30 @@ export default function Home() {
                     <p>{activeProblem.category}</p>
                   </div>
                 </div>
-                <span className="chat-header-badge">
-                  {activeProblem.difficulty}
-                </span>
+                
+                <div className="header-actions">
+                  <select 
+                    className="lang-select" 
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  >
+                    <option value="Hinglish (Default)">Hinglish</option>
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Marathi">Marathi</option>
+                  </select>
+                  
+                  <button 
+                    className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`}
+                    onClick={toggleSolved}
+                  >
+                    {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
+                  </button>
+                </div>
               </div>
 
               {/* Messages */}
-              <div className="chat-messages" id="chat-messages">
+              <div className="chat-messages">
                 {currentMessages.map((msg, idx) => (
                   <div
                     key={idx}
@@ -376,16 +302,8 @@ export default function Home() {
                 ))}
 
                 {isLoading && (
-                  <div className="typing-indicator">
-                    <div className="message-avatar" style={{
-                      width: 32, height: 32, minWidth: 32,
-                      borderRadius: "50%",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      background: "linear-gradient(135deg, #8b5cf6, #3b82f6, #06b6d4)",
-                      fontSize: 14
-                    }}>
-                      🤖
-                    </div>
+                  <div className="message coach">
+                    <div className="message-avatar">🤖</div>
                     <div className="typing-dots">
                       <span></span>
                       <span></span>
@@ -397,41 +315,40 @@ export default function Home() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
-              <div className="chat-input-area">
+              {/* Chat Input */}
+              <div className="chat-bottom">
+                <div className="quick-actions">
+                  <button className="action-btn" onClick={() => handleSend("Aur simple samjhao")}>
+                    Aur simple samjhao
+                  </button>
+                  <button className="action-btn" onClick={() => handleSend("Bilkul atak gaya")}>
+                    Bilkul atak gaya
+                  </button>
+                  <button className="action-btn" onClick={() => handleSend("Ye sahi hai kya?")}>
+                    Ye sahi hai kya?
+                  </button>
+                </div>
+
                 <div className="chat-input-wrapper">
                   <textarea
                     ref={inputRef}
                     className="chat-input"
-                    placeholder="Type your answer or ask a question..."
+                    placeholder="Type your answer..."
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
                     maxLength={MAX_CHARS}
                     disabled={isLoading}
-                    id="chat-input"
                   />
                   <button
                     className="send-btn"
-                    onClick={handleSend}
+                    onClick={() => handleSend()}
                     disabled={!inputText.trim() || isLoading}
-                    id="send-btn"
                   >
                     ➤
                   </button>
                 </div>
-                {inputText.length > MAX_CHARS * 0.8 && (
-                  <div
-                    className={`char-counter ${
-                      inputText.length > MAX_CHARS * 0.95
-                        ? "danger"
-                        : "warning"
-                    }`}
-                  >
-                    {inputText.length}/{MAX_CHARS}
-                  </div>
-                )}
               </div>
             </>
           )}

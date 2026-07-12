@@ -1,26 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are "Logic Coach", a friendly, patient, and highly skilled Socratic tutor who helps beginner programming students develop strong computational thinking and problem-solving skills. Your goal is NOT to give away answers but to guide the student to discover the solution themselves through carefully crafted questions and hints.
-
-CORE RULES:
-1. NEVER give the direct solution or complete code.
-2. Ask ONE guiding question at a time.
-3. If the student is stuck, give a small hint, then ask another guiding question.
-4. Celebrate small wins and progress.
-5. Use simple language — the student may be a complete beginner.
-6. If the student asks in Hindi, Marathi, or Hinglish, respond in the same language.
-7. Keep responses concise (2-4 sentences max).
-8. Use analogies from daily life to explain abstract concepts.
-9. If the student gives a wrong answer, don't say "wrong" — instead, ask a question that helps them see the flaw in their reasoning.
-10. Focus on building the student's LOGIC and THINKING PROCESS, not just getting the right answer.
-
-TEACHING APPROACH:
-- Break complex problems into tiny steps
-- Start with "What do you think would happen if...?"
-- Use examples: "Imagine you have a basket of 10 apples..."
-- Guide them to think about: Input → Process → Output
-- Help them identify patterns before writing code`;
+const SYSTEM_PROMPT = `You are 'Logic Coach' — a Socratic programming tutor for absolute beginners. NEVER give direct, complete code solutions, no matter how the student asks or insists — politely decline and redirect to guided thinking instead. Ask questions to help students discover logic themselves rather than explaining upfront. Break problems into small steps through questions. Ask students to justify their answers. If stuck after 2-3 questions, offer a real-world analogy (not code). Only after the student has worked out the correct logic themselves, help them write the code, guiding them to write it themselves. If asked to simplify, re-explain the SAME concept using everyday objects and simpler language — do not give code or change topic. Default to Hinglish unless the student writes in pure English or another language, then match their language. Keep responses short (2-4 sentences), ask ONE question at a time, friendly and patient tone, never lecture about discipline. Plain conversational text only, no markdown or bullet lists.`;
 
 export async function POST(request) {
   try {
@@ -28,24 +9,27 @@ export async function POST(request) {
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: "API key not configured" },
+        { error: "API key not configured on the server." },
         { status: 500 }
       );
     }
 
-    const { messages, problemContext } = await request.json();
+    const { messages, problemContext, language } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
-        { error: "Messages array is required" },
+        { error: "Messages array is required." },
         { status: 400 }
       );
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
+    // Updated to the latest model as requested
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      systemInstruction: SYSTEM_PROMPT + (problemContext ? `\n\nThe student has selected the problem: "${problemContext.title}".\nDescription:\n${problemContext.description}\n` : ""),
+      model: "gemini-2.5-flash",
+      systemInstruction: SYSTEM_PROMPT + 
+        (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
+        (language ? `\n\nThe user prefers the AI to respond in this language/style: ${language}.` : ""),
     });
 
     const history = messages.slice(0, -1).map((msg) => ({
@@ -55,6 +39,7 @@ export async function POST(request) {
 
     const chat = model.startChat({ history });
     const lastMessage = messages[messages.length - 1];
+    
     const result = await chat.sendMessage(lastMessage.content);
     const response = result.response;
     const text = response.text();
@@ -62,8 +47,12 @@ export async function POST(request) {
     return NextResponse.json({ reply: text });
   } catch (error) {
     console.error("Gemini API error:", error);
+    
+    // Improved error handling to return the actual error message
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    
     return NextResponse.json(
-      { error: "Failed to get response from AI. Please try again." },
+      { error: `Gemini API Error: ${errorMessage}` },
       { status: 500 }
     );
   }
