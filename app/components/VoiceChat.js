@@ -43,18 +43,8 @@ export default function VoiceChat({ onTranscript, isAiSpeaking, aiMessage, onAiS
         }
 
         const cleanMessage = text.replace(/[\*\#\_\`]/g, '');
-        const response = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: cleanMessage })
-        });
-
-        if (!response.ok || !active) return;
+        const url = `/api/tts?text=${encodeURIComponent(cleanMessage)}`;
         
-        const blob = await response.blob();
-        if (!active) return;
-
-        const url = URL.createObjectURL(blob);
         const audio = new Audio(url);
         audioRef.current = audio;
 
@@ -62,6 +52,7 @@ export default function VoiceChat({ onTranscript, isAiSpeaking, aiMessage, onAiS
           if (onAiSpeechEnd) onAiSpeechEnd();
         };
 
+        // The browser will automatically stream this! Zero delay!
         await audio.play();
       } catch (err) {
         console.error("ElevenLabs playback error:", err);

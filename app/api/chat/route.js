@@ -61,6 +61,13 @@ export async function POST(request) {
     // Improved error handling to return the actual error message
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
     
+    if (error.status === 429 || error.message?.includes('429') || error.message?.includes('quota')) {
+      return NextResponse.json(
+        { error: "Whoops! The AI is currently receiving too many requests. Please wait 30 seconds and try again." },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { error: `Gemini API Error: ${errorMessage}` },
       { status: 500 }

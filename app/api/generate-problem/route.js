@@ -61,6 +61,14 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
   } catch (error) {
     console.error("Gemini API error (generate-problem):", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    
+    if (error.status === 429 || error.message?.includes('429') || error.message?.includes('quota')) {
+      return NextResponse.json(
+        { error: "Whoops! The AI is currently receiving too many requests. Please wait 30 seconds and try again." },
+        { status: 429 }
+      );
+    }
+
     return NextResponse.json(
       { error: `Generation Error: ${errorMessage}` },
       { status: 500 }

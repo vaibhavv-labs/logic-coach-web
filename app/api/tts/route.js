@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(request) {
+export async function GET(request) {
   try {
-    const { text } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const text = searchParams.get('text');
 
     if (!text) {
       return NextResponse.json({ error: "Text is required" }, { status: 400 });
@@ -14,10 +15,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "API key is missing" }, { status: 500 });
     }
 
-    // Voice ID for "Adam" (a professional tutor voice)
     const VOICE_ID = "pNInz6obpgDQGcFmaJgB";
 
-    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}?output_format=mp3_44100_128`, {
+    // Use the /stream endpoint for zero latency
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream?output_format=mp3_44100_128`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -39,12 +40,12 @@ export async function POST(request) {
       return NextResponse.json({ error: "ElevenLabs API error" }, { status: response.status });
     }
 
-    const audioBuffer = await response.arrayBuffer();
-    
-    return new NextResponse(audioBuffer, {
+    // Stream the audio chunks directly to the browser so it starts playing immediately
+    return new NextResponse(response.body, {
       headers: {
         "Content-Type": "audio/mpeg",
-        "Cache-Control": "no-cache"
+        "Cache-Control": "no-cache",
+        "Transfer-Encoding": "chunked"
       }
     });
 
