@@ -12,7 +12,7 @@ export async function POST(request) {
       );
     }
 
-    const { level } = await request.json();
+    const { level, dsaTopic, language } = await request.json();
 
     if (!level) {
       return NextResponse.json(
@@ -26,16 +26,26 @@ export async function POST(request) {
       model: "gemini-2.5-flash",
     });
 
-    const prompt = `
+    let prompt = `
 Generate a single programming logic problem for a student at the "${level}" level. 
 The levels progress as: Beginner (variables, simple if/else) -> Easy (loops) -> Medium (arrays/lists) -> Hard (nested logic, simple functions) -> Advanced (combining concepts).
 Make sure it builds on the previous level conceptually.
-Problem statements must be clear, unambiguous, and solvable with basic programming constructs (no obscure trivia).
+Problem statements must be clear, unambiguous, and solvable with basic programming constructs (no obscure trivia).`;
+
+    if (dsaTopic) {
+      prompt += `\n\nCRITICAL CONSTRAINT: This problem MUST be specifically about the Data Structure/Algorithm topic: "${dsaTopic}". The problem should focus on applying this concept appropriately for the requested difficulty level. Do not require knowledge of advanced DSA topics beyond "${dsaTopic}".`;
+    }
+
+    if (language) {
+      prompt += `\n\nTRANSLATION REQUIREMENT: The user prefers the AI to respond in this spoken language: ${language}. Ensure the problem title and description are written in ${language}.`;
+    }
+
+    prompt += `
 
 Respond ONLY with a valid JSON object in this exact format, with no markdown formatting or backticks around it:
 {
   "title": "Short descriptive title",
-  "category": "The main concept (e.g. Loops, Arrays)",
+  "category": "${dsaTopic ? dsaTopic : 'The main concept (e.g. Loops, Arrays)'}",
   "difficulty": "${level}",
   "description": "The detailed problem description"
 }`;

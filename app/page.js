@@ -9,6 +9,8 @@ import CustomProblemModal from "./components/CustomProblemModal";
 import ProgressScreen from "./components/ProgressScreen";
 import CodeEditor from "./components/CodeEditor";
 import VoiceChat from "./components/VoiceChat";
+import DSAPath from "./components/DSAPath";
+import DSATeachingPhase from "./components/DSATeachingPhase";
 
 const MAX_CHARS = 2000;
 const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
@@ -26,6 +28,11 @@ export default function Home() {
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [latestAiMessage, setLatestAiMessage] = useState("");
   
+  // DSA states
+  const [dsaProgress, setDsaProgress] = useState({});
+  const [viewMode, setViewMode] = useState("logic"); // 'logic' | 'dsa'
+  const [activeDsaTopic, setActiveDsaTopic] = useState(null);
+  
   // Auth & DB states
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -37,6 +44,7 @@ export default function Home() {
   const [userStats, setUserStats] = useState({ totalAttempted: 0, streak: 0, levelCounts: {} });
   
   const [fetchingProblem, setFetchingProblem] = useState(false);
+  const [problemFetchError, setProblemFetchError] = useState(null);
   const [activeLevel, setActiveLevel] = useState('Beginner');
 
   const messagesEndRef = useRef(null);
@@ -65,6 +73,7 @@ export default function Home() {
           streak: data.streak || 0,
           levelCounts: data.levelCounts || {}
         });
+        setDsaProgress(data.dsaProgress || {});
       }
     } catch (error) {
       console.error("Error loading progress:", error);
@@ -72,7 +81,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 10);
   }, [messages, activeProblem, isLoading]);
 
   useEffect(() => {
@@ -119,7 +130,7 @@ export default function Home() {
         const response = await fetch("/api/generate-problem", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ level })
+          body: JSON.stringify({ level, dsaTopic: activeDsaTopic?.title || null, language })
         });
         
         if (!response.ok) throw new Error("Failed to generate problem");
@@ -140,7 +151,7 @@ export default function Home() {
 
     } catch (error) {
       console.error("Error fetching problem:", error);
-      alert("Failed to load a problem. Please try again.");
+      setProblemFetchError(error.message);
     } finally {
       setFetchingProblem(false);
     }
@@ -153,6 +164,7 @@ export default function Home() {
 
   const setupProblem = (problem) => {
     setActiveProblem(problem);
+    setProblemFetchError(null);
     setCode(""); // clear code editor for new problem
     setIsAiSpeaking(false);
     
@@ -218,8 +230,8 @@ export default function Home() {
     await updateUserStats(user.uid, newStats);
   };
 
-  const handleSend = async (overrideText = null, fromVoice = false) => {
-    const textToSend = overrideText || inputText;
+  const handleSend = async (overrideText = null, fromVoice = false, retryMessage = null) => {
+    const textToSend = retryMessage || overrideText || inputText;
     
     if (!textToSend.trim() || isLoading || !activeProblem) return;
     if (textToSend.length > MAX_CHARS) return;
@@ -229,13 +241,15 @@ export default function Home() {
        return;
     }
 
-    if (!overrideText) setInputText("");
+    if (!overrideText && !retryMessage) setInputText("");
     setIsLoading(true);
 
     const userMessage = textToSend.trim();
     const currentMessages = messages[activeProblem.id] || [];
-    const updatedMessages = [
-      ...currentMessages,
+    const filteredMessages = retryMessage ? currentMessages.filter(m => m.role !== "error") : currentMessages;
+    
+    const updatedMessages = retryMessage ? filteredMessages : [
+      ...filteredMessages,
       { role: "user", content: userMessage },
     ];
 
@@ -286,10 +300,11 @@ export default function Home() {
       setMessages((prev) => ({
         ...prev,
         [activeProblem.id]: [
-          ...prev[activeProblem.id],
+          ...(prev[activeProblem.id]?.filter(m => m.role !== "error") || []),
           {
             role: "error",
             content: `Error: ${error.message}`,
+            retryMessage: userMessage
           },
         ],
       }));
@@ -424,6 +439,19 @@ export default function Home() {
           </div>
 
           <div className="sidebar-problems">
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button 
+                className={`action-btn ${viewMode === 'logic' ? 'active' : ''}`} 
+                onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'logic' ? 'var(--accent-blue)' : 'var(--bg-card)' }}
+              >Logic</button>
+              <button 
+                className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
+                onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'dsa' ? 'var(--accent-orange)' : 'var(--bg-card)' }}
+              >DSA Path</button>
+            </div>
+
             <button 
               className="start-btn" 
               style={{ width: '100%', marginBottom: '16px', background: 'var(--accent-orange)', padding: '10px' }}
@@ -459,12 +487,52 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="main-content">
-          {!activeProblem ? (
-            <div className="landing-container" style={{ background: 'none' }}>
-              <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
-              <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Difficulty</h2>
-              <p style={{ color: 'var(--text-secondary)' }}>Select a level from the sidebar to generate a problem.</p>
-            </div>
+          {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
+             <DSAPath progress={dsaProgress} onSelectTopic={(t) => {
+               if (requireAuth()) {
+                 setActiveDsaTopic(t);
+               }
+             }} />
+          ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
+             <DSATeachingPhase 
+               topic={activeDsaTopic} 
+               initialStep={dsaProgress[activeDsaTopic.id]?.step || 0}
+               language={language}
+               onProgressUpdate={async (step) => {
+                 const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 0, step } };
+                 setDsaProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+               }}
+               onComplete={async () => {
+                 const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 1, step: 0 } };
+                 setDsaProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+                 alert("Topic Teaching Complete! You can now select a problem level to practice.");
+               }}
+             />
+          ) : !activeProblem ? (
+            fetchingProblem ? (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="typing-dots" style={{ margin: 'auto', background: 'transparent', border: 'none', boxShadow: 'none' }}>
+                  <span></span><span></span><span></span>
+                </div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '20px' }}>Generating Problem...</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>Our AI coach is crafting a unique logic challenge just for you.</p>
+              </div>
+            ) : problemFetchError ? (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none', background: '#fef2f2', color: '#991b1b' }}>⚠️</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#991b1b' }}>Failed to Load</h2>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>{problemFetchError}</p>
+                <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
+              </div>
+            ) : (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Difficulty</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>Select a level from the sidebar to generate a problem.</p>
+              </div>
+            )
           ) : (
             <div className="split-layout">
               {/* Chat Pane */}
@@ -510,7 +578,7 @@ export default function Home() {
                   </select>
                   
                   <button 
-                    className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`}
+                    className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved pop-celebrate' : ''}`}
                     onClick={toggleSolved}
                   >
                     {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
@@ -551,6 +619,14 @@ export default function Home() {
                           {i < msg.content.split("\n").length - 1 && <br />}
                         </span>
                       ))}
+                      {msg.role === "error" && msg.retryMessage && (
+                        <button 
+                          onClick={() => handleSend(null, false, msg.retryMessage)}
+                          style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                        >
+                          ↻ Try Again
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
