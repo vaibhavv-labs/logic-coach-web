@@ -46,9 +46,23 @@ export default function Home() {
   const [fetchingProblem, setFetchingProblem] = useState(false);
   const [problemFetchError, setProblemFetchError] = useState(null);
   const [activeLevel, setActiveLevel] = useState('Beginner');
+  const [theme, setTheme] = useState("light");
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -498,6 +512,7 @@ export default function Home() {
                topic={activeDsaTopic} 
                initialStep={dsaProgress[activeDsaTopic.id]?.step || 0}
                language={language}
+               onLanguageChange={setLanguage}
                onProgressUpdate={async (step) => {
                  const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 0, step } };
                  setDsaProgress(newProg);
@@ -577,6 +592,10 @@ export default function Home() {
                     <option value="Hinglish">Hinglish</option>
                   </select>
                   
+                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ fontSize: '18px', padding: '6px 10px' }}>
+                    {theme === "light" ? "🌙" : "☀️"}
+                  </button>
+
                   <button 
                     className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved pop-celebrate' : ''}`}
                     onClick={toggleSolved}

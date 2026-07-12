@@ -32,6 +32,22 @@
   --font: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-subtle: #334155;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  
+  --border-light: #334155;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.8);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -447,7 +463,7 @@ body {
 .message {
   display: flex;
   gap: 12px;
-  max-width: 75%;
+  max-width: 85%;
 }
 
 .message.user {
@@ -876,20 +892,29 @@ body {
 }
 
 .teaching-header {
-  padding: 20px 24px;
+  padding: 16px 24px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
+
+.teaching-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .teaching-header h3 {
   font-size: 20px;
+  font-weight: 700;
+  margin: 0;
 }
 
 .step-indicator {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--accent-orange);
   background: var(--accent-orange-light);
@@ -901,39 +926,57 @@ body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  /* Desktop layout: Left 55-60%, Right 40-45% min 400px */
 }
 
 .teaching-visual {
-  flex: 1;
+  flex: 5.5; /* approx 55% */
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-light);
-  background: #1e293b;
-  color: white;
+  background: var(--bg-primary);
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.visual-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
 }
 
 .visual-title {
-  padding: 24px;
-  font-size: 24px;
+  padding: 16px 24px;
+  font-size: 18px;
   font-weight: 700;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
 }
 
-.visual-container {
+.visual-content {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  overflow: hidden;
+  overflow: auto;
+  min-height: 300px;
 }
 
 .teaching-chat {
-  width: 400px;
+  flex: 4.5; /* approx 45% */
+  min-width: 400px;
   display: flex;
   flex-direction: column;
   background: var(--bg-secondary);
+  overflow: hidden;
 }
 
 /* Visualizers */
@@ -1183,17 +1226,44 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
+@media (max-width: 1024px) {
+  .teaching-content-split {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .teaching-chat {
+    width: 100%;
+    min-width: 100%;
+    flex: none;
+    border-top: 1px solid var(--border-light);
+  }
+  .teaching-visual {
+    flex: none;
+    height: auto;
+    border-right: none;
+    padding: 16px;
+  }
+  .visual-content {
+    min-height: 250px;
+  }
+}
+
 @media (max-width: 768px) {
   .teaching-content-split {
     flex-direction: column;
   }
   .teaching-chat {
     width: 100%;
-    flex: 1;
+    min-width: 100%;
+    flex: none;
     border-top: 1px solid var(--border-light);
   }
   .teaching-visual {
     flex: none;
-    height: 300px;
+    height: auto;
+    padding: 12px;
+  }
+  .visual-content {
+    min-height: 180px;
   }
 }

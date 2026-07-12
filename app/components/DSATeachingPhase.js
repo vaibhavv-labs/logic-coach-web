@@ -15,13 +15,27 @@ import SearchVisualizer from "./visualizers/SearchVisualizer";
 import SortingVisualizer from "./visualizers/SortingVisualizer";
 import { t } from "../data/translations";
 
-export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English" }) {
+export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", onLanguageChange }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [chatHistory, setChatHistory] = useState([]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [theme, setTheme] = useState("light");
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    setTheme(savedTheme);
+    document.documentElement.setAttribute("data-theme", savedTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+    document.documentElement.setAttribute("data-theme", newTheme);
+  };
 
   const stepData = topic.teachingSteps[currentStep];
 
@@ -172,18 +186,40 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   return (
     <div className="dsa-teaching-phase">
       <div className="teaching-header">
-        <h3>{topic.title}</h3>
-        <div className="step-indicator">
-          {t("step_of", language, { X: currentStep + 1, Y: topic.teachingSteps.length })}
+        <div className="teaching-header-info">
+          <h3>{topic.title}</h3>
+          <div className="step-indicator">
+            {t("step_of", language, { X: currentStep + 1, Y: topic.teachingSteps.length })}
+          </div>
+        </div>
+        <div className="header-actions">
+          {onLanguageChange && (
+            <select 
+              className="lang-select" 
+              value={language}
+              onChange={(e) => onLanguageChange(e.target.value)}
+              title="Spoken Language"
+            >
+              <option value="English">English</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Marathi">Marathi</option>
+              <option value="Hinglish">Hinglish</option>
+            </select>
+          )}
+          <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ fontSize: '18px', padding: '6px 10px' }}>
+            {theme === "light" ? "🌙" : "☀️"}
+          </button>
         </div>
       </div>
 
       <div className="teaching-content-split">
-        <div className="teaching-visualizer scroll-fade-wrapper">
+        <div className="teaching-visual scroll-fade-wrapper">
           <div className="visualizer-scroll-container">
-            <div className="visual-title">{stepData.text}</div>
-            <div style={{ minWidth: 'fit-content', width: '100%', display: 'flex', justifyContent: 'center' }}>
-              {renderVisualizer()}
+            <div className="visual-card">
+              <div className="visual-title">{stepData.text}</div>
+              <div className="visual-content">
+                {renderVisualizer()}
+              </div>
             </div>
           </div>
         </div>
@@ -227,17 +263,30 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
             </div>
           )}
 
-          <div className="chat-input-wrapper">
-            <input
-              type="text"
-              className="chat-input dsa-chat-input"
-              placeholder={t("your_answer", language)}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
-              disabled={isLoading}
-            />
-            <button className="send-btn" onClick={handleSend} disabled={!inputText.trim() || isLoading}>➤</button>
+          <div className="chat-bottom">
+            <div className="quick-actions">
+              <button className="action-btn" onClick={() => handleSend("Explain simpler please")}>
+                🧸 Explain simpler
+              </button>
+              <button className="action-btn" onClick={() => handleSend("I am completely stuck")}>
+                😵 I'm stuck
+              </button>
+              <button className="action-btn" onClick={() => handleSend("Is my answer correct?")}>
+                ✅ Check my answer
+              </button>
+            </div>
+            <div className="chat-input-wrapper">
+              <input
+                type="text"
+                className="chat-input dsa-chat-input"
+                placeholder={t("your_answer", language)}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
+                disabled={isLoading}
+              />
+              <button className="send-btn" onClick={() => handleSend(null)} disabled={!inputText.trim() || isLoading}>➤</button>
+            </div>
           </div>
         </div>
       </div>
