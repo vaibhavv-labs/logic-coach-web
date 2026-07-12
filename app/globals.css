@@ -52,15 +52,84 @@ body {
 }
 
 /* ==================== LANDING PAGE ==================== */
+.landing-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at 50% -20%, var(--accent-orange-light) 0%, var(--bg-primary) 70%);
+}
+
+.landing-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: transparent;
+  width: 100%;
+}
+
+.landing-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text-primary);
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.landing-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.login-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: background 0.2s;
+  font-family: var(--font);
+}
+
+.login-btn-ghost:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.start-btn-small {
+  background: var(--text-primary);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font);
+}
+
+.start-btn-small:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
 .landing-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  flex: 1;
   padding: 20px;
   text-align: center;
-  background: radial-gradient(circle at 50% -20%, var(--accent-orange-light) 0%, var(--bg-primary) 70%);
 }
 
 .landing-icon {

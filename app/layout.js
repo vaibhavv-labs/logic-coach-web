@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./modals.css";
 
 export const metadata = {
   title: "Logic Coach — Learn to Think Like a Programmer",
