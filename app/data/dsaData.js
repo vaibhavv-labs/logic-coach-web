@@ -115,7 +115,12 @@ export const DSA_TOPICS = [
       { id: "step5", text: "Inorder Traversal", visualType: "tree", visualState: "traverse" },
       { id: "step6", text: "Preorder Traversal", visualType: "tree", visualState: "traverse" },
       { id: "step7", text: "Postorder Traversal", visualType: "tree", visualState: "traverse" },
-      { id: "step8", text: "Types of Binary Tree", visualType: "text", visualState: "math" }
+      { id: "step8", text: "Types of Binary Tree", visualType: "text", visualState: "math" },
+      { id: "step9", text: "AVL Tree", visualType: "tree", visualState: "bst" },
+      { id: "step10", text: "RB Tree", visualType: "tree", visualState: "bst" },
+      { id: "step11", text: "B-Tree", visualType: "tree", visualState: "basic" },
+      { id: "step12", text: "Splay Tree", visualType: "tree", visualState: "bst" },
+      { id: "step13", text: "Huffman Coding", visualType: "tree", visualState: "binary" }
     ]
   },
   {
@@ -155,7 +160,13 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Nodes (Vertices) and Edges", visualType: "graph", visualState: "basic" },
       { id: "step2", text: "Directed vs Undirected", visualType: "graph", visualState: "directed" },
       { id: "step3", text: "Breadth-First Search (BFS)", visualType: "graph", visualState: "bfs" },
-      { id: "step4", text: "Depth-First Search (DFS)", visualType: "graph", visualState: "dfs" }
+      { id: "step4", text: "Depth-First Search (DFS)", visualType: "graph", visualState: "dfs" },
+      { id: "step5", text: "Adjacency List", visualType: "graph", visualState: "basic" },
+      { id: "step6", text: "Adjacency Matrix", visualType: "graph", visualState: "basic" },
+      { id: "step7", text: "Topological Sorting", visualType: "graph", visualState: "directed" },
+      { id: "step8", text: "Prim's Algorithm", visualType: "graph", visualState: "bfs" },
+      { id: "step9", text: "Kruskal's Algorithm", visualType: "graph", visualState: "bfs" },
+      { id: "step10", text: "Dijkstra's Algorithm", visualType: "graph", visualState: "bfs" }
     ]
   },
   {
@@ -212,6 +223,39 @@ export const DSA_TOPICS = [
       { id: "step2", text: "Types of Tries (Standard, Compressed, Suffix)", visualType: "text", visualState: "text" },
       { id: "step3", text: "Insertion Operation", visualType: "trie", visualState: "insert" },
       { id: "step4", text: "Search Operation", visualType: "trie", visualState: "search" }
+    ]
+  },
+  {
+    id: "disjointset",
+    title: "Disjoint Set (Union-Find)",
+    description: "Sets, Unions, Path Compression",
+    icon: "🔗",
+    teachingSteps: [
+      { id: "step1", text: "What is a Disjoint Set?", visualType: "text", visualState: "text" },
+      { id: "step2", text: "Union Operation", visualType: "text", visualState: "text" },
+      { id: "step3", text: "Find Operation & Path Compression", visualType: "text", visualState: "text" }
+    ]
+  },
+  {
+    id: "greedy",
+    title: "Greedy Algorithms",
+    description: "Local optimal choices, Fractional Knapsack",
+    icon: "🤑",
+    teachingSteps: [
+      { id: "step1", text: "The Greedy Choice Property", visualType: "text", visualState: "text" },
+      { id: "step2", text: "Fractional Knapsack Problem", visualType: "text", visualState: "text" },
+      { id: "step3", text: "Activity Selection Problem", visualType: "text", visualState: "text" }
+    ]
+  },
+  {
+    id: "backtracking",
+    title: "Backtracking Algorithms",
+    description: "Exploring paths, reverting on failure",
+    icon: "🔙",
+    teachingSteps: [
+      { id: "step1", text: "What is Backtracking?", visualType: "recursion", visualState: "build" },
+      { id: "step2", text: "N-Queens Problem", visualType: "recursion", visualState: "collapse" },
+      { id: "step3", text: "Sudoku Solver", visualType: "recursion", visualState: "build" }
     ]
   }
 ];
