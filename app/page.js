@@ -7,6 +7,8 @@ import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc
 import AuthModal from "./components/AuthModal";
 import CustomProblemModal from "./components/CustomProblemModal";
 import ProgressScreen from "./components/ProgressScreen";
+import CodeEditor from "./components/CodeEditor";
+import VoiceChat from "./components/VoiceChat";
 
 const MAX_CHARS = 2000;
 const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
@@ -20,6 +22,9 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [language, setLanguage] = useState("English");
   const [progLanguage, setProgLanguage] = useState("Python");
+  const [code, setCode] = useState("");
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [latestAiMessage, setLatestAiMessage] = useState("");
   
   // Auth & DB states
   const [user, setUser] = useState(null);
@@ -148,6 +153,9 @@ export default function Home() {
 
   const setupProblem = (problem) => {
     setActiveProblem(problem);
+    setCode(""); // clear code editor for new problem
+    setIsAiSpeaking(false);
+    
     if (!messages[problem.id]) {
       setMessages((prev) => ({
         ...prev,
@@ -252,7 +260,8 @@ export default function Home() {
             description: activeProblem.description,
           },
           language: language,
-          progLanguage: progLanguage
+          progLanguage: progLanguage,
+          editorCode: code
         }),
       });
 
@@ -269,6 +278,8 @@ export default function Home() {
           { role: "coach", content: data.reply },
         ],
       }));
+      setLatestAiMessage(data.reply);
+      setIsAiSpeaking(true);
     } catch (error) {
       setMessages((prev) => ({
         ...prev,
@@ -453,7 +464,9 @@ export default function Home() {
               <p style={{ color: 'var(--text-secondary)' }}>Select a level from the sidebar to generate a problem.</p>
             </div>
           ) : (
-            <>
+            <div className="split-layout">
+              {/* Chat Pane */}
+              <div className="chat-pane">
               {/* Chat Header */}
               <div className="chat-header">
                 <div className="chat-header-info">
@@ -580,6 +593,12 @@ export default function Home() {
                     maxLength={MAX_CHARS}
                     disabled={isLoading}
                   />
+                  <VoiceChat 
+                    onTranscript={(text) => handleSend(text)} 
+                    isAiSpeaking={isAiSpeaking} 
+                    aiMessage={latestAiMessage}
+                    onAiSpeechEnd={() => setIsAiSpeaking(false)}
+                  />
                   <button
                     className="send-btn"
                     onClick={() => handleSend()}
@@ -589,7 +608,24 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-            </>
+
+              {/* Code Editor Pane */}
+              <div className="editor-pane">
+                 <CodeEditor 
+                   language={progLanguage} 
+                   value={code} 
+                   onChange={setCode} 
+                 />
+                 <button 
+                   className="review-btn" 
+                   onClick={() => handleSend("Please review the code I have written in the editor.")}
+                   disabled={isLoading || !code.trim()}
+                 >
+                   ✨ Review My Code
+                 </button>
+              </div>
+              </div>
+            </div>
           )}
         </main>
       </div>
