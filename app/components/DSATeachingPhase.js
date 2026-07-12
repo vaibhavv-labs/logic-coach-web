@@ -52,51 +52,16 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
 
   useEffect(() => {
     let mounted = true;
-    const fetchGreeting = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch("/api/dsa-teach", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: [{ role: "user", content: `I am starting the topic "${topic.title}", step: "${stepData.text}". Please give me a brief 1-2 sentence introduction to this step and ask if I understand it.` }],
-            concept: stepData.text,
-            language: language
-          })
-        });
-        const data = await response.json();
-        if (mounted && response.ok) {
-           let cleanReply = data.reply;
-           const tagRegex = /\[STATE:([^\]]+)\]/g;
-           const tags = [...cleanReply.matchAll(tagRegex)];
-           if (tags.length > 0) {
-             setAiVisualState(tags[tags.length - 1][1]);
-           }
-           cleanReply = cleanReply.replace(tagRegex, "").trim();
-           const finalMsg = cleanReply.replace("[UNDERSTOOD]", "").trim();
-           setChatHistory([{ role: "coach", content: finalMsg }]);
-           setLatestAiMessage(finalMsg);
-        } else if (mounted) {
-           const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
-           setChatHistory([{ role: "coach", content: fallbackMsg }]);
-           setLatestAiMessage(fallbackMsg);
-        }
-      } catch (error) {
-        if (mounted) {
-          const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
-          setChatHistory([{ role: "coach", content: fallbackMsg }]);
-          setLatestAiMessage(fallbackMsg);
-        }
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    };
     
-    setChatHistory([]); 
-    fetchGreeting();
+    // CRITICAL QUOTA SAVER: Do not burn 1 Gemini API request just to say hello on every step load.
+    // Instead, immediately render a local greeting. The API will only be queried when the user actually sends an answer.
+    const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
+    setChatHistory([{ role: "coach", content: fallbackMsg }]);
+    setLatestAiMessage(fallbackMsg);
+    setIsLoading(false);
 
     return () => { mounted = false; };
-  }, [currentStep, topic, stepData, language]);
+  }, [currentStep, topic, stepData]);
 
   useEffect(() => {
     setTimeout(() => {
