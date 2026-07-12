@@ -22,6 +22,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [theme, setTheme] = useState("light");
+  const [aiVisualState, setAiVisualState] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   // Level 1/2 problem solving MUST NOT allow skipping.
   useEffect(() => {
     setFailedAttempts(0);
+    setAiVisualState(null);
   }, [currentStep]);
 
   useEffect(() => {
@@ -61,7 +63,14 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         });
         const data = await response.json();
         if (mounted && response.ok) {
-           setChatHistory([{ role: "coach", content: data.reply.replace("[UNDERSTOOD]", "").trim() }]);
+           let cleanReply = data.reply;
+           const tagRegex = /\[STATE:([^\]]+)\]/g;
+           const tags = [...cleanReply.matchAll(tagRegex)];
+           if (tags.length > 0) {
+             setAiVisualState(tags[tags.length - 1][1]);
+           }
+           cleanReply = cleanReply.replace(tagRegex, "").trim();
+           setChatHistory([{ role: "coach", content: cleanReply.replace("[UNDERSTOOD]", "").trim() }]);
         } else if (mounted) {
            setChatHistory([{ role: "coach", content: `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?` }]);
         }
@@ -134,9 +143,17 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         throw new Error(t(errorKey, language));
       }
 
-      if (data.reply.includes("[UNDERSTOOD]")) {
-        const cleanReply = data.reply.replace("[UNDERSTOOD]", "").trim();
-        setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
+      let cleanReply = data.reply;
+      const tagRegex = /\[STATE:([^\]]+)\]/g;
+      const tags = [...cleanReply.matchAll(tagRegex)];
+      if (tags.length > 0) {
+        setAiVisualState(tags[tags.length - 1][1]);
+      }
+      cleanReply = cleanReply.replace(tagRegex, "").trim();
+
+      if (cleanReply.includes("[UNDERSTOOD]")) {
+        const finalReply = cleanReply.replace("[UNDERSTOOD]", "").trim();
+        setChatHistory(prev => [...prev, { role: "coach", content: finalReply }]);
 
         // Add a class for celebration on the container or UI
         const indicator = document.querySelector('.step-indicator');
@@ -153,7 +170,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           }
         }, 2500);
       } else {
-        setChatHistory(prev => [...prev, { role: "coach", content: data.reply }]);
+        setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
         setFailedAttempts(prev => prev + 1);
       }
     } catch (error) {
@@ -166,19 +183,20 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
 
   const renderVisualizer = () => {
     const { visualType, visualState } = stepData;
+    const activeState = aiVisualState || visualState;
     switch(visualType) {
-      case "array": return <ArrayVisualizer state={visualState} />;
-      case "stack": return <StackVisualizer state={visualState} />;
-      case "queue": return <QueueVisualizer state={visualState} />;
-      case "linkedlist": return <LinkedListVisualizer state={visualState} />;
-      case "tree": return <TreeVisualizer state={visualState} />;
-      case "bars": return <BarsVisualizer state={visualState} />;
-      case "graph": return <GraphVisualizer state={visualState} />;
-      case "string": return <StringVisualizer state={visualState} />;
-      case "recursion": return <RecursionVisualizer state={visualState} />;
-      case "dp": return <DPVisualizer state={visualState} />;
-      case "search": return <SearchVisualizer state={visualState} />;
-      case "sorting": return <SortingVisualizer state={visualState} />;
+      case "array": return <ArrayVisualizer state={activeState} />;
+      case "stack": return <StackVisualizer state={activeState} />;
+      case "queue": return <QueueVisualizer state={activeState} />;
+      case "linkedlist": return <LinkedListVisualizer state={activeState} />;
+      case "tree": return <TreeVisualizer state={activeState} />;
+      case "bars": return <BarsVisualizer state={activeState} />;
+      case "graph": return <GraphVisualizer state={activeState} />;
+      case "string": return <StringVisualizer state={activeState} />;
+      case "recursion": return <RecursionVisualizer state={activeState} />;
+      case "dp": return <DPVisualizer state={activeState} />;
+      case "search": return <SearchVisualizer state={activeState} />;
+      case "sorting": return <SortingVisualizer state={activeState} />;
       default: return <div className="placeholder-visualizer">{t("visualizer_not_found", language)}</div>;
     }
   };
