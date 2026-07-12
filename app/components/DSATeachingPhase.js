@@ -14,6 +14,7 @@ import DPVisualizer from "./visualizers/DPVisualizer";
 import SearchVisualizer from "./visualizers/SearchVisualizer";
 import SortingVisualizer from "./visualizers/SortingVisualizer";
 import { t } from "../data/translations";
+import VoiceChat from "./VoiceChat";
 
 export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", onLanguageChange }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -23,6 +24,8 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [theme, setTheme] = useState("light");
   const [aiVisualState, setAiVisualState] = useState(null);
+  const [isAiSpeaking, setIsAiSpeaking] = useState(false);
+  const [latestAiMessage, setLatestAiMessage] = useState("");
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -70,13 +73,22 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
              setAiVisualState(tags[tags.length - 1][1]);
            }
            cleanReply = cleanReply.replace(tagRegex, "").trim();
-           setChatHistory([{ role: "coach", content: cleanReply.replace("[UNDERSTOOD]", "").trim() }]);
+           const finalMsg = cleanReply.replace("[UNDERSTOOD]", "").trim();
+           setChatHistory([{ role: "coach", content: finalMsg }]);
+           setLatestAiMessage(finalMsg);
+           setIsAiSpeaking(true);
         } else if (mounted) {
-           setChatHistory([{ role: "coach", content: `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?` }]);
+           const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
+           setChatHistory([{ role: "coach", content: fallbackMsg }]);
+           setLatestAiMessage(fallbackMsg);
+           setIsAiSpeaking(true);
         }
-      } catch (err) {
+      } catch (error) {
         if (mounted) {
-          setChatHistory([{ role: "coach", content: `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?` }]);
+          const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
+          setChatHistory([{ role: "coach", content: fallbackMsg }]);
+          setLatestAiMessage(fallbackMsg);
+          setIsAiSpeaking(true);
         }
       } finally {
         if (mounted) setIsLoading(false);
@@ -154,6 +166,8 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
       if (cleanReply.includes("[UNDERSTOOD]")) {
         const finalReply = cleanReply.replace("[UNDERSTOOD]", "").trim();
         setChatHistory(prev => [...prev, { role: "coach", content: finalReply }]);
+        setLatestAiMessage(finalReply);
+        setIsAiSpeaking(true);
 
         // Add a class for celebration on the container or UI
         const indicator = document.querySelector('.step-indicator');
@@ -171,6 +185,8 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         }, 2500);
       } else {
         setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
+        setLatestAiMessage(cleanReply);
+        setIsAiSpeaking(true);
         setFailedAttempts(prev => prev + 1);
       }
     } catch (error) {
@@ -308,6 +324,12 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
                 disabled={isLoading}
+              />
+              <VoiceChat 
+                onTranscript={(text) => handleSend(text, true)} 
+                isAiSpeaking={isAiSpeaking} 
+                aiMessage={latestAiMessage}
+                onAiSpeechEnd={() => setIsAiSpeaking(false)}
               />
               <button className="send-btn" onClick={() => handleSend(null)} disabled={!inputText.trim() || isLoading}>➤</button>
             </div>
