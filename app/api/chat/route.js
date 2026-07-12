@@ -37,6 +37,14 @@ export async function POST(request) {
       parts: [{ text: msg.content }],
     }));
 
+    // Gemini API requires the first message in history to be from a 'user'
+    if (history.length > 0 && history[0].role === "model") {
+      history.unshift({
+        role: "user",
+        parts: [{ text: "Hi, I am ready to start this problem." }],
+      });
+    }
+
     const chat = model.startChat({ history });
     const lastMessage = messages[messages.length - 1];
     
