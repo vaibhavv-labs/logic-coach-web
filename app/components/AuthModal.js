@@ -34,9 +34,10 @@ export default function AuthModal({ onClose, onSuccess }) {
       }
       onSuccess();
     } catch (err) {
-      if (err.code === 'auth/invalid-credential') {
+      const errorMessage = err.message || "";
+      if (err.code === 'auth/invalid-credential' || errorMessage.includes('invalid-credential') || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
         setError("Invalid email or password. If you don't have an account, click 'Sign Up' below.");
-      } else if (err.code === 'auth/email-already-in-use') {
+      } else if (err.code === 'auth/email-already-in-use' || errorMessage.includes('email-already-in-use')) {
         setError("This email is already registered. Please Sign In instead.");
       } else {
         setError(err.message);
