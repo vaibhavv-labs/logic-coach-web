@@ -13,6 +13,9 @@ import RecursionVisualizer from "./visualizers/RecursionVisualizer";
 import DPVisualizer from "./visualizers/DPVisualizer";
 import SearchVisualizer from "./visualizers/SearchVisualizer";
 import SortingVisualizer from "./visualizers/SortingVisualizer";
+import HeapVisualizer from "./visualizers/HeapVisualizer";
+import HashtableVisualizer from "./visualizers/HashtableVisualizer";
+import TrieVisualizer from "./visualizers/TrieVisualizer";
 import { t } from "../data/translations";
 import VoiceChat from "./VoiceChat";
 
@@ -175,12 +178,16 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
       case "dp": return <DPVisualizer state={activeState} />;
       case "search": return <SearchVisualizer state={activeState} />;
       case "sorting": return <SortingVisualizer state={activeState} />;
-      case "text": return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--text-muted)' }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.8 }}>{activeState === 'math' ? '🧮' : activeState === 'time' ? '📈' : '📝'}</div>
-          <p style={{ fontSize: '14px', fontWeight: 500 }}>Follow the chat for concepts</p>
-        </div>
-      );
+      case "heap": return <HeapVisualizer state={activeState} />;
+      case "hashtable": return <HashtableVisualizer state={activeState} />;
+      case "trie": return <TrieVisualizer state={activeState} />;
+      case "text":
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '64px', marginBottom: '16px', opacity: 0.8 }}>{activeState === 'math' ? '🧮' : activeState === 'time' ? '📈' : '📝'}</div>
+            <p style={{ fontSize: '14px', fontWeight: 500 }}>Follow the chat for concepts</p>
+          </div>
+        );
       default: return <div className="placeholder-visualizer">{t("visualizer_not_found", language)}</div>;
     }
   };

@@ -44,6 +44,13 @@ export default function ArrayVisualizer({ state }) {
     } else if (state === "substring") {
       setElements(["C", "O", "D", "E", "R"]);
       setActiveIndex([1, 2, 3]); // highlight O, D, E
+    } else if (state === "matrix") {
+      setElements([
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9]
+      ]);
+      setActiveIndex([1, 1]); // highlight center
     }
 
     return () => clearInterval(interval);
@@ -62,31 +69,51 @@ export default function ArrayVisualizer({ state }) {
 
   return (
     <div className="visualizer-container array-visualizer">
-      <div className="array-row">
-        {state === "binary" && Array.isArray(activeIndex) ? (
-          renderBinarySearch(activeIndex[0], activeIndex[1], activeIndex[2])
-        ) : (
-          elements.map((el, idx) => {
-            let isActive = false;
-            if (Array.isArray(activeIndex)) {
-              isActive = activeIndex.includes(idx);
-            } else {
-              isActive = activeIndex === idx;
-            }
-            
-            return (
-              <div key={idx} className="array-cell-container">
-                <div className={`array-cell ${isActive ? "active" : ""} ${state === 'memory' ? 'memory-view' : ''}`}>
-                  {el !== null ? el : ""}
+      {state === "matrix" ? (
+        <div className="matrix-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {elements.map((row, rIdx) => (
+            <div key={rIdx} className="array-row">
+              {row.map((el, cIdx) => {
+                const isActive = activeIndex && activeIndex[0] === rIdx && activeIndex[1] === cIdx;
+                return (
+                  <div key={cIdx} className="array-cell-container">
+                    <div className={`array-cell ${isActive ? "active" : ""}`}>
+                      {el !== null ? el : ""}
+                    </div>
+                    <span className="array-index">[{rIdx},{cIdx}]</span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="array-row">
+          {state === "binary" && Array.isArray(activeIndex) ? (
+            renderBinarySearch(activeIndex[0], activeIndex[1], activeIndex[2])
+          ) : (
+            elements.map((el, idx) => {
+              let isActive = false;
+              if (Array.isArray(activeIndex)) {
+                isActive = activeIndex.includes(idx);
+              } else {
+                isActive = activeIndex === idx;
+              }
+              
+              return (
+                <div key={idx} className="array-cell-container">
+                  <div className={`array-cell ${isActive ? "active" : ""} ${state === 'memory' ? 'memory-view' : ''}`}>
+                    {el !== null ? el : ""}
+                  </div>
+                  <span className="array-index">
+                    {state === 'memory' ? `0x${(4096 + idx * 4).toString(16).toUpperCase()}` : idx}
+                  </span>
                 </div>
-                <span className="array-index">
-                  {state === 'memory' ? `0x${(4096 + idx * 4).toString(16).toUpperCase()}` : idx}
-                </span>
-              </div>
-            );
-          })
-        )}
-      </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -167,5 +167,51 @@ export const DSA_TOPICS = [
       { id: "step1", text: "Overlapping subproblems (e.g. Fibonacci)", visualType: "dp", visualState: "overlap" },
       { id: "step2", text: "Memoization (Remembering answers)", visualType: "dp", visualState: "memo" }
     ]
+  },
+  {
+    id: "matrices",
+    title: "Matrices",
+    description: "2D Arrays, traversal, prefix sum",
+    icon: "🧮",
+    teachingSteps: [
+      { id: "step1", text: "What is a 2D Matrix?", visualType: "array", visualState: "matrix" },
+      { id: "step2", text: "Matrix Traversal (Row vs Column Major)", visualType: "array", visualState: "matrix" }
+    ]
+  },
+  {
+    id: "heaps",
+    title: "Heaps",
+    description: "Binary heaps, priority queues",
+    icon: "⛰️",
+    teachingSteps: [
+      { id: "step1", text: "What is a Binary Heap?", visualType: "heap", visualState: "insert" },
+      { id: "step2", text: "Insertion (Bubbling Up)", visualType: "heap", visualState: "insert" },
+      { id: "step3", text: "Deletion (Extract Min/Max)", visualType: "heap", visualState: "extract" },
+      { id: "step4", text: "Heapify (Sinking Down)", visualType: "heap", visualState: "heapify" },
+      { id: "step5", text: "Heapsort", visualType: "heap", visualState: "heapify" }
+    ]
+  },
+  {
+    id: "maps",
+    title: "Maps & Hashtables",
+    description: "Key-value pairs, hash functions, collisions",
+    icon: "🗂️",
+    teachingSteps: [
+      { id: "step1", text: "What is a Hash Function?", visualType: "hashtable", visualState: "hash" },
+      { id: "step2", text: "Inserting Key-Value Pairs", visualType: "hashtable", visualState: "insert" },
+      { id: "step3", text: "Handling Collisions (Separate Chaining)", visualType: "hashtable", visualState: "collision" }
+    ]
+  },
+  {
+    id: "tries",
+    title: "Tries",
+    description: "Prefix trees, string matching",
+    icon: "🌲",
+    teachingSteps: [
+      { id: "step1", text: "What is a Trie (Prefix Tree)?", visualType: "trie", visualState: "search" },
+      { id: "step2", text: "Types of Tries (Standard, Compressed, Suffix)", visualType: "text", visualState: "text" },
+      { id: "step3", text: "Insertion Operation", visualType: "trie", visualState: "insert" },
+      { id: "step4", text: "Search Operation", visualType: "trie", visualState: "search" }
+    ]
   }
 ];
