@@ -14,7 +14,7 @@ export async function POST(request) {
       );
     }
 
-    const { messages, problemContext, language } = await request.json();
+    const { messages, problemContext, language, progLanguage } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -29,7 +29,8 @@ export async function POST(request) {
       model: "gemini-2.5-flash",
       systemInstruction: SYSTEM_PROMPT + 
         (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
-        (language ? `\n\nThe user prefers the AI to respond in this language/style: ${language}.` : ""),
+        (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
+        (language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : ""),
     });
 
     const history = messages.slice(0, -1).map((msg) => ({

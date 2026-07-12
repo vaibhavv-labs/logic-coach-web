@@ -19,6 +19,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [language, setLanguage] = useState("English");
+  const [progLanguage, setProgLanguage] = useState("Python");
   
   // Auth & DB states
   const [user, setUser] = useState(null);
@@ -250,7 +251,8 @@ export default function Home() {
             title: activeProblem.title,
             description: activeProblem.description,
           },
-          language: language
+          language: language,
+          progLanguage: progLanguage
         }),
       });
 
@@ -467,8 +469,24 @@ export default function Home() {
                 <div className="header-actions">
                   <select 
                     className="lang-select" 
+                    value={progLanguage}
+                    onChange={(e) => setProgLanguage(e.target.value)}
+                    title="Programming Language"
+                  >
+                    <option value="Python">Python</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="Java">Java</option>
+                    <option value="C++">C++</option>
+                    <option value="C#">C#</option>
+                    <option value="Ruby">Ruby</option>
+                    <option value="Any Language">Any Language</option>
+                  </select>
+                  
+                  <select 
+                    className="lang-select" 
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
+                    title="Spoken Language"
                   >
                     <option value="English">English</option>
                     <option value="Hindi">Hindi</option>
