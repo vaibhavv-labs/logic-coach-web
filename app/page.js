@@ -218,7 +218,7 @@ export default function Home() {
     await updateUserStats(user.uid, newStats);
   };
 
-  const handleSend = async (overrideText = null) => {
+  const handleSend = async (overrideText = null, fromVoice = false) => {
     const textToSend = overrideText || inputText;
     
     if (!textToSend.trim() || isLoading || !activeProblem) return;
@@ -278,8 +278,10 @@ export default function Home() {
           { role: "coach", content: data.reply },
         ],
       }));
-      setLatestAiMessage(data.reply);
-      setIsAiSpeaking(true);
+      if (fromVoice) {
+        setLatestAiMessage(data.reply);
+        setIsAiSpeaking(true);
+      }
     } catch (error) {
       setMessages((prev) => ({
         ...prev,
@@ -594,7 +596,7 @@ export default function Home() {
                     disabled={isLoading}
                   />
                   <VoiceChat 
-                    onTranscript={(text) => handleSend(text)} 
+                    onTranscript={(text) => handleSend(text, true)} 
                     isAiSpeaking={isAiSpeaking} 
                     aiMessage={latestAiMessage}
                     onAiSpeechEnd={() => setIsAiSpeaking(false)}
