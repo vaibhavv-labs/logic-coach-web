@@ -12,6 +12,38 @@ export const DSA_TOPICS = [
     ]
   },
   {
+    id: "functions",
+    title: "Functions & Pointers",
+    description: "Memory addressing, pass-by-reference",
+    icon: "🎯",
+    teachingSteps: [
+      { id: "step1", text: "Pointers with Functions (Pass by Reference)", visualType: "array", visualState: "memory" }
+    ]
+  },
+  {
+    id: "math",
+    title: "Math for DSA",
+    description: "Bitwise, primes, Euclidean GCD",
+    icon: "🧮",
+    teachingSteps: [
+      { id: "step1", text: "Bitwise Operators & Bit Manipulation", visualType: "text", visualState: "math" },
+      { id: "step2", text: "Prime Number Algorithms", visualType: "text", visualState: "math" },
+      { id: "step3", text: "Square Root Algorithms", visualType: "text", visualState: "math" },
+      { id: "step4", text: "HCF/LCM & Euclidean Algorithm", visualType: "text", visualState: "math" }
+    ]
+  },
+  {
+    id: "complexity",
+    title: "Time & Space Complexity",
+    description: "Big O, Omega, Theta analysis",
+    icon: "⏱️",
+    teachingSteps: [
+      { id: "step1", text: "Asymptotic Notation (Big O, Omega, Theta)", visualType: "text", visualState: "time" },
+      { id: "step2", text: "Time Complexity Calculation", visualType: "text", visualState: "time" },
+      { id: "step3", text: "Best, Worst, and Average Case", visualType: "text", visualState: "time" }
+    ]
+  },
+  {
     id: "strings",
     title: "Strings",
     description: "Manipulation, patterns",

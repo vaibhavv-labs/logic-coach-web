@@ -79,7 +79,9 @@ export default function ArrayVisualizer({ state }) {
                 <div className={`array-cell ${isActive ? "active" : ""} ${state === 'memory' ? 'memory-view' : ''}`}>
                   {el !== null ? el : ""}
                 </div>
-                <span className="array-index">{idx}</span>
+                <span className="array-index">
+                  {state === 'memory' ? `0x${(4096 + idx * 4).toString(16).toUpperCase()}` : idx}
+                </span>
               </div>
             );
           })
