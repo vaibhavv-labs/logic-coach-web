@@ -76,19 +76,16 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
            const finalMsg = cleanReply.replace("[UNDERSTOOD]", "").trim();
            setChatHistory([{ role: "coach", content: finalMsg }]);
            setLatestAiMessage(finalMsg);
-           setIsAiSpeaking(true);
         } else if (mounted) {
            const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
            setChatHistory([{ role: "coach", content: fallbackMsg }]);
            setLatestAiMessage(fallbackMsg);
-           setIsAiSpeaking(true);
         }
       } catch (error) {
         if (mounted) {
           const fallbackMsg = `Let's talk about **${topic.title}**. \n\n${stepData.text}\n\nDoes this make sense so far?`;
           setChatHistory([{ role: "coach", content: fallbackMsg }]);
           setLatestAiMessage(fallbackMsg);
-          setIsAiSpeaking(true);
         }
       } finally {
         if (mounted) setIsLoading(false);
@@ -119,7 +116,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
     }
   };
 
-  const handleSend = async (retryMessage = null) => {
+  const handleSend = async (retryMessage = null, fromVoice = false) => {
     const messageToSend = retryMessage || inputText;
     if (!messageToSend.trim() || isLoading) return;
     
@@ -167,7 +164,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         const finalReply = cleanReply.replace("[UNDERSTOOD]", "").trim();
         setChatHistory(prev => [...prev, { role: "coach", content: finalReply }]);
         setLatestAiMessage(finalReply);
-        setIsAiSpeaking(true);
+        if (fromVoice) setIsAiSpeaking(true);
 
         // Add a class for celebration on the container or UI
         const indicator = document.querySelector('.step-indicator');
@@ -186,7 +183,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
       } else {
         setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
         setLatestAiMessage(cleanReply);
-        setIsAiSpeaking(true);
+        if (fromVoice) setIsAiSpeaking(true);
         setFailedAttempts(prev => prev + 1);
       }
     } catch (error) {
