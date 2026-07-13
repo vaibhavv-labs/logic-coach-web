@@ -304,17 +304,41 @@ export default function Home() {
   };
 
   const handleRunTests = async () => {
-    if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
-      alert("This problem does not have automated test cases. You can ask the AI to review your code.");
-      return;
-    }
-    
     setIsExecuting(true);
     setShowTestPanel(true);
     setTestResults(null);
     
     const results = [];
     let allPassed = true;
+
+    if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
+      try {
+        const res = await fetch("/api/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ language: progLanguage, code: code, stdin: "" })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+           results.push({ passed: false, error: data.error, isManual: true });
+        } else {
+           results.push({
+             passed: data.code === 0,
+             actualOutput: (data.stdout || "").trim(),
+             stderr: data.stderr || "",
+             exitCode: data.code,
+             isManual: true
+           });
+        }
+      } catch (err) {
+        results.push({ passed: false, error: err.message, isManual: true });
+      }
+      
+      setTestResults(results);
+      setIsExecuting(false);
+      return;
+    }
 
     for (let i = 0; i < activeProblem.testCases.length; i++) {
       const tc = activeProblem.testCases[i];
@@ -763,17 +787,21 @@ export default function Home() {
                        testResults.map((tr, idx) => (
                          <div key={idx} style={{ background: tr.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
                            <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444', marginBottom: '8px' }}>
-                             Test Case {idx + 1}: {tr.passed ? "PASSED ✅" : "FAILED ❌"}
+                             {tr.isManual ? (tr.passed ? "EXECUTION SUCCESS ✅" : "EXECUTION FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
                            </div>
                            {tr.error ? (
                              <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
                            ) : (
                              <>
-                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
-                               <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
-                               
-                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Expected Output:</div>
-                               <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.expectedOutput}</pre>
+                               {!tr.isManual && (
+                                 <>
+                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
+                                   <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
+                                   
+                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Expected Output:</div>
+                                   <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.expectedOutput}</pre>
+                                 </>
+                               )}
                                
                                <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Your Output (stdout):</div>
                                <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
@@ -796,10 +824,10 @@ export default function Home() {
                    <button 
                      className="review-btn" 
                      onClick={handleRunTests}
-                     disabled={isExecuting || !code.trim() || !activeProblem?.testCases}
+                     disabled={isExecuting || !code.trim()}
                      style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                    >
-                     {isExecuting ? "Executing..." : "▶ Run Tests"}
+                     {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
                    </button>
                    <button 
                      className="review-btn" 
