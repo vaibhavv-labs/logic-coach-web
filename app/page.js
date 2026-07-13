@@ -12,6 +12,23 @@ import VoiceChat from "./components/VoiceChat";
 import DSAPath from "./components/DSAPath";
 import DSATeachingPhase from "./components/DSATeachingPhase";
 
+// Visualizers
+import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
+import StackVisualizer from "./components/visualizers/StackVisualizer";
+import QueueVisualizer from "./components/visualizers/QueueVisualizer";
+import LinkedListVisualizer from "./components/visualizers/LinkedListVisualizer";
+import TreeVisualizer from "./components/visualizers/TreeVisualizer";
+import BarsVisualizer from "./components/visualizers/BarsVisualizer";
+import GraphVisualizer from "./components/visualizers/GraphVisualizer";
+import StringVisualizer from "./components/visualizers/StringVisualizer";
+import RecursionVisualizer from "./components/visualizers/RecursionVisualizer";
+import DPVisualizer from "./components/visualizers/DPVisualizer";
+import SearchVisualizer from "./components/visualizers/SearchVisualizer";
+import SortingVisualizer from "./components/visualizers/SortingVisualizer";
+import HeapVisualizer from "./components/visualizers/HeapVisualizer";
+import HashtableVisualizer from "./components/visualizers/HashtableVisualizer";
+import TrieVisualizer from "./components/visualizers/TrieVisualizer";
+
 const MAX_CHARS = 2000;
 const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
 
@@ -32,6 +49,7 @@ export default function Home() {
   const [dsaProgress, setDsaProgress] = useState({});
   const [viewMode, setViewMode] = useState("logic"); // 'logic' | 'dsa'
   const [activeDsaTopic, setActiveDsaTopic] = useState(null);
+  const [problemVisualState, setProblemVisualState] = useState(null);
   
   // Auth & DB states
   const [user, setUser] = useState(null);
@@ -181,6 +199,7 @@ export default function Home() {
     setProblemFetchError(null);
     setCode(""); // clear code editor for new problem
     setIsAiSpeaking(false);
+    setProblemVisualState(null);
     
     if (!messages[problem.id]) {
       setMessages((prev) => ({
@@ -242,6 +261,15 @@ export default function Home() {
     };
     
     await updateUserStats(user.uid, newStats);
+
+    if (isNowSolved && viewMode === 'dsa' && activeDsaTopic) {
+      const currentLevel = dsaProgress[activeDsaTopic.id]?.level || 0;
+      if (currentLevel === 1) {
+        const newProg = { ...dsaProgress, [activeDsaTopic.id]: { ...dsaProgress[activeDsaTopic.id], level: 2 } };
+        setDsaProgress(newProg);
+        await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+      }
+    }
   };
 
   const handleSend = async (overrideText = null, fromVoice = false, retryMessage = null) => {
@@ -289,7 +317,9 @@ export default function Home() {
           },
           language: language,
           progLanguage: progLanguage,
-          editorCode: code
+          editorCode: code,
+          dsaTopic: viewMode === 'dsa' && activeDsaTopic ? activeDsaTopic.title : null,
+          dsaVisuals: viewMode === 'dsa' && activeDsaTopic ? activeDsaTopic.teachingSteps.map(s => s.visualState).join(', ') : null
         }),
       });
 
@@ -299,15 +329,22 @@ export default function Home() {
         throw new Error(data.error || "Failed to get response");
       }
 
+      let replyText = data.reply;
+      const stateMatch = replyText.match(/\[STATE:(.+?)\]/);
+      if (stateMatch) {
+        setProblemVisualState(stateMatch[1]);
+        replyText = replyText.replace(/\[STATE:(.+?)\]/g, "").trim();
+      }
+
       setMessages((prev) => ({
         ...prev,
         [activeProblem.id]: [
           ...prev[activeProblem.id],
-          { role: "coach", content: data.reply },
+          { role: "coach", content: replyText },
         ],
       }));
       if (fromVoice) {
-        setLatestAiMessage(data.reply);
+        setLatestAiMessage(replyText);
         setIsAiSpeaking(true);
       }
     } catch (error) {
@@ -379,6 +416,51 @@ export default function Home() {
 
   // ==================== MAIN APP ====================
   const currentMessages = activeProblem ? messages[activeProblem.id] || [] : [];
+
+  const renderProblemVisualizer = () => {
+    if (viewMode !== 'dsa' || !activeDsaTopic) return null;
+    
+    // activeDsaTopic has teachingSteps which have visualType and visualState.
+    // We just need the visualType from step 0 to know which component to render.
+    const visualType = activeDsaTopic.teachingSteps[0]?.visualType;
+    if (!visualType || visualType === 'text') return null;
+
+    const stateToPass = problemVisualState || "empty";
+
+    const visualizerContent = (() => {
+      switch(visualType) {
+        case "array": return <ArrayVisualizer state={stateToPass} />;
+        case "stack": return <StackVisualizer state={stateToPass} />;
+        case "queue": return <QueueVisualizer state={stateToPass} />;
+        case "linkedlist": return <LinkedListVisualizer state={stateToPass} />;
+        case "tree": return <TreeVisualizer state={stateToPass} />;
+        case "bars": return <BarsVisualizer state={stateToPass} />;
+        case "graph": return <GraphVisualizer state={stateToPass} />;
+        case "string": return <StringVisualizer state={stateToPass} />;
+        case "recursion": return <RecursionVisualizer state={stateToPass} />;
+        case "dp": return <DPVisualizer state={stateToPass} />;
+        case "search": return <SearchVisualizer state={stateToPass} />;
+        case "sorting": return <SortingVisualizer state={stateToPass} />;
+        case "heap": return <HeapVisualizer state={stateToPass} />;
+        case "hashtable": return <HashtableVisualizer state={stateToPass} />;
+        case "trie": return <TrieVisualizer state={stateToPass} />;
+        default: return null;
+      }
+    })();
+
+    if (!visualizerContent) return null;
+
+    return (
+      <div className="problem-visualizer-wrapper" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ padding: '8px 16px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: 'var(--accent-blue)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
+        </div>
+        <div style={{ padding: '16px', background: 'var(--bg-card)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {visualizerContent}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -707,7 +789,8 @@ export default function Home() {
               </div>
 
               {/* Code Editor Pane */}
-              <div className="editor-pane">
+              <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
+                 {renderProblemVisualizer()}
                  <CodeEditor 
                    language={progLanguage} 
                    value={code} 

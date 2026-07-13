@@ -14,7 +14,7 @@ export async function POST(request) {
       );
     }
 
-    const { messages, problemContext, language, progLanguage, editorCode } = await request.json();
+    const { messages, problemContext, language, progLanguage, editorCode, dsaTopic, dsaVisuals } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
@@ -31,7 +31,8 @@ export async function POST(request) {
         (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
         (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
         (language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
-        (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : ""),
+        (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
+        (dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag anywhere in your message like [STATE:state_name] to animate it. Valid states are: ${dsaVisuals}` : ""),
     });
 
     const history = messages.slice(0, -1).map((msg) => ({
