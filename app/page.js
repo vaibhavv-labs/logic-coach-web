@@ -70,6 +70,11 @@ export default function Home() {
   const [activeLevel, setActiveLevel] = useState('Beginner');
   const [theme, setTheme] = useState("light");
 
+  // Execution Engine States
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [testResults, setTestResults] = useState(null);
+  const [showTestPanel, setShowTestPanel] = useState(false);
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -157,7 +162,6 @@ export default function Home() {
     setSidebarOpen(false);
     
     try {
-      // 1. Check firestore for problems of this level
       const q = query(collection(db, "problems"), where("difficulty", "==", level));
       const querySnapshot = await getDocs(q);
       
@@ -166,16 +170,13 @@ export default function Home() {
         availableProblems.push({ id: doc.id, ...doc.data() });
       });
 
-      // Filter out solved problems
       const unsolvedProblems = availableProblems.filter(p => !solvedProblems.has(p.id));
 
       let selectedProblem;
 
       if (unsolvedProblems.length > 0) {
-        // Pick the first unsolved one
         selectedProblem = unsolvedProblems[0];
       } else {
-        // 2. If no unsolved problems exist, generate a new one
         const response = await fetch("/api/generate-problem", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -186,7 +187,6 @@ export default function Home() {
         
         const generatedData = await response.json();
         
-        // Save to Firestore
         const docRef = await addDoc(collection(db, "problems"), {
           ...generatedData,
           createdAt: serverTimestamp()
@@ -195,7 +195,7 @@ export default function Home() {
         selectedProblem = { id: docRef.id, ...generatedData };
       }
 
-      selectedProblem.icon = "🧩"; // Add a default icon
+      selectedProblem.icon = "🧩";
       setupProblem(selectedProblem);
 
     } catch (error) {
@@ -214,9 +214,11 @@ export default function Home() {
   const setupProblem = (problem) => {
     setActiveProblem(problem);
     setProblemFetchError(null);
-    setCode(""); // clear code editor for new problem
+    setCode(""); 
     setIsAiSpeaking(false);
     setProblemVisualState(null);
+    setTestResults(null);
+    setShowTestPanel(false);
     
     if (viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) {
       setTimeLeft(1200);
@@ -239,7 +241,6 @@ export default function Home() {
       }));
     }
     
-    // Update total attempted if user is logged in
     if (user && !solvedProblems.has(problem.id)) {
       updateUserStats(user.uid, { totalAttempted: userStats.totalAttempted + 1 });
     }
@@ -259,7 +260,6 @@ export default function Home() {
   const toggleSolved = async () => {
     if (!activeProblem) return;
     
-    // Require auth to save permanently
     if (!user) {
        setShowAuthModal(true);
        return;
@@ -276,7 +276,6 @@ export default function Home() {
     
     setSolvedProblems(newSet);
 
-    // Update level counts
     const level = activeProblem.difficulty;
     const currentCount = userStats.levelCounts[level] || 0;
     const newCount = isNowSolved ? currentCount + 1 : Math.max(0, currentCount - 1);
@@ -301,6 +300,69 @@ export default function Home() {
            setTimerActive(false);
         }
       }
+    }
+  };
+
+  const handleRunTests = async () => {
+    if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
+      alert("This problem does not have automated test cases. You can ask the AI to review your code.");
+      return;
+    }
+    
+    setIsExecuting(true);
+    setShowTestPanel(true);
+    setTestResults(null);
+    
+    const results = [];
+    let allPassed = true;
+
+    for (let i = 0; i < activeProblem.testCases.length; i++) {
+      const tc = activeProblem.testCases[i];
+      try {
+        const res = await fetch("/api/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            language: progLanguage,
+            code: code,
+            stdin: tc.input
+          })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+           results.push({ passed: false, error: data.error });
+           allPassed = false;
+           continue;
+        }
+
+        const actualOutput = (data.stdout || "").trim();
+        const expectedOutput = (tc.expectedOutput || "").trim();
+        const passed = actualOutput === expectedOutput && data.code === 0;
+        
+        if (!passed) allPassed = false;
+        
+        results.push({
+          passed,
+          actualOutput,
+          expectedOutput: tc.expectedOutput,
+          input: tc.input,
+          stderr: data.stderr || "",
+          exitCode: data.code
+        });
+
+      } catch (err) {
+        results.push({ passed: false, error: err.message });
+        allPassed = false;
+      }
+    }
+
+    setTestResults(results);
+    setIsExecuting(false);
+
+    if (allPassed && !solvedProblems.has(activeProblem.id)) {
+      await toggleSolved(); 
+      alert("All test cases passed! Problem marked as solved.");
     }
   };
 
@@ -404,7 +466,6 @@ export default function Home() {
     }
   };
 
-  // ==================== LANDING PAGE ====================
   if (screen === "landing") {
     return (
       <div className="landing-layout">
@@ -447,14 +508,10 @@ export default function Home() {
     );
   }
 
-  // ==================== MAIN APP ====================
   const currentMessages = activeProblem ? messages[activeProblem.id] || [] : [];
 
   const renderProblemVisualizer = () => {
     if (viewMode !== 'dsa' || !activeDsaTopic) return null;
-    
-    // activeDsaTopic has teachingSteps which have visualType and visualState.
-    // We just need the visualType from step 0 to know which component to render.
     const visualType = activeDsaTopic.teachingSteps[0]?.visualType;
     if (!visualType || visualType === 'text') return null;
 
@@ -521,28 +578,15 @@ export default function Home() {
         />
       )}
 
-      {/* Mobile Header */}
       <div className="mobile-header">
-        <button
-          className="mobile-menu-btn"
-          onClick={() => setSidebarOpen(true)}
-        >
-          ☰
-        </button>
-        <div className="sidebar-brand">
-          <h2>Logic Coach</h2>
-        </div>
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+        <div className="sidebar-brand"><h2>Logic Coach</h2></div>
         <div style={{ width: 24 }}></div>
       </div>
 
       <div className="app-layout">
-        {/* Sidebar Overlay */}
-        <div
-          className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`}
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`} onClick={() => setSidebarOpen(false)} />
 
-        {/* Sidebar */}
         <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="sidebar-header">
             <div className="sidebar-brand">
@@ -561,9 +605,7 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '8px', fontSize: '14px' }}>
-                Sign In
-              </button>
+              <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '8px', fontSize: '14px' }}>Sign In</button>
             )}
           </div>
 
@@ -584,9 +626,7 @@ export default function Home() {
             <button 
               className="start-btn" 
               style={{ width: '100%', marginBottom: '16px', background: 'var(--accent-orange)', padding: '10px' }}
-              onClick={() => {
-                if (requireAuth()) setShowCustomModal(true);
-              }}
+              onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
             >
               + Custom Problem
             </button>
@@ -604,9 +644,7 @@ export default function Home() {
                 <div className="problem-info">
                   <h4>{level} {fetchingProblem && activeLevel === level && '...'}</h4>
                   <div className="problem-meta">
-                    <span className={`problem-difficulty ${level.toLowerCase()}`}>
-                      Generate Next
-                    </span>
+                    <span className={`problem-difficulty ${level.toLowerCase()}`}>Generate Next</span>
                   </div>
                 </div>
               </div>
@@ -614,14 +652,9 @@ export default function Home() {
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="main-content">
           {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
-             <DSAPath progress={dsaProgress} onSelectTopic={(t) => {
-               if (requireAuth()) {
-                 setActiveDsaTopic(t);
-               }
-             }} />
+             <DSAPath progress={dsaProgress} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
           ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeDsaTopic} 
@@ -647,201 +680,330 @@ export default function Home() {
                   <span></span><span></span><span></span>
                 </div>
                 <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '20px' }}>Generating Problem...</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Our AI coach is crafting a unique logic challenge just for you.</p>
               </div>
             ) : problemFetchError ? (
               <div className="landing-container" style={{ background: 'none' }}>
                 <div className="landing-icon" style={{ boxShadow: 'none', background: '#fef2f2', color: '#991b1b' }}>⚠️</div>
                 <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#991b1b' }}>Failed to Load</h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>{problemFetchError}</p>
                 <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
               </div>
             ) : (
               <div className="landing-container" style={{ background: 'none' }}>
                 <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
                 <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Difficulty</h2>
-                <p style={{ color: 'var(--text-secondary)' }}>Select a level from the sidebar to generate a problem.</p>
               </div>
             )
           ) : (
             <div className="split-layout">
-              {/* Chat Pane */}
               <div className="chat-pane">
-              {/* Chat Header */}
               <div className="chat-header">
                 <div className="chat-header-info">
-                  <div className="chat-header-icon">
-                    {activeProblem.icon || "🧩"}
-                  </div>
+                  <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
                   <div className="chat-header-text">
                     <h3>{activeProblem.title}</h3>
                     <p>{activeProblem.category}</p>
                   </div>
                 </div>
-                
                 <div className="header-actions">
-                  <select 
-                    className="lang-select" 
-                    value={progLanguage}
-                    onChange={(e) => setProgLanguage(e.target.value)}
-                    title="Programming Language"
-                  >
+                  <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
                     <option value="Python">Python</option>
                     <option value="JavaScript">JavaScript</option>
                     <option value="Java">Java</option>
                     <option value="C++">C++</option>
-                    <option value="C#">C#</option>
-                    <option value="Ruby">Ruby</option>
-                    <option value="Any Language">Any Language</option>
                   </select>
-                  
-                  <select 
-                    className="lang-select" 
-                    value={language}
-                    onChange={(e) => setLanguage(e.target.value)}
-                    title="Spoken Language"
-                  >
-                    <option value="English">English</option>
-                    <option value="Hindi">Hindi</option>
-                    <option value="Marathi">Marathi</option>
-                    <option value="Hinglish">Hinglish</option>
-                  </select>
-                  
-                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ fontSize: '18px', padding: '6px 10px' }}>
+                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme">
                     {theme === "light" ? "🌙" : "☀️"}
                   </button>
-
-                  <button 
-                    className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved pop-celebrate' : ''}`}
-                    onClick={toggleSolved}
-                  >
+                  <button className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`} onClick={toggleSolved}>
                     {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
                   </button>
                 </div>
               </div>
 
-              {/* Messages */}
               <div className="chat-messages">
                 {currentMessages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`message ${
-                      msg.role === "user"
-                        ? "user"
-                        : msg.role === "error"
-                        ? "error"
-                        : "coach"
-                    }`}
-                  >
-                    <div className="message-avatar">
-                      {msg.role === "user" ? "👤" : msg.role === "error" ? "⚠️" : "🤖"}
-                    </div>
-                    <div className="message-bubble">
-                      {msg.content.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line
-                            .split(/(\*\*.*?\*\*)/)
-                            .map((part, j) =>
-                              part.startsWith("**") && part.endsWith("**") ? (
-                                <strong key={j}>
-                                  {part.slice(2, -2)}
-                                </strong>
-                              ) : (
-                                part
-                              )
-                            )}
-                          {i < msg.content.split("\n").length - 1 && <br />}
-                        </span>
-                      ))}
-                      {msg.role === "error" && msg.retryMessage && (
-                        <button 
-                          onClick={() => handleSend(null, false, msg.retryMessage)}
-                          style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
-                        >
-                          ↻ Try Again
-                        </button>
-                      )}
-                    </div>
+                  <div key={idx} className={`message ${msg.role}`}>
+                    <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
+                    <div className="message-bubble">{msg.content}</div>
                   </div>
                 ))}
-
-                {isLoading && (
-                  <div className="message coach">
-                    <div className="message-avatar">🤖</div>
-                    <div className="typing-dots">
-                      <span></span>
-                      <span></span>
-                      <span></span>
-                    </div>
-                  </div>
-                )}
-
+                {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Chat Input */}
               <div className="chat-bottom">
-                <div className="quick-actions">
-                  <button className="action-btn" onClick={() => handleSend("Explain simpler please")}>
-                    Explain simpler please
-                  </button>
-                  <button className="action-btn" onClick={() => handleSend("I am completely stuck")}>
-                    I am completely stuck
-                  </button>
-                  <button className="action-btn" onClick={() => handleSend("Is my logic correct so far?")}>
-                    Is my logic correct so far?
-                  </button>
-                </div>
-
                 <div className="chat-input-wrapper">
-                  <textarea
-                    ref={inputRef}
-                    className="chat-input"
-                    placeholder="Type your answer..."
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    rows={1}
-                    maxLength={MAX_CHARS}
-                    disabled={isLoading}
-                  />
-                  <VoiceChat 
-                    onTranscript={(text) => handleSend(text, true)} 
-                    isAiSpeaking={isAiSpeaking} 
-                    aiMessage={latestAiMessage}
-                    onAiSpeechEnd={() => setIsAiSpeaking(false)}
-                  />
-                  <button
-                    className="send-btn"
-                    onClick={() => handleSend()}
-                    disabled={!inputText.trim() || isLoading}
-                  >
-                    ➤
+                  <textarea ref={inputRef} className="chat-input" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyDown} />
+                  <VoiceChat onTranscript={(text) => handleSend(text, true)} />
+                  <button className="send-btn" onClick={() => handleSend()} disabled={!inputText.trim() || isLoading}>➤</button>
+                </div>
+              </div>
+            </div>
+
+              <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
+                 {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {showAuthModal && (
+        <AuthModal 
+          onClose={() => setShowAuthModal(false)} 
+          onSuccess={() => setShowAuthModal(false)} 
+        />
+      )}
+      
+      {showCustomModal && (
+        <CustomProblemModal 
+          onClose={() => setShowCustomModal(false)} 
+          onSubmit={handleCustomProblem} 
+          user={user}
+        />
+      )}
+
+      {showProgress && (
+        <ProgressScreen 
+          onClose={() => setShowProgress(false)} 
+          solvedCount={solvedProblems.size}
+          totalAttempted={userStats.totalAttempted}
+          stats={userStats}
+        />
+      )}
+
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+        <div className="sidebar-brand"><h2>Logic Coach</h2></div>
+        <div style={{ width: 24 }}></div>
+      </div>
+
+      <div className="app-layout">
+        <div className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`} onClick={() => setSidebarOpen(false)} />
+
+        <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-brand">
+              <div className="sidebar-logo">🧠</div>
+              <h2>Logic Coach</h2>
+            </div>
+          </div>
+
+          <div className="sidebar-user-section" style={{ padding: '16px', borderBottom: '1px solid var(--border-light)' }}>
+            {user ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.email.split('@')[0]}</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
+                  <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
+                </div>
+              </div>
+            ) : (
+              <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '8px', fontSize: '14px' }}>Sign In</button>
+            )}
+          </div>
+
+          <div className="sidebar-problems">
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <button 
+                className={`action-btn ${viewMode === 'logic' ? 'active' : ''}`} 
+                onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'logic' ? 'var(--accent-blue)' : 'var(--bg-card)' }}
+              >Logic</button>
+              <button 
+                className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
+                onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'dsa' ? 'var(--accent-orange)' : 'var(--bg-card)' }}
+              >DSA Path</button>
+            </div>
+
+            <button 
+              className="start-btn" 
+              style={{ width: '100%', marginBottom: '16px', background: 'var(--accent-orange)', padding: '10px' }}
+              onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
+            >
+              + Custom Problem
+            </button>
+            
+            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>Difficulty Levels</h3>
+            
+            {LEVELS.map((level) => (
+              <div
+                key={level}
+                className={`problem-card ${activeLevel === level ? "active" : ""}`}
+                onClick={() => getProblemForLevel(level)}
+                style={{ opacity: fetchingProblem && activeLevel === level ? 0.5 : 1 }}
+              >
+                <div className="problem-icon">📚</div>
+                <div className="problem-info">
+                  <h4>{level} {fetchingProblem && activeLevel === level && '...'}</h4>
+                  <div className="problem-meta">
+                    <span className={`problem-difficulty ${level.toLowerCase()}`}>Generate Next</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <main className="main-content">
+          {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
+             <DSAPath progress={dsaProgress} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
+          ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
+             <DSATeachingPhase 
+               topic={activeDsaTopic} 
+               initialStep={dsaProgress[activeDsaTopic.id]?.step || 0}
+               language={language}
+               onLanguageChange={setLanguage}
+               onProgressUpdate={async (step) => {
+                 const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 0, step } };
+                 setDsaProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+               }}
+               onComplete={async () => {
+                 const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 1, step: 0 } };
+                 setDsaProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+                 alert("Topic Teaching Complete! You can now select a problem level to practice.");
+               }}
+             />
+          ) : !activeProblem ? (
+            fetchingProblem ? (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="typing-dots" style={{ margin: 'auto', background: 'transparent', border: 'none', boxShadow: 'none' }}>
+                  <span></span><span></span><span></span>
+                </div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginTop: '20px' }}>Generating Problem...</h2>
+              </div>
+            ) : problemFetchError ? (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none', background: '#fef2f2', color: '#991b1b' }}>⚠️</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#991b1b' }}>Failed to Load</h2>
+                <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
+              </div>
+            ) : (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Difficulty</h2>
+              </div>
+            )
+          ) : (
+            <div className="split-layout">
+              <div className="chat-pane">
+              <div className="chat-header">
+                <div className="chat-header-info">
+                  <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
+                  <div className="chat-header-text">
+                    <h3>{activeProblem.title}</h3>
+                    <p>{activeProblem.category}</p>
+                  </div>
+                </div>
+                <div className="header-actions">
+                  <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
+                    <option value="Python">Python</option>
+                    <option value="JavaScript">JavaScript</option>
+                    <option value="Java">Java</option>
+                    <option value="C++">C++</option>
+                  </select>
+                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme">
+                    {theme === "light" ? "🌙" : "☀️"}
+                  </button>
+                  <button className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`} onClick={toggleSolved}>
+                    {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
                   </button>
                 </div>
               </div>
 
-              {/* Code Editor Pane */}
+              <div className="chat-messages">
+                {currentMessages.map((msg, idx) => (
+                  <div key={idx} className={`message ${msg.role}`}>
+                    <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
+                    <div className="message-bubble">{msg.content}</div>
+                  </div>
+                ))}
+                {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <div className="chat-bottom">
+                <div className="chat-input-wrapper">
+                  <textarea ref={inputRef} className="chat-input" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyDown} />
+                  <VoiceChat onTranscript={(text) => handleSend(text, true)} />
+                  <button className="send-btn" onClick={() => handleSend()} disabled={!inputText.trim() || isLoading}>➤</button>
+                </div>
+              </div>
+            </div>
+
               <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
                  {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
-                   <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '24px', letterSpacing: '2px', borderBottom: '2px solid #ff4d4f' }}>
+                   <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
                      ⏱️ {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
                    </div>
                  )}
                  {renderProblemVisualizer()}
-                 <CodeEditor 
-                   language={progLanguage} 
-                   value={code} 
-                   onChange={setCode} 
-                 />
-                 <button 
-                   className="review-btn" 
-                   onClick={() => handleSend("Please review the code I have written in the editor.")}
-                   disabled={isLoading || !code.trim()}
-                 >
-                   ✨ Review My Code
-                 </button>
-              </div>
+                 <CodeEditor language={progLanguage} value={code} onChange={setCode} />
+                 
+                 {showTestPanel && (
+                   <div style={{ background: '#1e1e1e', borderTop: '1px solid var(--border)', height: '250px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                       <h3 style={{ margin: 0, color: '#e5e7eb', fontSize: '14px' }}>Test Results</h3>
+                       <button onClick={() => setShowTestPanel(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
+                     </div>
+                     
+                     {isExecuting ? (
+                       <div style={{ color: '#9ca3af', fontSize: '14px' }}>Executing code on server... ⏳</div>
+                     ) : testResults ? (
+                       testResults.map((tr, idx) => (
+                         <div key={idx} style={{ background: tr.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
+                           <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444', marginBottom: '8px' }}>
+                             Test Case {idx + 1}: {tr.passed ? "PASSED ✅" : "FAILED ❌"}
+                           </div>
+                           {tr.error ? (
+                             <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
+                           ) : (
+                             <>
+                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
+                               <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
+                               
+                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Expected Output:</div>
+                               <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.expectedOutput}</pre>
+                               
+                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Your Output (stdout):</div>
+                               <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
+                               
+                               {tr.stderr && (
+                                 <>
+                                   <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '4px' }}>Error (stderr):</div>
+                                   <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', color: '#ef4444', margin: '0', whiteSpace: 'pre-wrap' }}>{tr.stderr}</pre>
+                                 </>
+                               )}
+                             </>
+                           )}
+                         </div>
+                       ))
+                     ) : null}
+                   </div>
+                 )}
+
+                 <div style={{ display: 'flex', gap: '8px', padding: '8px' }}>
+                   <button 
+                     className="review-btn" 
+                     onClick={handleRunTests}
+                     disabled={isExecuting || !code.trim() || !activeProblem?.testCases}
+                     style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                   >
+                     {isExecuting ? "Executing..." : "▶ Run Tests"}
+                   </button>
+                   <button 
+                     className="review-btn" 
+                     onClick={() => handleSend("Please review the code I have written in the editor.")}
+                     disabled={isLoading || !code.trim()}
+                     style={{ flex: 1 }}
+                   >
+                     Ask AI to Review Code
+                   </button>
+                 </div>
               </div>
             </div>
           )}

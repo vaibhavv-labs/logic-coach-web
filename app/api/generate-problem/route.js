@@ -42,12 +42,22 @@ Problem statements must be clear, unambiguous, and solvable with basic programmi
 
     prompt += `
 
+CRITICAL TESTING INSTRUCTION:
+Because the user's code will be executed in a sandboxed environment, they MUST read input from Standard Input (stdin) and print to Standard Output (stdout). 
+The problem description MUST clearly explain the input format (e.g. "The first line contains an integer N...") and the expected output format.
+
 Respond ONLY with a valid JSON object in this exact format, with no markdown formatting or backticks around it:
 {
   "title": "Short descriptive title",
   "category": "${dsaTopic ? dsaTopic : 'The main concept (e.g. Loops, Arrays)'}",
   "difficulty": "${level}",
-  "description": "The detailed problem description"
+  "description": "The detailed problem description. Must explicitly instruct the user to read from standard input and print the result to standard output.",
+  "testCases": [
+    {
+      "input": "The raw string to be passed via stdin (e.g. '5\\n1 2 3 4 5')",
+      "expectedOutput": "The exact string that the program should print to stdout. No extra spaces or words."
+    }
+  ] // generate exactly 3 test cases
 }`;
 
     const result = await model.generateContent(prompt);
