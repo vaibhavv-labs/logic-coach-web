@@ -8,46 +8,49 @@ export async function POST(request) {
       return NextResponse.json({ error: "Code and language are required" }, { status: 400 });
     }
 
-    // Map frontend language strings to Piston language strings
-    let pistonLang = language.toLowerCase();
-    if (pistonLang === "c++") pistonLang = "cpp";
-    if (pistonLang === "c#") pistonLang = "csharp";
-
-    // 1. Fetch available runtimes to get the correct version
-    const runtimesRes = await fetch("https://emkc.org/api/v2/piston/runtimes");
-    if (!runtimesRes.ok) {
-      return NextResponse.json({ error: "Failed to fetch runtimes from execution engine." }, { status: 500 });
-    }
-    const runtimes = await runtimesRes.json();
-    
-    const runtime = runtimes.find(r => r.language === pistonLang || r.aliases.includes(pistonLang));
-    if (!runtime) {
+    // Map frontend language strings to Wandbox compiler strings
+    let wandboxLang = language.toLowerCase();
+    let compiler = "";
+    if (wandboxLang === "python") compiler = "cpython-3.14.0";
+    else if (wandboxLang === "javascript") compiler = "nodejs-20.17.0";
+    else if (wandboxLang === "java") compiler = "openjdk-jdk-22+36";
+    else if (wandboxLang === "c++" || wandboxLang === "cpp") compiler = "gcc-head";
+    else {
       return NextResponse.json({ error: `Language ${language} not supported by execution engine.` }, { status: 400 });
     }
 
-    // 2. Execute code
-    const executeRes = await fetch("https://emkc.org/api/v2/piston/execute", {
+    // Execute code using Wandbox API
+    const executeRes = await fetch("https://wandbox.org/api/compile.json", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        language: runtime.language,
-        version: runtime.version,
-        files: [{ content: code }],
-        stdin: stdin || "",
+        compiler: compiler,
+        code: code,
+        stdin: stdin || ""
       })
     });
 
     const data = await executeRes.json();
     
-    if (data.message) {
-       return NextResponse.json({ error: data.message }, { status: 500 });
+    if (data.error) {
+       return NextResponse.json({ error: data.error }, { status: 500 });
+    }
+    
+    // Compilation error (e.g. C++ syntax error before runtime)
+    if (data.compiler_error) {
+      return NextResponse.json({
+        stdout: "",
+        stderr: data.compiler_error,
+        output: data.compiler_error,
+        code: 1
+      });
     }
 
     return NextResponse.json({
-      stdout: data.run?.stdout || "",
-      stderr: data.run?.stderr || "",
-      output: data.run?.output || "",
-      code: data.run?.code || 0 // exit code
+      stdout: data.program_output || "",
+      stderr: data.program_error || "",
+      output: data.program_message || "",
+      code: parseInt(data.status || "0", 10)
     });
 
   } catch (error) {
