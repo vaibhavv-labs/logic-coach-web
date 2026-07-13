@@ -47,7 +47,7 @@ export async function POST(request) {
     }
 
     return NextResponse.json({
-      stdout: data.program_output || "",
+      stdout: data.program_output || data.program_message || "",
       stderr: data.program_error || "",
       output: data.program_message || "",
       code: parseInt(data.status || "0", 10)
