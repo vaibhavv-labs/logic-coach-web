@@ -1267,3 +1267,26 @@ body {
     min-height: 180px;
   }
 }
+/* Code Editor Fixes */
+.code-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 400px;
+  width: 100%;
+}
+.code-editor-header {
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  font-family: monospace;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.code-editor-inner {
+  flex: 1;
+  position: relative;
+  min-height: 300px;
+}
