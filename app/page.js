@@ -51,6 +51,10 @@ export default function Home() {
   const [activeDsaTopic, setActiveDsaTopic] = useState(null);
   const [problemVisualState, setProblemVisualState] = useState(null);
   
+  // Level 2 Timer states
+  const [timeLeft, setTimeLeft] = useState(1200);
+  const [timerActive, setTimerActive] = useState(false);
+  
   // Auth & DB states
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -81,6 +85,19 @@ export default function Home() {
     localStorage.setItem("theme", newTheme);
     document.documentElement.setAttribute("data-theme", newTheme);
   };
+
+  useEffect(() => {
+    let interval = null;
+    if (timerActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(t => t - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && timerActive) {
+      setTimerActive(false);
+      alert("Time is up! The interview simulation is over. Please try again.");
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, timeLeft]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -201,13 +218,22 @@ export default function Home() {
     setIsAiSpeaking(false);
     setProblemVisualState(null);
     
+    if (viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) {
+      setTimeLeft(1200);
+      setTimerActive(true);
+    } else {
+      setTimerActive(false);
+    }
+
     if (!messages[problem.id]) {
+      const isLevel2 = viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2;
       setMessages((prev) => ({
         ...prev,
         [problem.id]: [
           {
             role: "coach",
-            content: `Hi! Let's solve **"${problem.title}"** together.\n\nHere is the problem: ${problem.description}\n\nWhat do you think is the first logical step to approach this?`,
+            content: isLevel2 ? `Hello. We have 20 minutes for this technical interview. Please solve **"${problem.title}"**.\n\nDescription: ${problem.description}\n\nYou must provide a fully working solution and analyze the exact Big O Time and Space complexity before we finish. Let's begin.` 
+            : `Hi! Let's solve **"${problem.title}"** together.\n\nHere is the problem: ${problem.description}\n\nWhat do you think is the first logical step to approach this?`,
           },
         ],
       }));
@@ -264,10 +290,16 @@ export default function Home() {
 
     if (isNowSolved && viewMode === 'dsa' && activeDsaTopic) {
       const currentLevel = dsaProgress[activeDsaTopic.id]?.level || 0;
-      if (currentLevel === 1) {
-        const newProg = { ...dsaProgress, [activeDsaTopic.id]: { ...dsaProgress[activeDsaTopic.id], level: 2 } };
+      if (currentLevel === 1 || currentLevel === 2) {
+        const newLevel = currentLevel === 1 ? 2 : 3;
+        const newProg = { ...dsaProgress, [activeDsaTopic.id]: { ...dsaProgress[activeDsaTopic.id], level: newLevel } };
         setDsaProgress(newProg);
         await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
+        
+        if (currentLevel === 2) {
+           alert("Mastery Achieved! You successfully passed the Interview Simulation!");
+           setTimerActive(false);
+        }
       }
     }
   };
@@ -319,7 +351,8 @@ export default function Home() {
           progLanguage: progLanguage,
           editorCode: code,
           dsaTopic: viewMode === 'dsa' && activeDsaTopic ? activeDsaTopic.title : null,
-          dsaVisuals: viewMode === 'dsa' && activeDsaTopic ? activeDsaTopic.teachingSteps.map(s => s.visualState).join(', ') : null
+          dsaVisuals: viewMode === 'dsa' && activeDsaTopic ? activeDsaTopic.teachingSteps.map(s => s.visualState).join(', ') : null,
+          isLevel2: viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2
         }),
       });
 
@@ -790,6 +823,11 @@ export default function Home() {
 
               {/* Code Editor Pane */}
               <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
+                 {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
+                   <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold', fontFamily: 'monospace', fontSize: '24px', letterSpacing: '2px', borderBottom: '2px solid #ff4d4f' }}>
+                     ⏱️ {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+                   </div>
+                 )}
                  {renderProblemVisualizer()}
                  <CodeEditor 
                    language={progLanguage} 

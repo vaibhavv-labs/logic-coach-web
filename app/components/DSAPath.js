@@ -29,7 +29,8 @@ export default function DSAPath({ progress, onSelectTopic, language = "English" 
             if (!topicProgress) statusText = t("start_teaching", language);
             else if (topicProgress.level === 0) statusText = t("teaching_step", language, { X: topicProgress.step + 1, Y: topic.teachingSteps.length });
             else if (topicProgress.level === 1) statusText = t("level_1", language);
-            else statusText = t("level_2", language);
+            else if (topicProgress.level === 2) statusText = "👑 Mastery Mode";
+            else statusText = "✅ Fully Mastered";
           }
 
           const isCompleted = topicProgress?.level > 0;
