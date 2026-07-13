@@ -46,17 +46,7 @@ export default function Home() {
   const [fetchingProblem, setFetchingProblem] = useState(false);
   const [problemFetchError, setProblemFetchError] = useState(null);
   const [activeLevel, setActiveLevel] = useState('Beginner');
-  const [theme, setTheme] = useState("dark"); // Force dark theme by default
-
-  // Mobile layout state
-  const [mobileTab, setMobileTab] = useState("chat"); // 'chat' | 'code' | 'visualizer'
-
-  // Landing page interactive demo state
-  const [demoInput, setDemoInput] = useState("");
-  const [demoChat, setDemoChat] = useState([
-    { role: "coach", content: "Write a loop that prints numbers from 1 to 5. What's your first guess?" }
-  ]);
-  const [demoLoading, setDemoLoading] = useState(false);
+  const [theme, setTheme] = useState("light");
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -360,23 +350,12 @@ export default function Home() {
             <span className="logo-text">Logic Coach</span>
           </div>
           <div className="landing-nav-actions">
-            <select 
-              className="lang-select" 
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              title="Spoken Language"
-            >
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Marathi">Marathi</option>
-              <option value="Hinglish">Hinglish</option>
-            </select>
             {user ? (
               <button className="start-btn-small" onClick={() => setScreen("app")}>
-                Dashboard
+                Go to Dashboard
               </button>
             ) : (
-              <button className="start-btn-small ghost-btn" onClick={() => setShowAuthModal(true)}>
+              <button className="start-btn-small" onClick={() => setShowAuthModal(true)}>
                 Sign In
               </button>
             )}
@@ -384,54 +363,12 @@ export default function Home() {
         </nav>
         
         <div className="landing-container">
-          <h1 className="landing-title">Wire logical thinking<br/>into your brain.</h1>
-          <h2 className="landing-tagline">Experience the "aha!" moment of completing a neural circuit.</h2>
-          
-          <div className="landing-demo-panel">
-            <div className="demo-chat-area">
-              {demoChat.map((msg, idx) => (
-                <div key={idx} className={`message ${msg.role}`}>
-                  <div className="message-bubble">{msg.content}</div>
-                </div>
-              ))}
-              {demoLoading && (
-                <div className="message coach">
-                  <div className="message-bubble typing-glow">...</div>
-                </div>
-              )}
-            </div>
-            <div className="demo-input-area">
-              <input 
-                type="text" 
-                value={demoInput}
-                onChange={(e) => setDemoInput(e.target.value)}
-                placeholder="Type your logic (e.g. for i 1 to 5 print i)"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && demoInput.trim()) {
-                    setDemoChat(prev => [...prev, { role: "user", content: demoInput }]);
-                    setDemoInput("");
-                    setDemoLoading(true);
-                    setTimeout(() => {
-                      setDemoLoading(false);
-                      setDemoChat(prev => [...prev, { role: "coach", content: "You've got the boundaries right! But how do we tell the computer to actually start the loop in standard syntax? What keyword comes first?" }]);
-                    }, 1200);
-                  }
-                }}
-              />
-              <button onClick={() => {
-                if (demoInput.trim()) {
-                  setDemoChat(prev => [...prev, { role: "user", content: demoInput }]);
-                  setDemoInput("");
-                  setDemoLoading(true);
-                  setTimeout(() => {
-                    setDemoLoading(false);
-                    setDemoChat(prev => [...prev, { role: "coach", content: "You've got the boundaries right! But how do we tell the computer to actually start the loop in standard syntax? What keyword comes first?" }]);
-                  }, 1200);
-                }
-              }}>➤</button>
-            </div>
-          </div>
-
+          <div className="landing-icon">🧠</div>
+          <h1 className="landing-title">Logic Coach</h1>
+          <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
+          <p className="landing-desc">
+            Your personal Socratic AI tutor. We never give direct code answers — instead we guide you through questions so you discover the logic yourself.
+          </p>
           <button className="start-btn" onClick={() => { if (user) setScreen("app"); else setShowAuthModal(true); }}>
             {user ? "Resume Learning" : "Start Learning for Free"}
           </button>
@@ -612,23 +549,7 @@ export default function Home() {
               </div>
             )
           ) : (
-            <div className={`split-layout show-${mobileTab}`}>
-              {/* Mobile Tabs */}
-              <div className="mobile-tabs">
-                <button 
-                  className={`mobile-tab-btn ${mobileTab === 'chat' ? 'active' : ''}`}
-                  onClick={() => setMobileTab('chat')}
-                >
-                  Chat
-                </button>
-                <button 
-                  className={`mobile-tab-btn ${mobileTab === 'code' ? 'active' : ''}`}
-                  onClick={() => setMobileTab('code')}
-                >
-                  Code
-                </button>
-              </div>
-
+            <div className="split-layout">
               {/* Chat Pane */}
               <div className="chat-pane">
               {/* Chat Header */}
@@ -805,38 +726,6 @@ export default function Home() {
           )}
         </main>
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      <nav className="mobile-bottom-nav">
-        <button 
-          className={`bottom-nav-item ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`}
-          onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setScreen("app"); }}
-        >
-          <span className="icon">🧠</span>
-          <span>Home</span>
-        </button>
-        <button 
-          className={`bottom-nav-item ${viewMode === 'dsa' ? 'active' : ''}`}
-          onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setScreen("app"); }}
-        >
-          <span className="icon">⚡</span>
-          <span>Path</span>
-        </button>
-        <button 
-          className={`bottom-nav-item ${activeProblem ? 'active' : ''}`}
-          onClick={() => { if(activeProblem) { setMobileTab('chat'); } else { setViewMode('logic'); } }}
-        >
-          <span className="icon">💬</span>
-          <span>Problem</span>
-        </button>
-        <button 
-          className="bottom-nav-item"
-          onClick={() => { if (user) setShowProgress(true); else setShowAuthModal(true); }}
-        >
-          <span className="icon">📊</span>
-          <span>Profile</span>
-        </button>
-      </nav>
     </>
   );
 }

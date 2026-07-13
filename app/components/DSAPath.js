@@ -19,48 +19,39 @@ export default function DSAPath({ progress, onSelectTopic, language = "English" 
       <h2 className="dsa-path-title">{t("dsa_title", language)}</h2>
       <p className="dsa-path-subtitle">{t("dsa_subtitle", language)}</p>
 
-      <div className="dsa-circuit-board">
+      <div className="dsa-roadmap">
         {DSA_TOPICS.map((topic, index) => {
           const topicProgress = progress?.[topic.id];
           const isUnlocked = index === 0 || previousTopicUnlocked;
           
           let statusText = t("locked", language);
-          let nodeState = 'locked'; // 'locked' | 'active' | 'completed'
-          
           if (isUnlocked) {
-            if (!topicProgress || topicProgress.level === 0) {
-              statusText = topicProgress ? t("teaching_step", language, { X: topicProgress.step + 1, Y: topic.teachingSteps.length }) : t("start_teaching", language);
-              nodeState = 'active';
-            } else {
-              statusText = topicProgress.level === 1 ? t("level_1", language) : t("level_2", language);
-              nodeState = 'completed';
-            }
+            if (!topicProgress) statusText = t("start_teaching", language);
+            else if (topicProgress.level === 0) statusText = t("teaching_step", language, { X: topicProgress.step + 1, Y: topic.teachingSteps.length });
+            else if (topicProgress.level === 1) statusText = t("level_1", language);
+            else statusText = t("level_2", language);
           }
 
           const isCompleted = topicProgress?.level > 0;
+          
+          // Determine next topic unlock status
           previousTopicUnlocked = isCompleted;
 
-          // Determine horizontal position for winding path (0: left, 1: right, 2: left ...)
-          const positionClass = index % 2 === 0 ? 'circuit-left' : 'circuit-right';
-
           return (
-            <div key={topic.id} className={`circuit-node-wrapper ${positionClass}`}>
+            <div key={topic.id} className="dsa-node-wrapper">
               <div 
-                className={`circuit-node ${nodeState}`}
+                className={`dsa-node ${isUnlocked ? 'unlocked' : 'locked'} ${isCompleted ? 'completed' : ''}`}
                 onClick={() => isUnlocked && onSelectTopic(topic)}
               >
-                <div className="circuit-icon-ring">
-                  <div className="circuit-icon">{topic.icon}</div>
-                </div>
-                <div className="circuit-info">
+                <div className="dsa-node-icon">{topic.icon}</div>
+                <div className="dsa-node-info">
                   <h3>{topic.title}</h3>
-                  <span className="circuit-status">{statusText}</span>
+                  <span className="dsa-status">{statusText}</span>
                 </div>
+                {isCompleted && <div className="dsa-checkmark">✓</div>}
               </div>
               {index < DSA_TOPICS.length - 1 && (
-                <div className="circuit-wire-wrapper">
-                   <div className={`circuit-wire ${isCompleted ? 'wire-lit' : ''}`}></div>
-                </div>
+                <div className={`dsa-connector ${isCompleted ? 'active-connector' : ''}`}></div>
               )}
             </div>
           );
