@@ -690,12 +690,14 @@ export default function Home() {
                     maxLength={MAX_CHARS}
                     disabled={isLoading}
                   />
+                  {/* 
                   <VoiceChat 
                     onTranscript={(text) => handleSend(text, true)} 
                     isAiSpeaking={isAiSpeaking} 
                     aiMessage={latestAiMessage}
                     onAiSpeechEnd={() => setIsAiSpeaking(false)}
-                  />
+                  /> 
+                  */}
                   <button
                     className="send-btn"
                     onClick={() => handleSend()}
@@ -706,7 +708,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Code Editor Pane */}
+              {/* Code Editor Pane - Temporarily Hidden */}
+              {/*
               <div className="editor-pane">
                  <CodeEditor 
                    language={progLanguage} 
@@ -721,6 +724,7 @@ export default function Home() {
                    ✨ Review My Code
                  </button>
               </div>
+              */}
               </div>
             </div>
           )}
