@@ -1,86 +1,65 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
 
 export default function DSAPath({ progress, onSelectTopic, language = "English" }) {
-  const [activeNode, setActiveNode] = useState(null);
-  const [animate, setAnimate] = useState(false);
-
-  useEffect(() => {
-    // Check for reduced motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!prefersReducedMotion) {
-      setTimeout(() => setAnimate(true), 100);
-    } else {
-      setAnimate(true); // immediate
-    }
-  }, []);
+  // progress format expected:
+  // {
+  //   "arrays": { level: 1 }, // meaning Level 0 done, on Level 1
+  //   "strings": { level: 0, step: 2 } // currently on Level 0, step 2
+  // }
+  // Topic unlocks if previous topic's Level 0 is complete (level >= 1)
 
   let previousTopicUnlocked = true;
 
   return (
-    <div className="dsa-path-wrapper">
-      <div className="dsa-path-header">
-        <h2 className="dsa-path-title">{t("dsa_title", language)}</h2>
-        <p className="dsa-path-subtitle">{t("dsa_subtitle", language)}</p>
-      </div>
+    <div className="dsa-path-container">
+      <h2 className="dsa-path-title">{t("dsa_title", language)}</h2>
+      <p className="dsa-path-subtitle">{t("dsa_subtitle", language)}</p>
 
-      <div className="dsa-graph-container">
+      <div className="dsa-circuit-board">
         {DSA_TOPICS.map((topic, index) => {
           const topicProgress = progress?.[topic.id];
           const isUnlocked = index === 0 || previousTopicUnlocked;
-          const isCompleted = topicProgress?.level > 0;
-          const isCurrent = isUnlocked && !isCompleted;
           
           let statusText = t("locked", language);
+          let nodeState = 'locked'; // 'locked' | 'active' | 'completed'
+          
           if (isUnlocked) {
-            if (!topicProgress) statusText = t("start_teaching", language);
-            else if (topicProgress.level === 0) statusText = t("teaching_step", language, { X: topicProgress.step + 1, Y: topic.teachingSteps.length });
-            else if (topicProgress.level === 1) statusText = t("level_1", language);
-            else statusText = t("level_2", language);
+            if (!topicProgress || topicProgress.level === 0) {
+              statusText = topicProgress ? t("teaching_step", language, { X: topicProgress.step + 1, Y: topic.teachingSteps.length }) : t("start_teaching", language);
+              nodeState = 'active';
+            } else {
+              statusText = topicProgress.level === 1 ? t("level_1", language) : t("level_2", language);
+              nodeState = 'completed';
+            }
           }
 
+          const isCompleted = topicProgress?.level > 0;
           previousTopicUnlocked = isCompleted;
 
-          const isExpanded = activeNode === topic.id;
+          // Determine horizontal position for winding path (0: left, 1: right, 2: left ...)
+          const positionClass = index % 2 === 0 ? 'circuit-left' : 'circuit-right';
 
           return (
-            <div key={topic.id} className={`dsa-node-group ${animate ? 'animate-in' : ''}`} style={{ animationDelay: `${index * 100}ms` }}>
+            <div key={topic.id} className={`circuit-node-wrapper ${positionClass}`}>
               <div 
-                className={`dsa-graph-node ${isUnlocked ? 'unlocked' : 'locked'} ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
-                onClick={() => {
-                  if (isUnlocked) {
-                    setActiveNode(isExpanded ? null : topic.id);
-                  }
-                }}
+                className={`circuit-node ${nodeState}`}
+                onClick={() => isUnlocked && onSelectTopic(topic)}
               >
-                <div className="node-icon">{topic.icon}</div>
-                <div className="node-label">{topic.title}</div>
-                {isCompleted && <div className="node-check">✓</div>}
-              </div>
-
-              {isExpanded && (
-                <div className="node-detail-card">
-                  <h3>{topic.title}</h3>
-                  <p>{topic.description}</p>
-                  <div className="node-status">{statusText}</div>
-                  <button 
-                    className="start-learning-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectTopic(topic);
-                    }}
-                  >
-                    {isCompleted ? 'Review Topic' : 'Start Learning'}
-                  </button>
+                <div className="circuit-icon-ring">
+                  <div className="circuit-icon">{topic.icon}</div>
                 </div>
-              )}
-
+                <div className="circuit-info">
+                  <h3>{topic.title}</h3>
+                  <span className="circuit-status">{statusText}</span>
+                </div>
+              </div>
               {index < DSA_TOPICS.length - 1 && (
-                <div className={`dsa-edge ${isCompleted ? 'completed-edge' : ''}`}>
-                  <div className="edge-line" style={{ transitionDelay: `${(index + 1) * 100}ms` }}></div>
+                <div className="circuit-wire-wrapper">
+                   <div className={`circuit-wire ${isCompleted ? 'wire-lit' : ''}`}></div>
                 </div>
               )}
             </div>
