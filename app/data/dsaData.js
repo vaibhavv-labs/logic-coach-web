@@ -940,64 +940,253 @@ export const DSA_TOPICS = [
   },
   {
     id: "graphs",
-    title: "17. Graphs",
+    title: "16. Graphs",
     description: "BFS, DFS, shortest path",
     icon: "🕸️",
     teachingSteps: [
-      { id: "step1", text: "Adjacency List/Matrix", visualType: "graph", visualState: "basic" },
-      { id: "step2", text: "BFS", visualType: "graph", visualState: "bfs" },
-      { id: "step3", text: "DFS", visualType: "graph", visualState: "dfs" },
-      { id: "step4", text: "Topological Sort", visualType: "graph", visualState: "directed" },
-      { id: "step5", text: "Prim's", visualType: "graph", visualState: "bfs" },
-      { id: "step6", text: "Kruskal's", visualType: "graph", visualState: "bfs" },
-      { id: "step7", text: "Dijkstra's", visualType: "graph", visualState: "bfs" }
+      { 
+        id: "step1", 
+        text: "Adjacency List/Matrix", 
+        visualType: "graph", 
+        visualState: "basic",
+        explanation: "A **Graph** is a collection of Nodes (Vertices) and Edges connecting them. \n\n- **Adjacency Matrix**: A 2D array where `matrix[i][j] = 1` if an edge exists. O(V²) space.\n- **Adjacency List**: An array/map of lists, where `adj[i]` contains all neighbors of node `i`. O(V + E) space. (Most common).",
+        codeSnippets: {
+          "Python": "adj_list = {0: [1, 2], 1: [0], 2: [0]}",
+          "C++": "vector<vector<int>> adj = {{1, 2}, {0}, {0}};",
+          "Java": "Map<Integer, List<Integer>> adj = new HashMap<>();",
+          "JavaScript": "let adjList = {0: [1, 2], 1: [0], 2: [0]};"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "BFS (Breadth-First Search)", 
+        visualType: "graph", 
+        visualState: "bfs",
+        explanation: "**BFS** explores the graph level by level, radiating outward. \n\nIt uses a **Queue**. We mark nodes as 'visited' so we don't process them twice. BFS is perfect for finding the **Shortest Path** on an unweighted graph.",
+        codeSnippets: {
+          "Python": "def bfs(graph, start):\n    visited, queue = set([start]), [start]\n    while queue:\n        node = queue.pop(0)\n        for neighbor in graph[node]:\n            if neighbor not in visited:\n                visited.add(neighbor)\n                queue.append(neighbor)",
+          "C++": "// C++ BFS using std::queue",
+          "Java": "// Java BFS using Queue and HashSet",
+          "JavaScript": "// JS BFS using array push/shift and Set"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "DFS (Depth-First Search)", 
+        visualType: "graph", 
+        visualState: "dfs",
+        explanation: "**DFS** goes as deep as possible down one path before backtracking. \n\nIt uses a **Stack** (usually the implicit Call Stack via recursion). DFS is great for finding connected components, detecting cycles, or solving mazes.",
+        codeSnippets: {
+          "Python": "def dfs(graph, node, visited):\n    if node not in visited:\n        print(node)\n        visited.add(node)\n        for neighbor in graph[node]:\n            dfs(graph, neighbor, visited)",
+          "C++": "// C++ DFS using recursion",
+          "Java": "// Java DFS using recursion",
+          "JavaScript": "// JS DFS using recursion"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Topological Sort", 
+        visualType: "graph", 
+        visualState: "directed",
+        explanation: "**Topological Sort** orders the nodes of a Directed Acyclic Graph (DAG) such that for every directed edge `U -> V`, node `U` comes before `V`.\n\nUsed heavily in task scheduling (e.g., Course Prerequisites, Build Systems). Uses a modified DFS or Kahn's Algorithm.",
+        codeSnippets: {
+          "Python": "# Topological Sort implementation omitted for brevity",
+          "C++": "// Topological Sort implementation omitted for brevity",
+          "Java": "// Topological Sort implementation omitted for brevity",
+          "JavaScript": "// Topological Sort implementation omitted for brevity"
+        }
+      },
+      { 
+        id: "step5", 
+        text: "Shortest Path & MST", 
+        visualType: "graph", 
+        visualState: "bfs",
+        explanation: "- **Dijkstra's Algorithm**: Finds the shortest path in a weighted graph using a Priority Queue.\n- **Prim's & Kruskal's**: Find the Minimum Spanning Tree (MST)—the cheapest way to connect all nodes without cycles.",
+        codeSnippets: {
+          "Python": "# Dijkstra/MST implementations omitted for brevity",
+          "C++": "// Dijkstra/MST implementations omitted for brevity",
+          "Java": "// Dijkstra/MST implementations omitted for brevity",
+          "JavaScript": "// Dijkstra/MST implementations omitted for brevity"
+        }
+      }
     ]
   },
   {
     id: "tries",
-    title: "18. Tries",
+    title: "17. Tries",
     description: "Prefix trees, compressed tries",
     icon: "⛺",
     teachingSteps: [
-      { id: "step1", text: "Standard Trie", visualType: "trie", visualState: "search" },
-      { id: "step2", text: "Compressed Trie", visualType: "trie", visualState: "search" },
-      { id: "step3", text: "Suffix Trie", visualType: "trie", visualState: "search" }
+      { 
+        id: "step1", 
+        text: "Standard Trie", 
+        visualType: "trie", 
+        visualState: "search",
+        explanation: "A **Trie** (Prefix Tree) is a tree-like data structure used to store strings. Each node represents a single character.\n\nIt is extremely fast (O(L) where L is the string length) for prefix matching, making it the perfect structure for **Autocomplete** and **Spell Checkers**.",
+        codeSnippets: {
+          "Python": "class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_word = False",
+          "C++": "struct TrieNode {\n    unordered_map<char, TrieNode*> children;\n    bool isWord = false;\n};",
+          "Java": "class TrieNode {\n    Map<Character, TrieNode> children = new HashMap<>();\n    boolean isWord = false;\n}",
+          "JavaScript": "class TrieNode {\n    constructor() {\n        this.children = {};\n        this.isWord = false;\n    }\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Compressed Trie / Suffix Trie", 
+        visualType: "trie", 
+        visualState: "search",
+        explanation: "- **Compressed Trie (Radix Tree)**: Groups single-child chains into a single node to save memory.\n- **Suffix Trie**: Contains all suffixes of a string, used in complex substring matching algorithms (e.g., DNA sequencing).",
+        codeSnippets: {
+          "Python": "# Standard insert/search logic usually sufficient for interviews",
+          "C++": "// Standard insert/search logic usually sufficient for interviews",
+          "Java": "// Standard insert/search logic usually sufficient for interviews",
+          "JavaScript": "// Standard insert/search logic usually sufficient for interviews"
+        }
+      }
     ]
   },
   {
     id: "dp",
-    title: "19. Dynamic Programming",
+    title: "18. Dynamic Programming",
     description: "Memoization, tabulation",
     icon: "🧠",
     teachingSteps: [
-      { id: "step1", text: "Dynamic Programming", visualType: "dp", visualState: "memo" }
+      { 
+        id: "step1", 
+        text: "Memoization (Top-Down)", 
+        visualType: "dp", 
+        visualState: "memo",
+        explanation: "Dynamic Programming (DP) solves complex problems by breaking them into overlapping subproblems.\n\n**Memoization** uses recursion. If we calculate `fib(4)`, we save the result in a cache (Hash Map). The next time we need `fib(4)`, we instantly return the cached value instead of recomputing it.",
+        codeSnippets: {
+          "Python": "memo = {}\ndef fib(n):\n    if n <= 1: return n\n    if n not in memo:\n        memo[n] = fib(n-1) + fib(n-2)\n    return memo[n]",
+          "C++": "// C++: Use an unordered_map or array for the memo cache",
+          "Java": "// Java: Use a HashMap or array for the memo cache",
+          "JavaScript": "// JS: Use a Map or object for the memo cache"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Tabulation (Bottom-Up)", 
+        visualType: "dp", 
+        visualState: "memo",
+        explanation: "**Tabulation** avoids recursion entirely. It builds a table (array) starting from the smallest subproblems (`fib(0)` and `fib(1)`) and uses a loop to build up to the final answer.\n\nTabulation is usually more memory-efficient because it doesn't build a massive Call Stack.",
+        codeSnippets: {
+          "Python": "def fib(n):\n    if n <= 1: return n\n    dp = [0] * (n + 1)\n    dp[1] = 1\n    for i in range(2, n + 1):\n        dp[i] = dp[i-1] + dp[i-2]\n    return dp[n]",
+          "C++": "// C++: Create a vector or array of size n+1",
+          "Java": "// Java: Create an int[] array of size n+1",
+          "JavaScript": "// JS: Create an array of size n+1"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Classic DP Problems", 
+        visualType: "dp", 
+        visualState: "memo",
+        explanation: "DP is famously difficult to master. Start by recognizing these classic patterns:\n\n1. **1D Array**: Climbing Stairs, Fibonacci.\n2. **2D Grid**: Unique Paths, Minimum Path Sum.\n3. **String/Sequence**: Longest Common Subsequence, Edit Distance.\n4. **0/1 Knapsack**: Choosing items to maximize value without exceeding capacity.",
+        codeSnippets: {
+          "Python": "# Master the patterns, not the individual problems.",
+          "C++": "// Master the patterns, not the individual problems.",
+          "Java": "// Master the patterns, not the individual problems.",
+          "JavaScript": "// Master the patterns, not the individual problems."
+        }
+      }
     ]
   },
   {
     id: "greedy",
-    title: "20. Greedy Algorithms",
+    title: "19. Greedy Algorithms",
     description: "Local optimal choices",
     icon: "🤑",
     teachingSteps: [
-      { id: "step1", text: "Greedy Algorithms", visualType: "text", visualState: "text" }
+      { 
+        id: "step1", 
+        text: "Local Optimal Choices", 
+        visualType: "text", 
+        visualState: "text",
+        explanation: "A **Greedy Algorithm** builds a solution piece by piece, always choosing the next piece that offers the most immediate benefit (the \"local optimum\").\n\nIt does not reconsider past choices. It assumes that making the best local choice will lead to the best global solution. \n\n*Example*: Giving change for $0.90 using the fewest coins. A greedy algorithm takes the largest coin possible first ($0.25 x 3), then the next ($0.10 x 1), then ($0.05 x 1).",
+        codeSnippets: {
+          "Python": "def give_change(amount):\n    coins = [25, 10, 5, 1]\n    count = 0\n    for c in coins:\n        count += amount // c\n        amount %= c\n    return count",
+          "C++": "// C++ greedy logic",
+          "Java": "// Java greedy logic",
+          "JavaScript": "// JS greedy logic"
+        }
+      }
     ]
   },
   {
     id: "backtracking",
-    title: "21. Backtracking Algorithms",
+    title: "20. Backtracking Algorithms",
     description: "Exploring paths, reverting",
     icon: "🔙",
     teachingSteps: [
-      { id: "step1", text: "Backtracking Algorithms", visualType: "recursion", visualState: "build" }
+      { 
+        id: "step1", 
+        text: "Exploring Paths & Reverting", 
+        visualType: "recursion", 
+        visualState: "build",
+        explanation: "**Backtracking** is a refined brute force approach. It explores a potential path to a solution. \n\nIf it realizes the current path is a dead end (or violates constraints), it **cancels** the last move and steps back to try a different path.\n\n*Examples*: Solving a Sudoku puzzle, generating permutations, or the N-Queens problem.",
+        codeSnippets: {
+          "Python": "def solve(state):\n    if is_solution(state): return True\n    for choice in get_choices():\n        make(choice)\n        if solve(state): return True\n        unmake(choice) # BACKTRACK\n    return False",
+          "C++": "// Make choice -> Recurse -> Unmake choice",
+          "Java": "// Make choice -> Recurse -> Unmake choice",
+          "JavaScript": "// Make choice -> Recurse -> Unmake choice"
+        }
+      }
     ]
   },
   {
     id: "disjointset",
-    title: "22. Disjoint Set",
+    title: "21. Disjoint Set",
     description: "Union-Find, path compression",
     icon: "🔗",
     teachingSteps: [
-      { id: "step1", text: "Disjoint Set", visualType: "text", visualState: "text" }
+      { 
+        id: "step1", 
+        text: "Union-Find & Path Compression", 
+        visualType: "text", 
+        visualState: "text",
+        explanation: "A **Disjoint Set (Union-Find)** keeps track of elements partitioned into non-overlapping subsets. It is heavily used in graph algorithms like Kruskal's MST.\n\n- **Find**: Determine which subset an element is in.\n- **Union**: Merge two subsets.\n- **Path Compression**: Flattens the structure when 'Find' is called, making future operations nearly **O(1)**.",
+        codeSnippets: {
+          "Python": "class UnionFind:\n    def __init__(self, n):\n        self.parent = list(range(n))\n    def find(self, i):\n        if self.parent[i] == i: return i\n        self.parent[i] = self.find(self.parent[i]) # Path compression\n        return self.parent[i]",
+          "C++": "// C++ Union-Find with Path Compression",
+          "Java": "// Java Union-Find with Path Compression",
+          "JavaScript": "// JS Union-Find with Path Compression"
+        }
+      }
+    ]
+  },
+  {
+    id: "advancedpatterns",
+    title: "22. Advanced Patterns",
+    description: "Sliding Window & Two Pointers",
+    icon: "🪟",
+    teachingSteps: [
+      { 
+        id: "step1", 
+        text: "Sliding Window", 
+        visualType: "text", 
+        visualState: "text",
+        explanation: "The **Sliding Window** pattern is used to perform operations on a specific window size of a given array or string.\n\nInstead of recalculating the sum of a sub-array `[a, b, c]` from scratch, you subtract the element that leaves the window and add the element that enters it. Transforms O(N²) into O(N).",
+        codeSnippets: {
+          "Python": "# Max Sum Subarray of Size K\nwindow_sum = sum(arr[:k])\nmax_sum = window_sum\nfor i in range(len(arr) - k):\n    window_sum = window_sum - arr[i] + arr[i+k]\n    max_sum = max(max_sum, window_sum)",
+          "C++": "// C++ Sliding Window",
+          "Java": "// Java Sliding Window",
+          "JavaScript": "// JS Sliding Window"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Two Pointers", 
+        visualType: "text", 
+        visualState: "text",
+        explanation: "The **Two Pointers** pattern uses two indices to iterate through a data structure.\n\n- **Opposite Ends**: One pointer at the start, one at the end (e.g., reversing an array, checking palindromes).\n- **Fast & Slow**: One pointer moves twice as fast as the other (e.g., detecting cycles in a Linked List).",
+        codeSnippets: {
+          "Python": "# Reverse an array in-place\nl, r = 0, len(arr) - 1\nwhile l < r:\n    arr[l], arr[r] = arr[r], arr[l]\n    l += 1; r -= 1",
+          "C++": "// C++ Two Pointers",
+          "Java": "// Java Two Pointers",
+          "JavaScript": "// JS Two Pointers"
+        }
+      }
     ]
   }
 ];
