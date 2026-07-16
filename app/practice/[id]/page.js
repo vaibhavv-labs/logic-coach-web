@@ -677,6 +677,7 @@ export default function Home() {
              <DSATeachingPhase 
                topic={activeDsaTopic} 
                initialStep={dsaProgress[activeDsaTopic.id]?.step || 0}
+               progLanguage={userRoadmap?.language || 'Python'}
                language={language}
                onLanguageChange={setLanguage}
                onProgressUpdate={async (step) => {
@@ -697,6 +698,7 @@ export default function Home() {
              <DSATeachingPhase 
                topic={activeLanguageTopic} 
                initialStep={languageProgress[activeLanguageTopic.id]?.step || 0}
+               progLanguage={userRoadmap?.language || 'Python'}
                language={language}
                onLanguageChange={setLanguage}
                onProgressUpdate={async (step) => {

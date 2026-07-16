@@ -20,7 +20,7 @@ import TrieVisualizer from "./visualizers/TrieVisualizer";
 import { t } from "../data/translations";
 import VoiceChat from "./VoiceChat";
 
-export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", onLanguageChange }) {
+export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", progLanguage = "Python", onLanguageChange }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [chatHistory, setChatHistory] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -230,7 +230,12 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               <div className="visual-content">
                 {renderVisualizer()}
               </div>
-              {stepData.codeSnippet && (
+              {stepData.codeSnippets ? (
+                <div className="dsa-code-example">
+                  <h4>Example ({progLanguage}):</h4>
+                  <pre><code>{stepData.codeSnippets[progLanguage] || stepData.codeSnippets['Python']}</code></pre>
+                </div>
+              ) : stepData.codeSnippet && (
                 <div className="dsa-code-example">
                   <h4>Example ({stepData.codeLanguage || 'Code'}):</h4>
                   <pre><code>{stepData.codeSnippet}</code></pre>

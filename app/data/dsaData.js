@@ -10,38 +10,53 @@ export const DSA_TOPICS = [
         text: "What is an array?", 
         visualType: "array", 
         visualState: "empty",
-        codeLanguage: "Python",
-        codeSnippet: "# Creating an array (list) in Python\nmy_array = [7, 12, 9, 4, 11]\nprint(\"Array created! Length:\", len(my_array))",
-        explanation: "An **Array** is one of the most basic and important data structures. It is used to store a collection of elements (like numbers, strings, or objects) in a contiguous block of memory. \n\nThink of an array like a row of mailboxes: each mailbox has a specific number (an **index**) and can hold exactly one item. Arrays are incredibly useful when you need to keep track of a list of related items, such as the scores of players in a game or a list of temperatures for the week."
+        explanation: "An **Array** is one of the most basic and important data structures. It is used to store a collection of elements (like numbers, strings, or objects) in a contiguous block of memory. \n\nThink of an array like a row of mailboxes: each mailbox has a specific number (an **index**) and can hold exactly one item. Arrays are incredibly useful when you need to keep track of a list of related items.",
+        codeSnippets: {
+          "Python": "# Python lists act as dynamic arrays\nmy_array = [7, 12, 9, 4, 11]\nprint(\"Length:\", len(my_array))",
+          "C++": "#include <iostream>\nusing namespace std;\n\nint main() {\n    int myArray[5] = {7, 12, 9, 4, 11};\n    cout << \"First element: \" << myArray[0];\n}",
+          "Java": "public class Main {\n    public static void main(String[] args) {\n        int[] myArray = {7, 12, 9, 4, 11};\n        System.out.println(\"Length: \" + myArray.length);\n    }\n}",
+          "JavaScript": "let myArray = [7, 12, 9, 4, 11];\nconsole.log(\"Length:\", myArray.length);"
+        }
       },
       { 
         id: "step2", 
         text: "How is it stored in memory?", 
         visualType: "array", 
         visualState: "memory",
-        explanation: "In computer memory, an array is stored in a **contiguous (continuous) block**. This means all the elements sit right next to each other in RAM. \n\nBecause of this structure, the computer knows exactly where every item is if it knows the starting location and the size of one item. This allows for extremely fast lookups. However, because the size is often fixed when the array is created, it can be difficult to resize it later without copying all the data to a new, larger block of memory."
+        explanation: "In computer memory, an array is stored in a **contiguous (continuous) block**. This means all the elements sit right next to each other in RAM. \n\nBecause of this structure, the computer knows exactly where every item is if it knows the starting location and the size of one item. This allows for extremely fast lookups. However, because the size is often fixed when the array is created, it can be difficult to resize it later without copying all the data to a new, larger block of memory.",
+        codeSnippets: {
+          "Python": "# Memory blocks are handled by Python\narr = [10, 20, 30]\n# elements are stored continuously",
+          "C++": "int arr[3] = {10, 20, 30};\ncout << &arr[0] << endl; // e.g. 0x7ffe0001\ncout << &arr[1] << endl; // e.g. 0x7ffe0005 (4 bytes later)",
+          "Java": "// Java manages memory, but arrays are contiguous objects\nint[] arr = new int[]{10, 20, 30};",
+          "JavaScript": "// JS arrays are dynamic and memory is managed by the engine\nlet arr = [10, 20, 30];"
+        }
       },
       { 
         id: "step3", 
         text: "How to access an element by index?", 
         visualType: "array", 
         visualState: "access",
-        codeLanguage: "Python",
-        codeSnippet: "my_array = [7, 12, 9, 4, 11]\n\n# Accessing the first element (0-indexed)\nfirst_element = my_array[0]\nprint(\"First element:\", first_element) # Output: 7\n\n# Accessing the last element\nlast_element = my_array[4]\nprint(\"Last element:\", last_element) # Output: 11",
-        explanation: "Every element in an array has a numbered position called an **index**. In almost all modern programming languages (including Python, Java, C++, and JavaScript), arrays are **zero-indexed**. This means the very first element is at index `0`, the second is at index `1`, and so on.\n\nTo read or change an item, you just use square brackets with the index number, like `my_array[0]`. This operation takes **O(1)** time, meaning it is instantly fast regardless of how big the array is!"
+        explanation: "Every element in an array has a numbered position called an **index**. In almost all modern programming languages, arrays are **zero-indexed**. This means the very first element is at index `0`.\n\nAccessing an item takes **O(1)** time, meaning it is instantly fast regardless of how big the array is!",
+        codeSnippets: {
+          "Python": "my_array = [7, 12, 9, 4, 11]\nfirst_element = my_array[0]\nprint(first_element)",
+          "C++": "int myArray[] = {7, 12, 9, 4, 11};\nint firstElement = myArray[0];\ncout << firstElement;",
+          "Java": "int[] myArray = {7, 12, 9, 4, 11};\nint firstElement = myArray[0];\nSystem.out.println(firstElement);",
+          "JavaScript": "let myArray = [7, 12, 9, 4, 11];\nlet firstElement = myArray[0];\nconsole.log(firstElement);"
+        }
       },
       { 
         id: "step4", 
         text: "How to traverse it?", 
         visualType: "array", 
         visualState: "traverse",
-        codeLanguage: "Python",
-        codeSnippet: "my_array = [7, 12, 9, 4, 11]\n\n# Traversing using a for loop\nfor element in my_array:\n    print(element)\n\n# Finding the lowest value\nlowest = my_array[0]\nfor num in my_array:\n    if num < lowest:\n        lowest = num\nprint(\"Lowest value:\", lowest)",
-        explanation: "**Traversal** means visiting every single element in the array one by one, usually from the beginning to the end. \n\nWe typically use a **loop** (like a `for` loop) to traverse arrays. This is useful when you need to perform an action on every item—such as printing them to the screen, adding them all together to find a sum, or searching for a specific value like the lowest or highest number."
-      },
-      { id: "step5", text: "Multidimensional Arrays", visualType: "array", visualState: "memory" },
-      { id: "step6", text: "Pass-by-Value and Pass-by-Reference", visualType: "text", visualState: "math" },
-      { id: "step7", text: "Dynamic Memory Allocation", visualType: "text", visualState: "math" }
+        explanation: "**Traversal** means visiting every single element in the array one by one, usually from the beginning to the end. \n\nWe typically use a **loop** (like a `for` loop) to traverse arrays.",
+        codeSnippets: {
+          "Python": "my_array = [7, 12, 9, 4, 11]\nfor num in my_array:\n    print(num)",
+          "C++": "int myArray[] = {7, 12, 9, 4, 11};\nfor(int i = 0; i < 5; i++) {\n    cout << myArray[i] << \"\\n\";\n}",
+          "Java": "int[] myArray = {7, 12, 9, 4, 11};\nfor(int num : myArray) {\n    System.out.println(num);\n}",
+          "JavaScript": "let myArray = [7, 12, 9, 4, 11];\nfor(let num of myArray) {\n    console.log(num);\n}"
+        }
+      }
     ]
   },
   {
@@ -105,11 +120,32 @@ export const DSA_TOPICS = [
     description: "Singly, then doubly",
     icon: "🔗",
     teachingSteps: [
-      { id: "step1", text: "Nodes and Pointers", visualType: "linkedlist", visualState: "node" },
-      { id: "step2", text: "Connecting Nodes (Singly)", visualType: "linkedlist", visualState: "singly" },
-      { id: "step3", text: "Traversing a Linked List", visualType: "linkedlist", visualState: "traverse" },
-      { id: "step4", text: "Doubly Linked Lists", visualType: "linkedlist", visualState: "doubly" },
-      { id: "step5", text: "Circular Linked List", visualType: "linkedlist", visualState: "singly" }
+      { 
+        id: "step1", 
+        text: "Nodes and Pointers", 
+        visualType: "linkedlist", 
+        visualState: "node",
+        explanation: "Unlike arrays, Linked Lists do NOT store elements in contiguous memory. Instead, each element is a **Node**. \n\nA Node contains two things:\n1. **Data** (the actual value)\n2. **Pointer/Reference** (the memory address of the NEXT node in the list).",
+        codeSnippets: {
+          "Python": "class Node:\n    def __init__(self, data):\n        self.data = data\n        self.next = None",
+          "C++": "struct Node {\n    int data;\n    Node* next;\n    Node(int val) : data(val), next(nullptr) {}\n};",
+          "Java": "class Node {\n    int data;\n    Node next;\n    public Node(int data) {\n        this.data = data;\n        this.next = null;\n    }\n}",
+          "JavaScript": "class Node {\n    constructor(data) {\n        this.data = data;\n        this.next = null;\n    }\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Connecting Nodes (Singly)", 
+        visualType: "linkedlist", 
+        visualState: "singly",
+        explanation: "To build a Linked List, we link nodes together by assigning the `next` pointer of one node to point to another node. The first node is called the **Head**.",
+        codeSnippets: {
+          "Python": "head = Node(10)\nsecond = Node(20)\nhead.next = second  # 10 -> 20",
+          "C++": "Node* head = new Node(10);\nNode* second = new Node(20);\nhead->next = second; // 10 -> 20",
+          "Java": "Node head = new Node(10);\nNode second = new Node(20);\nhead.next = second; // 10 -> 20",
+          "JavaScript": "let head = new Node(10);\nlet second = new Node(20);\nhead.next = second; // 10 -> 20"
+        }
+      }
     ]
   },
   {
