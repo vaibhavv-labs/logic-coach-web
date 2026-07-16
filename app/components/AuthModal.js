@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { auth, googleProvider } from "../../lib/firebase";
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInAnonymously } from "firebase/auth";
 
 export default function AuthModal({ onClose, onSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +14,19 @@ export default function AuthModal({ onClose, onSuccess }) {
       setLoading(true);
       setError("");
       await signInWithPopup(auth, googleProvider);
+      onSuccess();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      await signInAnonymously(auth);
       onSuccess();
     } catch (err) {
       setError(err.message);
@@ -65,6 +78,15 @@ export default function AuthModal({ onClose, onSuccess }) {
         >
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" />
           Continue with Google
+        </button>
+
+        <button 
+          className="google-btn" 
+          style={{ marginTop: '10px', background: 'var(--bg-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
+          onClick={handleGuestSignIn}
+          disabled={loading}
+        >
+          👤 Continue as Guest
         </button>
 
         <div className="auth-divider">

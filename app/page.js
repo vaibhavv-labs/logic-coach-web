@@ -661,7 +661,7 @@ export default function Home() {
           <div className="sidebar-user-section" style={{ padding: '16px', borderBottom: '1px solid var(--border-light)' }}>
             {user ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.email.split('@')[0]}</span>
+                <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
                   <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
