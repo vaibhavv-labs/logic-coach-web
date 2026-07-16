@@ -696,7 +696,7 @@ export default function Home() {
             ) : (
               <div className="bento-container">
                 <div className="bento-header">
-                  <h1>Welcome back, {user ? user.email.split('@')[0] : 'Developer'}!</h1>
+                  <h1>Welcome back, {userRoadmap?.username || (user ? user.email.split('@')[0] : 'Developer')}!</h1>
                   <p>What would you like to learn today?</p>
                 </div>
                 

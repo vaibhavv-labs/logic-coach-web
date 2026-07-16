@@ -133,7 +133,11 @@ export default function Home() {
         setDsaProgress(data.dsaProgress || {});
         
         if (data.onboardingCompleted !== undefined) {
-          setOnboardingCompleted(data.onboardingCompleted);
+          if (data.roadmap && !data.roadmap.username) {
+            setOnboardingCompleted(false);
+          } else {
+            setOnboardingCompleted(data.onboardingCompleted);
+          }
           setUserRoadmap(data.roadmap || null);
         } else {
           // If field doesn't exist on old users, force onboarding or default to true
@@ -720,7 +724,7 @@ export default function Home() {
             ) : (
               <div className="bento-container">
                 <div className="bento-header">
-                  <h1>Welcome back, {user ? user.email.split('@')[0] : 'Developer'}!</h1>
+                  <h1>Welcome back, {userRoadmap?.username || (user ? user.email.split('@')[0] : 'Developer')}!</h1>
                   <p>What would you like to learn today?</p>
                 </div>
                 

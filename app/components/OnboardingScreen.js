@@ -8,6 +8,7 @@ export default function OnboardingScreen({ user, onComplete }) {
   const [interest, setInterest] = useState("");
   const [language, setLanguage] = useState("");
   const [goal, setGoal] = useState("");
+  const [username, setUsername] = useState("");
   
   const [loading, setLoading] = useState(false);
 
@@ -24,6 +25,7 @@ export default function OnboardingScreen({ user, onComplete }) {
         interest,
         language,
         goal,
+        username,
         onboardingCompleted: true,
       };
 
@@ -60,6 +62,24 @@ export default function OnboardingScreen({ user, onComplete }) {
         );
       case 2:
         return (
+          <div className="onboarding-fade-in" style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '28px', marginBottom: '24px' }}>What should we call you?</h2>
+            <input 
+              type="text" 
+              value={username} 
+              onChange={(e) => setUsername(e.target.value)} 
+              placeholder="Enter your specific username..." 
+              style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '18px', marginBottom: '32px' }}
+              autoFocus
+            />
+            <div className="onboarding-actions" style={{ justifyContent: 'center' }}>
+              <button className="login-btn-ghost" onClick={handlePrev}>Back</button>
+              <button className="start-btn-small" disabled={!username.trim()} onClick={handleNext}>Continue</button>
+            </div>
+          </div>
+        );
+      case 3:
+        return (
           <div className="onboarding-fade-in">
             <h2 style={{ fontSize: '28px', marginBottom: '24px', textAlign: 'center' }}>What describes you best?</h2>
             <div className="onboarding-options">
@@ -79,7 +99,7 @@ export default function OnboardingScreen({ user, onComplete }) {
             </div>
           </div>
         );
-      case 3:
+      case 4:
         return (
           <div className="onboarding-fade-in" style={{ textAlign: 'center' }}>
             <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Let&apos;s build a roadmap for you,</h1>
@@ -89,7 +109,7 @@ export default function OnboardingScreen({ user, onComplete }) {
             </div>
           </div>
         );
-      case 4:
+      case 5:
         return (
           <div className="onboarding-fade-in">
             <h2 style={{ fontSize: '28px', marginBottom: '24px', textAlign: 'center' }}>What are you interested in?</h2>
@@ -110,7 +130,7 @@ export default function OnboardingScreen({ user, onComplete }) {
             </div>
           </div>
         );
-      case 5:
+      case 6:
         return (
           <div className="onboarding-fade-in">
             <h2 style={{ fontSize: '28px', marginBottom: '24px', textAlign: 'center' }}>Which programming language do you want to learn?</h2>
@@ -139,7 +159,7 @@ export default function OnboardingScreen({ user, onComplete }) {
             </div>
           </div>
         );
-      case 6:
+      case 7:
         return (
           <div className="onboarding-fade-in">
             <h2 style={{ fontSize: '28px', marginBottom: '24px', textAlign: 'center' }}>What is your goal for learning {language}?</h2>
