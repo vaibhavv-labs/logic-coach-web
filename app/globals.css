@@ -146,10 +146,7 @@ body {
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  object-fit: cover;
+  font-size: 28px;
 }
 
 .landing-nav-actions {
@@ -235,14 +232,6 @@ body {
   animation: floatIcon 6s ease-in-out infinite;
   z-index: 2;
   position: relative;
-  overflow: hidden;
-}
-
-.landing-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 36px;
 }
 
 .landing-icon-glow {
@@ -372,13 +361,6 @@ body {
 
 .sidebar-logo {
   font-size: 24px;
-}
-
-.sidebar-logo img {
-  width: 24px;
-  height: 24px;
-  object-fit: cover;
-  border-radius: 4px;
 }
 
 .sidebar-brand h2 {
