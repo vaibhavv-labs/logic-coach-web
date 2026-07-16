@@ -13,6 +13,7 @@ import DSAPath from "../../components/DSAPath";
 import DSATeachingPhase from "../../components/DSATeachingPhase";
 import LanguagePath from "../../components/LanguagePath";
 import OnboardingScreen from "../../components/OnboardingScreen";
+import PracticeCompilerPanel from "../../components/PracticeCompilerPanel";
 
 // Visualizers
 import ArrayVisualizer from "../../components/visualizers/ArrayVisualizer";
@@ -938,6 +939,7 @@ export default function Home() {
           )}
         </main>
       </div>
+      <PracticeCompilerPanel language={userRoadmap?.language || 'Python'} />
     </>
   );
 }

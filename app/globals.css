@@ -1800,3 +1800,131 @@ body {
 [data-theme="light"] .bento-custom:hover {
   background: rgba(0, 0, 0, 0.01);
 }
+
+/* Practice Compiler Panel */
+.compiler-panel-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.compiler-panel-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.compiler-panel-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 45%;
+  min-width: 400px;
+  height: 100vh;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border-light);
+  box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+  z-index: 1000;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+.compiler-panel-drawer.open {
+  transform: translateX(0);
+}
+
+.compiler-panel-toggle {
+  position: absolute;
+  top: 50%;
+  left: -145px;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center right;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px 8px 0 0;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+  z-index: 1001;
+  transition: all 0.3s ease;
+}
+.compiler-panel-toggle:hover {
+  background: var(--accent-teal);
+}
+.compiler-panel-drawer.open .compiler-panel-toggle {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  border-bottom: none;
+}
+
+.compiler-panel-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.compiler-editor-section {
+  flex: 7;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-light);
+  position: relative;
+}
+
+.compiler-terminal-section {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+  color: #cccccc;
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.run-code-btn {
+  background: #22c55e;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.run-code-btn:hover {
+  background: #16a34a;
+}
+.run-code-btn.loading {
+  background: #3c3c3c;
+  cursor: not-allowed;
+}
+
+.terminal-body {
+  flex: 1;
+  padding: 12px 16px;
+  overflow-y: auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 14px;
+}
+.terminal-output.success-text {
+  color: #cccccc;
+}
+.terminal-output.error-text {
+  color: #f87171;
+}
