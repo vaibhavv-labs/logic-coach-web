@@ -30,6 +30,32 @@ export const LANGUAGE_TOPICS = [
           "Java": "boolean isActive = true;\nint score = 100;\ndouble price = 19.99;\nchar letter = 'A';",
           "JavaScript": "let isActive = true;\nlet score = 100;\nlet price = 19.99;\n// JS doesn't have a distinct char type, just strings\nlet letter = 'A';"
         }
+      },
+      {
+        id: "step3",
+        text: "Type Casting / Conversion",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Sometimes you need to convert data from one type to another—this is called **Type Casting** or Type Conversion. For example, converting a string `\"42\"` into an actual integer `42` so you can do math with it.",
+        codeSnippets: {
+          "Python": "str_num = \"42\"\nint_num = int(str_num)\nfloat_num = float(int_num)\n\nprint(int_num + 8) # 50",
+          "C++": "string strNum = \"42\";\nint intNum = stoi(strNum);\ndouble floatNum = (double)intNum;\n\ncout << (intNum + 8); // 50",
+          "Java": "String strNum = \"42\";\nint intNum = Integer.parseInt(strNum);\ndouble floatNum = (double) intNum;\n\nSystem.out.println(intNum + 8); // 50",
+          "JavaScript": "let strNum = \"42\";\nlet intNum = parseInt(strNum);\nlet floatNum = parseFloat(strNum);\n\nconsole.log(intNum + 8); // 50"
+        }
+      },
+      {
+        id: "step4",
+        text: "Input and Output (I/O)",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**I/O** allows your program to interact with the outside world. Output prints data to the screen (like a terminal), while Input asks the user to type something in.",
+        codeSnippets: {
+          "Python": "name = input(\"Enter your name: \")\nprint(f\"Welcome, {name}!\")",
+          "C++": "#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string name;\n    cout << \"Enter your name: \";\n    cin >> name;\n    cout << \"Welcome, \" << name << \"!\\n\";\n}",
+          "Java": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        System.out.print(\"Enter your name: \");\n        String name = scanner.nextLine();\n        System.out.println(\"Welcome, \" + name + \"!\");\n    }\n}",
+          "JavaScript": "// In Node.js (Terminal):\nconst readline = require('readline').createInterface({\n  input: process.stdin,\n  output: process.stdout\n});\nreadline.question('Enter your name: ', name => {\n  console.log(`Welcome, ${name}!`);\n  readline.close();\n});"
+        }
       }
     ]
   },
@@ -140,6 +166,58 @@ export const LANGUAGE_TOPICS = [
           "Java": "public static int add(int a, int b) {\n    return a + b;\n}\n\npublic static void main(String[] args) {\n    int result = add(5, 7);\n    System.out.println(result);\n}",
           "JavaScript": "function add(a, b) {\n    return a + b;\n}\n\nlet result = add(5, 7);\nconsole.log(result);"
         }
+      },
+      {
+        id: "step2",
+        text: "Scope",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Scope** determines where a variable can be accessed. A variable defined *inside* a function is Local (cannot be seen outside). A variable defined *outside* is Global (can be seen anywhere).",
+        codeSnippets: {
+          "Python": "global_var = 10\n\ndef my_func():\n    local_var = 5\n    print(global_var + local_var)\n\nmy_func()\n# print(local_var) # ERROR!",
+          "C++": "int globalVar = 10;\n\nvoid myFunc() {\n    int localVar = 5;\n    cout << (globalVar + localVar);\n}\n// cout << localVar; // ERROR",
+          "Java": "public class Main {\n    static int globalVar = 10;\n    \n    public static void myFunc() {\n        int localVar = 5;\n        System.out.println(globalVar + localVar);\n    }\n}",
+          "JavaScript": "let globalVar = 10;\n\nfunction myFunc() {\n    let localVar = 5;\n    console.log(globalVar + localVar);\n}\nmyFunc();\n// console.log(localVar); // ERROR"
+        }
+      },
+      {
+        id: "step3",
+        text: "Return Values & Multiple Returns",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Functions often compute a result and **return** it to the caller. Some languages (like Python) allow returning multiple values easily as a Tuple. Others require an Array, Object, or passing by reference.",
+        codeSnippets: {
+          "Python": "def divide(a, b):\n    quotient = a // b\n    remainder = a % b\n    return quotient, remainder\n\nq, r = divide(10, 3)",
+          "C++": "#include <tuple>\nusing namespace std;\n\ntuple<int, int> divide(int a, int b) {\n    return make_tuple(a / b, a % b);\n}\n// Use auto [q, r] = divide(10, 3);",
+          "Java": "class Result { int q, r; }\nResult divide(int a, int b) {\n    Result res = new Result();\n    res.q = a / b; res.r = a % b;\n    return res;\n}",
+          "JavaScript": "function divide(a, b) {\n    return { q: Math.floor(a/b), r: a%b };\n}\nlet { q, r } = divide(10, 3);"
+        }
+      },
+      {
+        id: "step4",
+        text: "Recursion",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Recursion** is when a function calls *itself* to solve a smaller piece of the problem. It requires a **Base Case** (when to stop) and a **Recursive Case**. It is extremely important for Data Structures like Trees and Graphs.",
+        codeSnippets: {
+          "Python": "def factorial(n):\n    if n <= 1: return 1\n    return n * factorial(n - 1)\n\nprint(factorial(5)) # 120",
+          "C++": "int factorial(int n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\n// factorial(5) == 120",
+          "Java": "public static int factorial(int n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\n// factorial(5) == 120",
+          "JavaScript": "function factorial(n) {\n    if (n <= 1) return 1;\n    return n * factorial(n - 1);\n}\nconsole.log(factorial(5)); // 120"
+        }
+      },
+      {
+        id: "step5",
+        text: "Lambdas & Closures",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Lambda Functions** (or Anonymous/Arrow Functions) are short, inline functions without a name. A **Closure** happens when a function \"remembers\" the variables from its surrounding scope even after the outer function finishes.",
+        codeSnippets: {
+          "Python": "# Lambda function\nmultiply = lambda a, b: a * b\nprint(multiply(3, 4)) # 12",
+          "C++": "auto multiply = [](int a, int b) { \n    return a * b; \n};\ncout << multiply(3, 4); // 12",
+          "Java": "import java.util.function.BiFunction;\n\nBiFunction<Integer, Integer, Integer> multiply = (a, b) -> a * b;\nSystem.out.println(multiply.apply(3, 4));",
+          "JavaScript": "// Arrow function with Closure\nconst makeMultiplier = (x) => (y) => x * y;\nconst double = makeMultiplier(2);\nconsole.log(double(5)); // 10"
+        }
       }
     ]
   },
@@ -173,6 +251,45 @@ export const LANGUAGE_TOPICS = [
           "C++": "#include <unordered_map>\nusing namespace std;\n\nunordered_map<string, string> user;\nuser[\"name\"] = \"Alice\";\nuser[\"city\"] = \"New York\";\ncout << user[\"name\"];",
           "Java": "import java.util.HashMap;\n\nHashMap<String, String> user = new HashMap<>();\nuser.put(\"name\", \"Alice\");\nuser.put(\"city\", \"New York\");\nSystem.out.println(user.get(\"name\"));",
           "JavaScript": "let user = { name: \"Alice\", age: 25 };\nconsole.log(user.name);\nuser.city = \"New York\";"
+        }
+      },
+      {
+        id: "step3",
+        text: "Tuples (Immutable Data)",
+        visualType: "text",
+        visualState: "text",
+        explanation: "A **Tuple** is like a List/Array, but it is typically **Immutable** (cannot be changed after creation). They are useful for grouping related data that shouldn't change, like coordinates `(x, y)`.",
+        codeSnippets: {
+          "Python": "coordinates = (10, 20)\n# coordinates[0] = 15 # ERROR! Tuples are immutable\nprint(coordinates[1])",
+          "C++": "#include <tuple>\nusing namespace std;\n\ntuple<int, int> coords = {10, 20};\ncout << get<1>(coords);",
+          "Java": "// Java doesn't have built-in Tuples, usually we use Records or small Classes\nrecord Coordinates(int x, int y) {}\nCoordinates coords = new Coordinates(10, 20);\nSystem.out.println(coords.y());",
+          "JavaScript": "// JS doesn't have Tuples. We use arrays or Object.freeze()\nconst coords = Object.freeze([10, 20]);\n// coords[0] = 15; // Won't work in strict mode\nconsole.log(coords[1]);"
+        }
+      },
+      {
+        id: "step4",
+        text: "Sets (Unique Elements)",
+        visualType: "text",
+        visualState: "text",
+        explanation: "A **Set** is an unordered collection of items where **every element must be unique**. If you try to add a duplicate, it simply ignores it. Sets are highly optimized for checking if an item exists in O(1) time.",
+        codeSnippets: {
+          "Python": "my_set = {1, 2, 3, 3, 3}\nmy_set.add(4)\nprint(my_set) # {1, 2, 3, 4}",
+          "C++": "#include <unordered_set>\nusing namespace std;\n\nunordered_set<int> mySet = {1, 2, 3, 3};\nmySet.insert(4);\n// mySet contains 1, 2, 3, 4",
+          "Java": "import java.util.HashSet;\n\nHashSet<Integer> mySet = new HashSet<>();\nmySet.add(1);\nmySet.add(2);\nmySet.add(2);\nSystem.out.println(mySet.size()); // 2",
+          "JavaScript": "let mySet = new Set([1, 2, 3, 3, 3]);\nmySet.add(4);\nconsole.log(mySet.size); // 4"
+        }
+      },
+      {
+        id: "step5",
+        text: "Multi-dimensional Arrays",
+        visualType: "array",
+        visualState: "memory",
+        explanation: "A **Multi-dimensional Array** is simply an array of arrays. The most common is a 2D array, which looks exactly like a grid or a matrix with rows and columns.",
+        codeSnippets: {
+          "Python": "matrix = [\n    [1, 2, 3],\n    [4, 5, 6]\n]\nprint(matrix[1][2]) # Row 1, Col 2 -> prints 6",
+          "C++": "int matrix[2][3] = {\n    {1, 2, 3},\n    {4, 5, 6}\n};\ncout << matrix[1][2]; // 6",
+          "Java": "int[][] matrix = {\n    {1, 2, 3},\n    {4, 5, 6}\n};\nSystem.out.println(matrix[1][2]); // 6",
+          "JavaScript": "let matrix = [\n    [1, 2, 3],\n    [4, 5, 6]\n];\nconsole.log(matrix[1][2]); // 6"
         }
       }
     ]
