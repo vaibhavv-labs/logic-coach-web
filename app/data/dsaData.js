@@ -292,9 +292,45 @@ export const DSA_TOPICS = [
     description: "Big O, Omega, Theta analysis",
     icon: "⏱️",
     teachingSteps: [
-      { id: "step1", text: "Asymptotic Notation (Big O, Omega, Theta)", visualType: "text", visualState: "time" },
-      { id: "step2", text: "Time Complexity Calculation", visualType: "text", visualState: "time" },
-      { id: "step3", text: "Best, Worst, and Average Case", visualType: "text", visualState: "time" }
+      { 
+        id: "step1", 
+        text: "Asymptotic Notation (Big O, Omega, Theta)", 
+        visualType: "text", 
+        visualState: "time",
+        explanation: "Asymptotic Notation is how we describe the performance of an algorithm as the input size (`N`) grows to infinity.\n\n- **Big O (O)**: The Upper Bound (Worst-case scenario).\n- **Omega (Ω)**: The Lower Bound (Best-case scenario).\n- **Theta (Θ)**: The Tight Bound (Average-case, when upper and lower are the same).\n\nIn interviews, we almost exclusively talk about **Big O** (the worst-case).",
+        codeSnippets: {
+          "Python": "# O(1) - Constant Time (Instant)\nprint(arr[0])",
+          "C++": "// O(N) - Linear Time (Proportional to N)\nfor(int i = 0; i < n; i++) cout << arr[i];",
+          "Java": "// O(N^2) - Quadratic Time (Slow for large N)\nfor(int i=0; i<n; i++)\n  for(int j=0; j<n; j++)",
+          "JavaScript": "// O(log N) - Logarithmic (Fast, like Binary Search)\nwhile(n > 1) n = Math.floor(n/2);"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Time Complexity Calculation", 
+        visualType: "text", 
+        visualState: "time",
+        explanation: "To calculate Big O, follow these rules:\n1. **Drop Constants**: O(2N) becomes O(N).\n2. **Drop Non-Dominant Terms**: O(N² + N) becomes O(N²).\n3. **Loops**: A simple loop is O(N). Nested loops are O(N * M).\n4. **Halving**: If an algorithm cuts the input in half every step, it is O(log N).",
+        codeSnippets: {
+          "Python": "# O(N) + O(N) = O(2N) => O(N)\nfor x in arr: pass\nfor y in arr: pass",
+          "C++": "// O(N) * O(N) = O(N^2)\nfor(int i=0; i<n; i++) {\n    for(int j=0; j<n; j++) { }\n}",
+          "Java": "// O(1) Space Complexity (No extra memory used)\nint sum = 0;\nfor(int num : arr) sum += num;",
+          "JavaScript": "// O(N) Space Complexity (Creating a new array)\nlet newArr = [];\nfor(let i=0; i<n; i++) newArr.push(i);"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Best, Worst, and Average Case", 
+        visualType: "text", 
+        visualState: "time",
+        explanation: "Algorithms perform differently based on the input. Consider searching for a name in a phonebook.\n\n- **Best Case (Ω)**: The name is on the very first page. O(1).\n- **Worst Case (O)**: The name is on the very last page, or not in the book at all. O(N).\n- **Average Case (Θ)**: The name is somewhere in the middle. O(N/2), which drops to O(N).",
+        codeSnippets: {
+          "Python": "def find_target(arr, target):\n    for i, val in enumerate(arr):\n        if val == target: return i # Best case: i=0\n    return -1 # Worst case: end of loop",
+          "C++": "int find(vector<int>& arr, int target) {\n    for(int i=0; i<arr.size(); i++)\n        if(arr[i] == target) return i;\n    return -1;\n}",
+          "Java": "int find(int[] arr, int target) {\n    for(int i=0; i<arr.length; i++)\n        if(arr[i] == target) return i;\n    return -1;\n}",
+          "JavaScript": "function find(arr, target) {\n    for(let i=0; i<arr.length; i++)\n        if(arr[i] === target) return i;\n    return -1;\n}"
+        }
+      }
     ]
   },
   {
@@ -303,9 +339,45 @@ export const DSA_TOPICS = [
     description: "Linear, binary, ternary",
     icon: "🔍",
     teachingSteps: [
-      { id: "step1", text: "Linear Search", visualType: "search", visualState: "linear" },
-      { id: "step2", text: "Binary Search", visualType: "search", visualState: "binary" },
-      { id: "step3", text: "Ternary Search", visualType: "search", visualState: "binary" }
+      { 
+        id: "step1", 
+        text: "Linear Search", 
+        visualType: "search", 
+        visualState: "linear",
+        explanation: "Linear Search checks every single element in a data structure one by one until the target is found. \n\nIt works on unsorted arrays, but it is slow for large datasets. **Time Complexity: O(N)**.",
+        codeSnippets: {
+          "Python": "def linear_search(arr, target):\n    for i in range(len(arr)):\n        if arr[i] == target:\n            return i\n    return -1",
+          "C++": "int linearSearch(vector<int>& arr, int target) {\n    for(int i=0; i<arr.size(); i++)\n        if(arr[i] == target) return i;\n    return -1;\n}",
+          "Java": "int linearSearch(int[] arr, int target) {\n    for(int i=0; i<arr.length; i++)\n        if(arr[i] == target) return i;\n    return -1;\n}",
+          "JavaScript": "function linearSearch(arr, target) {\n    for(let i=0; i<arr.length; i++)\n        if(arr[i] === target) return i;\n    return -1;\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Binary Search", 
+        visualType: "search", 
+        visualState: "binary",
+        explanation: "Binary Search is a massive optimization over Linear Search, but **it requires the array to be sorted first**.\n\nIt works by checking the middle element. If the target is smaller, it discards the right half. If larger, it discards the left half. It cuts the search space in half every time. **Time Complexity: O(log N)**.",
+        codeSnippets: {
+          "Python": "def binary_search(arr, target):\n    l, r = 0, len(arr) - 1\n    while l <= r:\n        mid = (l + r) // 2\n        if arr[mid] == target: return mid\n        elif arr[mid] < target: l = mid + 1\n        else: r = mid - 1\n    return -1",
+          "C++": "int binarySearch(vector<int>& arr, int target) {\n    int l = 0, r = arr.size() - 1;\n    while(l <= r) {\n        int mid = l + (r - l) / 2;\n        if(arr[mid] == target) return mid;\n        else if(arr[mid] < target) l = mid + 1;\n        else r = mid - 1;\n    }\n    return -1;\n}",
+          "Java": "int binarySearch(int[] arr, int target) {\n    int l = 0, r = arr.length - 1;\n    while(l <= r) {\n        int mid = l + (r - l) / 2;\n        if(arr[mid] == target) return mid;\n        else if(arr[mid] < target) l = mid + 1;\n        else r = mid - 1;\n    }\n    return -1;\n}",
+          "JavaScript": "function binarySearch(arr, target) {\n    let l = 0, r = arr.length - 1;\n    while(l <= r) {\n        let mid = Math.floor(l + (r - l) / 2);\n        if(arr[mid] === target) return mid;\n        else if(arr[mid] < target) l = mid + 1;\n        else r = mid - 1;\n    }\n    return -1;\n}"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Ternary Search", 
+        visualType: "search", 
+        visualState: "binary",
+        explanation: "Ternary Search is similar to Binary Search, but instead of dividing the array into 2 halves, it divides the array into **3 segments** using two midpoints.\n\nWhile it sounds faster, in practice Binary Search is usually preferred because Ternary Search requires more comparisons per step. **Time Complexity: O(log3 N)**.",
+        codeSnippets: {
+          "Python": "def ternary_search(l, r, target, arr):\n    while r >= l:\n        mid1 = l + (r - l) // 3\n        mid2 = r - (r - l) // 3\n        if arr[mid1] == target: return mid1\n        if arr[mid2] == target: return mid2\n        if target < arr[mid1]: r = mid1 - 1\n        elif target > arr[mid2]: l = mid2 + 1\n        else: l = mid1 + 1; r = mid2 - 1\n    return -1",
+          "C++": "// Standard ternary search logic\n// (Conceptually identical to Python implementation)",
+          "Java": "// Standard ternary search logic\n// (Conceptually identical to Python implementation)",
+          "JavaScript": "// Standard ternary search logic\n// (Conceptually identical to Python implementation)"
+        }
+      }
     ]
   },
   {
@@ -314,14 +386,110 @@ export const DSA_TOPICS = [
     description: "Bubble, selection, insertion, merge, quick",
     icon: "📶",
     teachingSteps: [
-      { id: "step1", text: "Bubble Sort", visualType: "sorting", visualState: "bubble" },
-      { id: "step2", text: "Selection Sort", visualType: "sorting", visualState: "selection" },
-      { id: "step3", text: "Insertion Sort", visualType: "sorting", visualState: "unsorted" },
-      { id: "step4", text: "Merge Sort", visualType: "sorting", visualState: "merge" },
-      { id: "step5", text: "Quick Sort", visualType: "sorting", visualState: "unsorted" },
-      { id: "step6", text: "Counting Sort", visualType: "sorting", visualState: "unsorted" },
-      { id: "step7", text: "Radix Sort", visualType: "sorting", visualState: "unsorted" },
-      { id: "step8", text: "Bucket Sort", visualType: "sorting", visualState: "unsorted" }
+      { 
+        id: "step1", 
+        text: "Bubble Sort", 
+        visualType: "sorting", 
+        visualState: "bubble",
+        explanation: "**Bubble Sort** repeatedly steps through the list, compares adjacent elements, and swaps them if they are in the wrong order. The largest elements \"bubble\" to the top. **Time Complexity: O(N²)**.",
+        codeSnippets: {
+          "Python": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]",
+          "C++": "void bubbleSort(int arr[], int n) {\n    for (int i = 0; i < n-1; i++)\n        for (int j = 0; j < n-i-1; j++)\n            if (arr[j] > arr[j+1])\n                swap(arr[j], arr[j+1]);\n}",
+          "Java": "void bubbleSort(int arr[]) {\n    int n = arr.length;\n    for (int i = 0; i < n-1; i++)\n        for (int j = 0; j < n-i-1; j++)\n            if (arr[j] > arr[j+1]) {\n                int temp = arr[j];\n                arr[j] = arr[j+1];\n                arr[j+1] = temp;\n            }\n}",
+          "JavaScript": "function bubbleSort(arr) {\n    let n = arr.length;\n    for (let i = 0; i < n-1; i++)\n        for (let j = 0; j < n-i-1; j++)\n            if (arr[j] > arr[j+1])\n                [arr[j], arr[j+1]] = [arr[j+1], arr[j]];\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Selection Sort", 
+        visualType: "sorting", 
+        visualState: "selection",
+        explanation: "**Selection Sort** divides the array into a sorted and unsorted region. It repeatedly finds the minimum element from the unsorted part and puts it at the beginning. **Time Complexity: O(N²)**.",
+        codeSnippets: {
+          "Python": "def selection_sort(arr):\n    for i in range(len(arr)):\n        min_idx = i\n        for j in range(i+1, len(arr)):\n            if arr[j] < arr[min_idx]:\n                min_idx = j\n        arr[i], arr[min_idx] = arr[min_idx], arr[i]",
+          "C++": "void selectionSort(int arr[], int n) {\n    for (int i = 0; i < n-1; i++) {\n        int min_idx = i;\n        for (int j = i+1; j < n; j++)\n            if (arr[j] < arr[min_idx])\n                min_idx = j;\n        swap(arr[min_idx], arr[i]);\n    }\n}",
+          "Java": "void selectionSort(int arr[]) {\n    int n = arr.length;\n    for (int i = 0; i < n-1; i++) {\n        int min_idx = i;\n        for (int j = i+1; j < n; j++)\n            if (arr[j] < arr[min_idx]) min_idx = j;\n        int temp = arr[min_idx];\n        arr[min_idx] = arr[i];\n        arr[i] = temp;\n    }\n}",
+          "JavaScript": "function selectionSort(arr) {\n    for (let i = 0; i < arr.length-1; i++) {\n        let min_idx = i;\n        for (let j = i+1; j < arr.length; j++)\n            if (arr[j] < arr[min_idx]) min_idx = j;\n        [arr[i], arr[min_idx]] = [arr[min_idx], arr[i]];\n    }\n}"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Insertion Sort", 
+        visualType: "sorting", 
+        visualState: "unsorted",
+        explanation: "**Insertion Sort** builds the final sorted array one item at a time. It takes an element and inserts it into its correct position in the already-sorted part. Excellent for nearly sorted arrays. **Time Complexity: O(N²)**.",
+        codeSnippets: {
+          "Python": "def insertion_sort(arr):\n    for i in range(1, len(arr)):\n        key = arr[i]\n        j = i - 1\n        while j >= 0 and key < arr[j]:\n            arr[j + 1] = arr[j]\n            j -= 1\n        arr[j + 1] = key",
+          "C++": "void insertionSort(int arr[], int n) {\n    for (int i = 1; i < n; i++) {\n        int key = arr[i];\n        int j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j = j - 1;\n        }\n        arr[j + 1] = key;\n    }\n}",
+          "Java": "void insertionSort(int arr[]) {\n    int n = arr.length;\n    for (int i = 1; i < n; ++i) {\n        int key = arr[i];\n        int j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j = j - 1;\n        }\n        arr[j + 1] = key;\n    }\n}",
+          "JavaScript": "function insertionSort(arr) {\n    for (let i = 1; i < arr.length; i++) {\n        let key = arr[i];\n        let j = i - 1;\n        while (j >= 0 && arr[j] > key) {\n            arr[j + 1] = arr[j];\n            j = j - 1;\n        }\n        arr[j + 1] = key;\n    }\n}"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Merge Sort", 
+        visualType: "sorting", 
+        visualState: "merge",
+        explanation: "**Merge Sort** is a Divide and Conquer algorithm. It divides the array in half, recursively sorts both halves, and then merges the two sorted halves back together. **Time Complexity: O(N log N)**.",
+        codeSnippets: {
+          "Python": "def merge_sort(arr):\n    if len(arr) > 1:\n        mid = len(arr) // 2\n        L = arr[:mid]\n        R = arr[mid:]\n        merge_sort(L)\n        merge_sort(R)\n        # (Merge logic omitted for brevity)",
+          "C++": "// Divide and conquer recursively.\n// Needs a helper 'merge' function to combine halves.",
+          "Java": "// Divide and conquer recursively.\n// Needs a helper 'merge' function to combine halves.",
+          "JavaScript": "// Divide and conquer recursively.\n// Needs a helper 'merge' function to combine halves."
+        }
+      },
+      { 
+        id: "step5", 
+        text: "Quick Sort", 
+        visualType: "sorting", 
+        visualState: "unsorted",
+        explanation: "**Quick Sort** picks an element as a 'pivot' and partitions the given array around the picked pivot (putting smaller elements before it, and larger elements after). **Average Time: O(N log N)**.",
+        codeSnippets: {
+          "Python": "def quick_sort(arr):\n    if len(arr) <= 1: return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quick_sort(left) + middle + quick_sort(right)",
+          "C++": "// Quick sort logic using a partition function",
+          "Java": "// Quick sort logic using a partition function",
+          "JavaScript": "// Quick sort logic using a partition function"
+        }
+      },
+      { 
+        id: "step6", 
+        text: "Counting Sort", 
+        visualType: "sorting", 
+        visualState: "unsorted",
+        explanation: "**Counting Sort** is a non-comparison sorting algorithm. It works by counting the number of objects having distinct key values (using an extra array). It's incredibly fast (O(N+K)) but only works well for small integer ranges.",
+        codeSnippets: {
+          "Python": "# Counting Sort logic: count frequencies, then reconstruct array.",
+          "C++": "// Counting Sort logic: count frequencies, then reconstruct array.",
+          "Java": "// Counting Sort logic: count frequencies, then reconstruct array.",
+          "JavaScript": "// Counting Sort logic: count frequencies, then reconstruct array."
+        }
+      },
+      { 
+        id: "step7", 
+        text: "Radix Sort", 
+        visualType: "sorting", 
+        visualState: "unsorted",
+        explanation: "**Radix Sort** processes the numbers digit by digit, starting from the least significant digit to the most significant digit (usually using Counting Sort as a subroutine). **Time Complexity: O(d * (N + K))**.",
+        codeSnippets: {
+          "Python": "# Radix Sort logic: sort by each digit (ones, tens, hundreds).",
+          "C++": "// Radix Sort logic: sort by each digit (ones, tens, hundreds).",
+          "Java": "// Radix Sort logic: sort by each digit (ones, tens, hundreds).",
+          "JavaScript": "// Radix Sort logic: sort by each digit (ones, tens, hundreds)."
+        }
+      },
+      { 
+        id: "step8", 
+        text: "Bucket Sort", 
+        visualType: "sorting", 
+        visualState: "unsorted",
+        explanation: "**Bucket Sort** divides the input into several 'buckets'. Each bucket is then sorted individually (often using insertion sort). Useful for floating-point numbers distributed uniformly.",
+        codeSnippets: {
+          "Python": "# Bucket Sort logic: scatter to buckets, sort buckets, gather.",
+          "C++": "// Bucket Sort logic: scatter to buckets, sort buckets, gather.",
+          "Java": "// Bucket Sort logic: scatter to buckets, sort buckets, gather.",
+          "JavaScript": "// Bucket Sort logic: scatter to buckets, sort buckets, gather."
+        }
+      }
     ]
   },
   {
@@ -330,10 +498,58 @@ export const DSA_TOPICS = [
     description: "Base case, recursive thinking",
     icon: "🔄",
     teachingSteps: [
-      { id: "step1", text: "What is a function calling itself?", visualType: "recursion", visualState: "call" },
-      { id: "step2", text: "The Call Stack building up", visualType: "recursion", visualState: "build" },
-      { id: "step3", text: "The Base Case (When to stop)", visualType: "recursion", visualState: "base" },
-      { id: "step4", text: "The Call Stack collapsing", visualType: "recursion", visualState: "collapse" }
+      { 
+        id: "step1", 
+        text: "What is a function calling itself?", 
+        visualType: "recursion", 
+        visualState: "call",
+        explanation: "**Recursion** is a technique where a function calls itself to solve smaller sub-problems of the original problem.\n\nIt is heavily used in Trees, Graphs, and Divide-and-Conquer algorithms. Think of it like a set of Russian Nesting Dolls.",
+        codeSnippets: {
+          "Python": "def factorial(n):\n    # base case later\n    return n * factorial(n - 1)",
+          "C++": "int factorial(int n) {\n    // base case later\n    return n * factorial(n - 1);\n}",
+          "Java": "int factorial(int n) {\n    // base case later\n    return n * factorial(n - 1);\n}",
+          "JavaScript": "function factorial(n) {\n    // base case later\n    return n * factorial(n - 1);\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "The Call Stack building up", 
+        visualType: "recursion", 
+        visualState: "build",
+        explanation: "Every time a function calls itself, the computer pauses the current function and creates a new \"frame\" on the **Call Stack** in memory. \n\nIf you call `factorial(3)`, it pauses and calls `factorial(2)`, which pauses and calls `factorial(1)`.",
+        codeSnippets: {
+          "Python": "# The memory stack grows:\n# factorial(3)\n#   factorial(2)\n#     factorial(1)",
+          "C++": "// The memory stack grows:\n// factorial(3)\n//   factorial(2)\n//     factorial(1)",
+          "Java": "// The memory stack grows:\n// factorial(3)\n//   factorial(2)\n//     factorial(1)",
+          "JavaScript": "// The memory stack grows:\n// factorial(3)\n//   factorial(2)\n//     factorial(1)"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "The Base Case (When to stop)", 
+        visualType: "recursion", 
+        visualState: "base",
+        explanation: "If a recursion never stops, it causes a **Stack Overflow** error (running out of memory). \n\nTo prevent this, we must have a **Base Case**—a condition where the function returns a value WITHOUT calling itself again.",
+        codeSnippets: {
+          "Python": "def factorial(n):\n    if n == 1: return 1 # BASE CASE\n    return n * factorial(n - 1)",
+          "C++": "int factorial(int n) {\n    if (n == 1) return 1; // BASE CASE\n    return n * factorial(n - 1);\n}",
+          "Java": "int factorial(int n) {\n    if (n == 1) return 1; // BASE CASE\n    return n * factorial(n - 1);\n}",
+          "JavaScript": "function factorial(n) {\n    if (n === 1) return 1; // BASE CASE\n    return n * factorial(n - 1);\n}"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "The Call Stack collapsing", 
+        visualType: "recursion", 
+        visualState: "collapse",
+        explanation: "Once the Base Case is hit, the function returns a value to the previous frame. The stack begins to collapse as each paused function resumes, calculates its final value, and returns it to the frame below it.",
+        codeSnippets: {
+          "Python": "# factorial(1) returns 1\n# factorial(2) returns 2 * 1 = 2\n# factorial(3) returns 3 * 2 = 6",
+          "C++": "// factorial(1) returns 1\n// factorial(2) returns 2 * 1 = 2\n// factorial(3) returns 3 * 2 = 6",
+          "Java": "// factorial(1) returns 1\n// factorial(2) returns 2 * 1 = 2\n// factorial(3) returns 3 * 2 = 6",
+          "JavaScript": "// factorial(1) returns 1\n// factorial(2) returns 2 * 1 = 2\n// factorial(3) returns 3 * 2 = 6"
+        }
+      }
     ]
   },
   {
@@ -368,10 +584,58 @@ export const DSA_TOPICS = [
           "JavaScript": "let head = new Node(10);\nlet second = new Node(20);\nhead.next = second; // 10 -> 20"
         }
       },
-      { id: "step3", text: "Insertion/Deletion/Traversal", visualType: "linkedlist", visualState: "singly" },
-      { id: "step4", text: "Searching", visualType: "linkedlist", visualState: "singly" },
-      { id: "step5", text: "Doubly Linked List", visualType: "linkedlist", visualState: "singly" },
-      { id: "step6", text: "Circular Linked List", visualType: "linkedlist", visualState: "singly" }
+      { 
+        id: "step3", 
+        text: "Insertion/Deletion/Traversal", 
+        visualType: "linkedlist", 
+        visualState: "singly",
+        explanation: "To traverse, we use a temporary pointer that moves to `.next` until it hits `null`.\n\nTo insert or delete, we must carefully update pointers so we don't break the chain. If we want to insert Node C between A and B, we make C point to B, and A point to C.",
+        codeSnippets: {
+          "Python": "# Traversal\ntemp = head\nwhile temp:\n    print(temp.data)\n    temp = temp.next",
+          "C++": "// Traversal\nNode* temp = head;\nwhile (temp != nullptr) {\n    cout << temp->data << \" \";\n    temp = temp->next;\n}",
+          "Java": "// Traversal\nNode temp = head;\nwhile (temp != null) {\n    System.out.println(temp.data);\n    temp = temp.next;\n}",
+          "JavaScript": "// Traversal\nlet temp = head;\nwhile (temp !== null) {\n    console.log(temp.data);\n    temp = temp.next;\n}"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Searching", 
+        visualType: "linkedlist", 
+        visualState: "singly",
+        explanation: "Searching a Linked List requires a **Linear Search (O(N))**. We start at the head and traverse node by node until we find the target value. We cannot use Binary Search because we cannot randomly access the middle element.",
+        codeSnippets: {
+          "Python": "def search(head, target):\n    curr = head\n    while curr:\n        if curr.data == target: return True\n        curr = curr.next\n    return False",
+          "C++": "bool search(Node* head, int target) {\n    Node* curr = head;\n    while(curr != nullptr) {\n        if(curr->data == target) return true;\n        curr = curr->next;\n    }\n    return false;\n}",
+          "Java": "boolean search(Node head, int target) {\n    Node curr = head;\n    while(curr != null) {\n        if(curr.data == target) return true;\n        curr = curr.next;\n    }\n    return false;\n}",
+          "JavaScript": "function search(head, target) {\n    let curr = head;\n    while(curr !== null) {\n        if(curr.data === target) return true;\n        curr = curr.next;\n    }\n    return false;\n}"
+        }
+      },
+      { 
+        id: "step5", 
+        text: "Doubly Linked List", 
+        visualType: "linkedlist", 
+        visualState: "singly",
+        explanation: "A **Doubly Linked List** gives each Node an extra pointer: `prev`. \n\nThis allows us to traverse the list backwards as well as forwards. The tradeoff is that it uses more memory for the extra pointer.",
+        codeSnippets: {
+          "Python": "class DNode:\n    def __init__(self, data):\n        self.data = data\n        self.next = None\n        self.prev = None",
+          "C++": "struct DNode {\n    int data;\n    DNode* next;\n    DNode* prev;\n    DNode(int val) : data(val), next(nullptr), prev(nullptr) {}\n};",
+          "Java": "class DNode {\n    int data;\n    DNode next, prev;\n    public DNode(int data) {\n        this.data = data;\n        this.next = this.prev = null;\n    }\n}",
+          "JavaScript": "class DNode {\n    constructor(data) {\n        this.data = data;\n        this.next = null;\n        this.prev = null;\n    }\n}"
+        }
+      },
+      { 
+        id: "step6", 
+        text: "Circular Linked List", 
+        visualType: "linkedlist", 
+        visualState: "singly",
+        explanation: "In a **Circular Linked List**, the last node's `next` pointer does NOT point to `null`. Instead, it points back to the `head`.\n\nThis is useful for applications that need to continually loop through items, like a turn-based multiplayer game.",
+        codeSnippets: {
+          "Python": "# To make circular:\n# tail.next = head",
+          "C++": "// To make circular:\n// tail->next = head;",
+          "Java": "// To make circular:\n// tail.next = head;",
+          "JavaScript": "// To make circular:\n// tail.next = head;"
+        }
+      }
     ]
   },
   {
