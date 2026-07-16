@@ -663,46 +663,22 @@ export default function Home() {
             )}
           </div>
 
-          <div className="sidebar-problems">
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-              <button 
-                className={`action-btn ${viewMode === 'logic' ? 'active' : ''}`} 
-                onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); }}
-                style={{ flex: 1, padding: '8px', background: viewMode === 'logic' ? 'var(--accent-blue)' : 'var(--bg-card)' }}
-              >Logic</button>
-              <button 
-                className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
-                onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); }}
-                style={{ flex: 1, padding: '8px', background: viewMode === 'dsa' ? 'var(--accent-orange)' : 'var(--bg-card)' }}
-              >DSA Path</button>
-            </div>
-
+          <div className="sidebar-problems" style={{ marginTop: '16px', padding: '0 16px' }}>
+            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px', paddingLeft: '4px' }}>Navigation</h3>
             <button 
-              className="start-btn" 
-              style={{ width: '100%', marginBottom: '16px', background: 'var(--accent-orange)', padding: '10px' }}
-              onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
+              className={`action-btn ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`} 
+              onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setSidebarOpen(false); }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
             >
-              + Custom Problem
+              <span style={{ fontSize: '18px' }}>🏠</span> Dashboard Home
             </button>
-            
-            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px' }}>Difficulty Levels</h3>
-            
-            {LEVELS.map((level) => (
-              <div
-                key={level}
-                className={`problem-card ${activeLevel === level ? "active" : ""}`}
-                onClick={() => getProblemForLevel(level)}
-                style={{ opacity: fetchingProblem && activeLevel === level ? 0.5 : 1 }}
-              >
-                <div className="problem-icon">📚</div>
-                <div className="problem-info">
-                  <h4>{level} {fetchingProblem && activeLevel === level && '...'}</h4>
-                  <div className="problem-meta">
-                    <span className={`problem-difficulty ${level.toLowerCase()}`}>Generate Next</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+            <button 
+              className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
+              onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setSidebarOpen(false); }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
+            >
+              <span style={{ fontSize: '18px' }}>🗺️</span> My Roadmap
+            </button>
           </div>
         </aside>
 
@@ -742,9 +718,41 @@ export default function Home() {
                 <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
               </div>
             ) : (
-              <div className="landing-container" style={{ background: 'none' }}>
-                <div className="landing-icon" style={{ boxShadow: 'none' }}>🎯</div>
-                <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px' }}>Pick a Difficulty</h2>
+              <div className="hub-container">
+                <div className="hub-header">
+                  <h1>Welcome back, {user ? user.email.split('@')[0] : 'Developer'}!</h1>
+                  <p>What would you like to learn today?</p>
+                </div>
+                
+                <div className="hub-roadmap-card" onClick={() => setViewMode('dsa')}>
+                  <div className="hub-roadmap-info">
+                    <h3>{userRoadmap?.language ? `${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h3>
+                    <p>Continue your personalized learning path to achieve your goals.</p>
+                  </div>
+                  <div className="hub-roadmap-action">
+                    Continue Roadmap →
+                  </div>
+                </div>
+
+                <div className="hub-section-title">⚡ Free Practice</div>
+                <div className="hub-grid">
+                  {LEVELS.map((level) => (
+                    <div key={level} className="hub-card" onClick={() => getProblemForLevel(level)}>
+                      <div className="hub-card-icon">📚</div>
+                      <div className="hub-card-title">{level}</div>
+                      <div className="hub-card-desc">Generate a random {level.toLowerCase()} problem</div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="hub-section-title">🎯 Have a specific problem?</div>
+                <button 
+                  className="start-btn" 
+                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)', width: 'auto', marginTop: '8px' }}
+                  onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
+                >
+                  + Paste Custom Problem
+                </button>
               </div>
             )
           ) : (
