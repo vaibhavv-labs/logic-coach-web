@@ -628,7 +628,7 @@ export default function Home() {
 
   const renderProblemVisualizer = () => {
     if (viewMode !== 'dsa' || !activeDsaTopic) return null;
-    const visualType = activeDsaTopic.teachingSteps[0]?.visualType;
+    const visualType = activeDsaTopic.teachingSteps?.[0]?.visualType;
     if (!visualType || visualType === 'text') return null;
 
     const stateToPass = problemVisualState || "empty";
