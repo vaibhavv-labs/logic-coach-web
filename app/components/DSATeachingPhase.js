@@ -19,6 +19,7 @@ import HashtableVisualizer from "./visualizers/HashtableVisualizer";
 import TrieVisualizer from "./visualizers/TrieVisualizer";
 import { t } from "../data/translations";
 import VoiceChat from "./VoiceChat";
+import PracticeCompilerPanel from "./PracticeCompilerPanel";
 
 export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", progLanguage = "Python", onLanguageChange }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -30,6 +31,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   const [aiVisualState, setAiVisualState] = useState(null);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [latestAiMessage, setLatestAiMessage] = useState("");
+  const [isCompilerOpen, setIsCompilerOpen] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -216,6 +218,14 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               <option value="Hinglish">Hinglish</option>
             </select>
           )}
+          <button 
+            className="action-btn" 
+            onClick={() => setIsCompilerOpen(true)} 
+            title="Practice Code" 
+            style={{ fontSize: '14px', padding: '6px 12px', background: 'var(--accent-green)', color: '#fff', fontWeight: 'bold' }}
+          >
+            💻 Practice Code
+          </button>
           <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ fontSize: '18px', padding: '6px 10px' }}>
             {theme === "light" ? "🌙" : "☀️"}
           </button>
@@ -325,6 +335,12 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           </div>
         </div>
       </div>
+      
+      <PracticeCompilerPanel 
+        language={progLanguage} 
+        isOpen={isCompilerOpen} 
+        onClose={() => setIsCompilerOpen(false)} 
+      />
     </div>
   );
 }

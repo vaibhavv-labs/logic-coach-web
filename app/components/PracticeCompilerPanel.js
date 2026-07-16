@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import CodeEditor from "./CodeEditor";
 
-export default function PracticeCompilerPanel({ language = "Python" }) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function PracticeCompilerPanel({ language = "Python", isOpen, onClose }) {
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
@@ -20,6 +19,7 @@ export default function PracticeCompilerPanel({ language = "Python" }) {
         setCode("public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello World!\");\n    }\n}");
         break;
       case "c++":
+      case "cpp":
         setCode("#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"Hello World!\";\n    return 0;\n}");
         break;
       case "javascript":
@@ -67,16 +67,14 @@ export default function PracticeCompilerPanel({ language = "Python" }) {
     <>
       <div 
         className={`compiler-panel-overlay ${isOpen ? "open" : ""}`} 
-        onClick={() => setIsOpen(false)}
+        onClick={onClose}
       ></div>
 
       <div className={`compiler-panel-drawer ${isOpen ? "open" : ""}`}>
-        <button 
-          className="compiler-panel-toggle" 
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? "▶ Close" : "◀ Practice Coding"}
-        </button>
+        <div className="compiler-panel-header">
+           <h3 style={{ margin: 0, fontSize: '16px', color: 'var(--text-primary)' }}>{language} Compiler</h3>
+           <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: '20px', cursor: 'pointer' }}>×</button>
+        </div>
 
         <div className="compiler-panel-content">
           <div className="compiler-editor-section">
