@@ -1,33 +1,33 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { auth, db } from "../lib/firebase";
+import { auth, db } from "../../../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import AuthModal from "./components/AuthModal";
-import CustomProblemModal from "./components/CustomProblemModal";
-import ProgressScreen from "./components/ProgressScreen";
-import CodeEditor from "./components/CodeEditor";
-import VoiceChat from "./components/VoiceChat";
-import DSAPath from "./components/DSAPath";
-import DSATeachingPhase from "./components/DSATeachingPhase";
+import AuthModal from "../../components/AuthModal";
+import CustomProblemModal from "../../components/CustomProblemModal";
+import ProgressScreen from "../../components/ProgressScreen";
+import CodeEditor from "../../components/CodeEditor";
+import VoiceChat from "../../components/VoiceChat";
+import DSAPath from "../../components/DSAPath";
+import DSATeachingPhase from "../../components/DSATeachingPhase";
 
 // Visualizers
-import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
-import StackVisualizer from "./components/visualizers/StackVisualizer";
-import QueueVisualizer from "./components/visualizers/QueueVisualizer";
-import LinkedListVisualizer from "./components/visualizers/LinkedListVisualizer";
-import TreeVisualizer from "./components/visualizers/TreeVisualizer";
-import BarsVisualizer from "./components/visualizers/BarsVisualizer";
-import GraphVisualizer from "./components/visualizers/GraphVisualizer";
-import StringVisualizer from "./components/visualizers/StringVisualizer";
-import RecursionVisualizer from "./components/visualizers/RecursionVisualizer";
-import DPVisualizer from "./components/visualizers/DPVisualizer";
-import SearchVisualizer from "./components/visualizers/SearchVisualizer";
-import SortingVisualizer from "./components/visualizers/SortingVisualizer";
-import HeapVisualizer from "./components/visualizers/HeapVisualizer";
-import HashtableVisualizer from "./components/visualizers/HashtableVisualizer";
-import TrieVisualizer from "./components/visualizers/TrieVisualizer";
+import ArrayVisualizer from "../../components/visualizers/ArrayVisualizer";
+import StackVisualizer from "../../components/visualizers/StackVisualizer";
+import QueueVisualizer from "../../components/visualizers/QueueVisualizer";
+import LinkedListVisualizer from "../../components/visualizers/LinkedListVisualizer";
+import TreeVisualizer from "../../components/visualizers/TreeVisualizer";
+import BarsVisualizer from "../../components/visualizers/BarsVisualizer";
+import GraphVisualizer from "../../components/visualizers/GraphVisualizer";
+import StringVisualizer from "../../components/visualizers/StringVisualizer";
+import RecursionVisualizer from "../../components/visualizers/RecursionVisualizer";
+import DPVisualizer from "../../components/visualizers/DPVisualizer";
+import SearchVisualizer from "../../components/visualizers/SearchVisualizer";
+import SortingVisualizer from "../../components/visualizers/SortingVisualizer";
+import HeapVisualizer from "../../components/visualizers/HeapVisualizer";
+import HashtableVisualizer from "../../components/visualizers/HashtableVisualizer";
+import TrieVisualizer from "../../components/visualizers/TrieVisualizer";
 
 const MAX_CHARS = 2000;
 const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
