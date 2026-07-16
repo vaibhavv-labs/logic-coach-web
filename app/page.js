@@ -525,7 +525,7 @@ export default function Home() {
         <div className="landing-bg-orb orb-2"></div>
         <nav className="landing-nav">
           <div className="landing-nav-logo">
-            <span className="logo-icon">🧠</span>
+            <span className="logo-icon"><img src="/logo.png" alt="Logic Coach" /></span>
             <span className="logo-text">Logic Coach</span>
           </div>
           <div className="landing-nav-actions">
@@ -544,7 +544,7 @@ export default function Home() {
         <div className="landing-container">
           <div className="landing-icon-wrapper">
             <div className="landing-icon-glow"></div>
-            <div className="landing-icon">🧠</div>
+            <div className="landing-icon"><img src="/logo.png" alt="Logic Coach" /></div>
           </div>
           <h1 className="landing-title">Logic Coach</h1>
           <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
@@ -653,7 +653,7 @@ export default function Home() {
         <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="sidebar-header">
             <div className="sidebar-brand">
-              <div className="sidebar-logo">🧠</div>
+              <div className="sidebar-logo"><img src="/logo.png" alt="Logic Coach" /></div>
               <h2>Logic Coach</h2>
             </div>
           </div>

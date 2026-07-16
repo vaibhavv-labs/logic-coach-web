@@ -513,7 +513,7 @@ export default function Home() {
         )}
         <nav className="landing-nav">
           <div className="landing-nav-logo">
-            <span className="logo-icon">🧠</span>
+            <span className="logo-icon"><img src="/logo.png" alt="Logic Coach" /></span>
             <span className="logo-text">Logic Coach</span>
           </div>
           <div className="landing-nav-actions">
@@ -626,7 +626,7 @@ export default function Home() {
         <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
           <div className="sidebar-header">
             <div className="sidebar-brand">
-              <div className="sidebar-logo">🧠</div>
+              <div className="sidebar-logo"><img src="/logo.png" alt="Logic Coach" /></div>
               <h2>Logic Coach</h2>
             </div>
           </div>
