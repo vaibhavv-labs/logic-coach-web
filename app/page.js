@@ -542,10 +542,7 @@ export default function Home() {
         </nav>
         
         <div className="landing-container">
-          <div className="landing-icon-wrapper">
-            <div className="landing-icon-glow"></div>
-            <div className="landing-icon"><img src="/logo.png" alt="Logic Coach" /></div>
-          </div>
+
           <h1 className="landing-title">Logic Coach</h1>
           <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
           <p className="landing-desc">
