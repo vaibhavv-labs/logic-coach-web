@@ -33,7 +33,7 @@ import HashtableVisualizer from "./components/visualizers/HashtableVisualizer";
 import TrieVisualizer from "./components/visualizers/TrieVisualizer";
 
 const MAX_CHARS = 2000;
-const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
+
 
 export default function Home() {
   const [screen, setScreen] = useState("landing"); // 'landing' | 'app'
@@ -789,16 +789,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {LEVELS.map((level, index) => {
-                    const spanClass = index < 3 ? 'bento-span-4' : 'bento-span-6';
-                    return (
-                      <div key={level} className={`bento-card ${spanClass}`} onClick={() => getProblemForLevel(level)}>
-                        <div className="bento-practice-icon">📚</div>
-                        <h3>{level}</h3>
-                        <p>Generate a random {level.toLowerCase()} problem</p>
-                      </div>
-                    );
-                  })}
+
                   
                   <div 
                     className="bento-card bento-span-12 bento-custom"
