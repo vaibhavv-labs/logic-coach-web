@@ -82,7 +82,7 @@ export default function OnboardingScreen({ user, onComplete }) {
       case 3:
         return (
           <div className="onboarding-fade-in" style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Let’s build a roadmap for you,</h1>
+            <h1 style={{ fontSize: '32px', marginBottom: '16px' }}>Let&apos;s build a roadmap for you,</h1>
             <h2 style={{ fontSize: '24px', color: 'var(--text-secondary)' }}>in a few quick questions...</h2>
             <div style={{ marginTop: '48px' }}>
               <button className="start-btn" onClick={handleNext}>Next</button>
