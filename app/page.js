@@ -728,7 +728,7 @@ export default function Home() {
                   <div className="bento-card bento-span-12 bento-roadmap" onClick={() => setViewMode('dsa')}>
                     <div className="bento-roadmap-content">
                       <div>
-                        <h2>{userRoadmap?.language ? `${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h2>
+                        <h2>{userRoadmap?.language ? `DSA & ${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h2>
                         <p>Continue your personalized learning path to achieve your goals.</p>
                       </div>
                       <button className="bento-btn">
