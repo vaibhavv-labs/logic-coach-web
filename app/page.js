@@ -718,41 +718,45 @@ export default function Home() {
                 <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
               </div>
             ) : (
-              <div className="hub-container">
-                <div className="hub-header">
+              <div className="bento-container">
+                <div className="bento-header">
                   <h1>Welcome back, {user ? user.email.split('@')[0] : 'Developer'}!</h1>
                   <p>What would you like to learn today?</p>
                 </div>
                 
-                <div className="hub-roadmap-card" onClick={() => setViewMode('dsa')}>
-                  <div className="hub-roadmap-info">
-                    <h3>{userRoadmap?.language ? `${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h3>
-                    <p>Continue your personalized learning path to achieve your goals.</p>
-                  </div>
-                  <div className="hub-roadmap-action">
-                    Continue Roadmap →
-                  </div>
-                </div>
-
-                <div className="hub-section-title">⚡ Free Practice</div>
-                <div className="hub-grid">
-                  {LEVELS.map((level) => (
-                    <div key={level} className="hub-card" onClick={() => getProblemForLevel(level)}>
-                      <div className="hub-card-icon">📚</div>
-                      <div className="hub-card-title">{level}</div>
-                      <div className="hub-card-desc">Generate a random {level.toLowerCase()} problem</div>
+                <div className="bento-grid">
+                  <div className="bento-card bento-span-12 bento-roadmap" onClick={() => setViewMode('dsa')}>
+                    <div className="bento-roadmap-content">
+                      <div>
+                        <h2>{userRoadmap?.language ? `${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h2>
+                        <p>Continue your personalized learning path to achieve your goals.</p>
+                      </div>
+                      <button className="bento-btn">
+                        Continue Roadmap <span>→</span>
+                      </button>
                     </div>
-                  ))}
+                  </div>
+
+                  {LEVELS.map((level, index) => {
+                    const spanClass = index < 3 ? 'bento-span-4' : 'bento-span-6';
+                    return (
+                      <div key={level} className={`bento-card ${spanClass}`} onClick={() => getProblemForLevel(level)}>
+                        <div className="bento-practice-icon">📚</div>
+                        <h3>{level}</h3>
+                        <p>Generate a random {level.toLowerCase()} problem</p>
+                      </div>
+                    );
+                  })}
+                  
+                  <div 
+                    className="bento-card bento-span-12 bento-custom"
+                    onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
+                  >
+                    <div className="bento-practice-icon" style={{ background: 'transparent', fontSize: '40px', marginBottom: '8px' }}>🎯</div>
+                    <h3>Have a specific problem?</h3>
+                    <p style={{ opacity: 0.8 }}>Click here to paste your own custom problem and get started</p>
+                  </div>
                 </div>
-                
-                <div className="hub-section-title">🎯 Have a specific problem?</div>
-                <button 
-                  className="start-btn" 
-                  style={{ background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)', width: 'auto', marginTop: '8px' }}
-                  onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
-                >
-                  + Paste Custom Problem
-                </button>
               </div>
             )
           ) : (
