@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import * as Diff from 'diff';
 import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -16,6 +17,7 @@ import DSATeachingPhase from "./components/DSATeachingPhase";
 import LanguagePath from "./components/LanguagePath";
 import OnboardingScreen from "./components/OnboardingScreen";
 import PracticeCompilerPanel from "./components/PracticeCompilerPanel";
+import LandingPage from "./components/LandingPage";
 
 // Visualizers
 import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
@@ -68,6 +70,21 @@ export default function Home() {
   const [showGuestUpgradeModal, setShowGuestUpgradeModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
+  
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowAuthModal(false);
+        setShowGuestUpgradeModal(false);
+        setShowLeaderboard(false);
+        setShowCustomModal(false);
+        setShowTestPanel(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
   const [userRoadmap, setUserRoadmap] = useState(null);
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -117,11 +134,16 @@ export default function Home() {
   }, [timerActive, timeLeft]);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        setShowAuthModal(false);
-        await loadUserProgress(currentUser.uid);
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
+        setShowLanding(false);
+        if (u.isAnonymous && userStats.totalAttempted >= 3) {
+          setShowGuestUpgradeModal(true);
+        }
+        await loadUserProgress(u.uid);
+      } else {
+        setShowLanding(true);
       }
     });
     return () => unsubscribe();
@@ -311,9 +333,16 @@ export default function Home() {
     const currentCount = userStats.levelCounts[level] || 0;
     const newCount = isNowSolved ? currentCount + 1 : Math.max(0, currentCount - 1);
     
+    const todayStr = new Date().toISOString().split('T')[0];
+    const newActivity = { ...(userStats.activity || {}) };
+    if (isNowSolved) {
+      newActivity[todayStr] = (newActivity[todayStr] || 0) + 1;
+    }
+
     const newStats = {
       levelCounts: { ...userStats.levelCounts, [level]: newCount },
-      solved: Array.from(newSet)
+      solved: Array.from(newSet),
+      activity: newActivity
     };
     
     await updateUserStats(user.uid, newStats);
@@ -334,12 +363,32 @@ export default function Home() {
     }
   };
 
+  const playSuccessSound = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+      osc.frequency.exponentialRampToValueAtTime(1046.50, ctx.currentTime + 0.1); // C6
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      // Ignore if AudioContext is not supported or blocked
+    }
+  };
+
   const handleRunTests = async () => {
+    if (!code.trim()) return;
     setIsExecuting(true);
     setShowTestPanel(true);
-    setTestResults(null);
+    setTestResults([{ passed: true, isManual: true, actualOutput: "Executing code on server..." }]);
     
-    const results = [];
+    let results = [];
     let allPassed = true;
 
     if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
@@ -415,9 +464,14 @@ export default function Home() {
     setTestResults(results);
     setIsExecuting(false);
 
-    if (allPassed && !solvedProblems.has(activeProblem.id)) {
-      await toggleSolved(); 
-      alert("All test cases passed! Problem marked as solved.");
+    if (allPassed) {
+      playSuccessSound();
+      if (!solvedProblems.has(activeProblem.id)) {
+        await toggleSolved(); 
+        alert("🎉 All test cases passed! Problem marked as solved.");
+      } else {
+        alert("🎉 All test cases passed!");
+      }
     }
   };
 
@@ -624,8 +678,35 @@ export default function Home() {
     );
   };
 
+  const renderDiff = (expected, actual) => {
+    if (!expected || !actual) return <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{actual || "(No output)"}</pre>;
+    let diff = [];
+    try {
+      diff = Diff.diffChars(expected, actual);
+    } catch (e) {
+      return <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{actual}</pre>;
+    }
+    return (
+      <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>
+        {diff.map((part, i) => (
+          <span key={i} style={{ 
+            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(16, 185, 129, 0.3)' : 'transparent',
+            color: part.added ? '#fca5a5' : part.removed ? '#6ee7b7' : '#f3f4f6',
+            textDecoration: part.removed ? 'line-through' : 'none'
+          }}>
+            {part.value}
+          </span>
+        ))}
+      </pre>
+    );
+  };
+
   return (
     <>
+      {!user && showLanding ? (
+        <LandingPage onStart={() => setShowLanding(false)} />
+      ) : null}
+      
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={() => setShowAuthModal(false)} />
       )}
@@ -652,13 +733,14 @@ export default function Home() {
         />
       )}
 
-      <div className="app-header">
-        <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
-        <div className="sidebar-brand"><h2>Logic Coach</h2></div>
-        <div style={{ width: 24 }}></div>
-      </div>
-
-      <div className="app-layout">
+      {(!showLanding || user) && (
+        <>
+          <div className="app-header">
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+            <div className="sidebar-brand"><h2>Logic Coach</h2></div>
+            <div style={{ width: 24 }}></div>
+          </div>
+          <div className="app-layout">
         <div className={`sidebar-overlay ${sidebarOpen ? "visible" : ""}`} onClick={() => setSidebarOpen(false)} />
 
         <aside className={`sidebar ${sidebarOpen ? "open" : ""}`}>
@@ -872,7 +954,7 @@ export default function Home() {
                    </div>
                  )}
                  {renderProblemVisualizer()}
-                 <CodeEditor language={progLanguage} value={code} onChange={setCode} />
+                 <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                  
                  {showTestPanel && (
                    <div style={{ background: '#1e1e1e', borderTop: '1px solid var(--border)', height: '250px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -898,13 +980,10 @@ export default function Home() {
                                    <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
                                    <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
                                    
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Expected Output:</div>
-                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.expectedOutput}</pre>
+                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Output Diff (Red=Actual, Green=Expected):</div>
+                                   {!tr.passed ? renderDiff(tr.expectedOutput, tr.actualOutput) : <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>}
                                  </>
                                )}
-                               
-                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Output:</div>
-                               <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
                                
                                {tr.stderr && (
                                  <>
@@ -951,6 +1030,8 @@ export default function Home() {
           )}
         </main>
       </div>
+      </>
+      )}
       <PracticeCompilerPanel language={userRoadmap?.language || 'Python'} />
     </>
   );

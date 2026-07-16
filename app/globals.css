@@ -1020,13 +1020,36 @@ body {
 }
 
 .pro-timeline-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 32px;
   position: relative;
-  margin-bottom: 32px;
-  z-index: 2;
+  display: flex;
+  gap: 24px;
+  padding-bottom: 40px;
+  opacity: 0;
+  animation: fadeSlideUp 0.6s ease forwards;
 }
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pro-timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.pro-timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.pro-timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.pro-timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.pro-timeline-item:nth-child(5) { animation-delay: 0.5s; }
+.pro-timeline-item:nth-child(6) { animation-delay: 0.6s; }
+.pro-timeline-item:nth-child(7) { animation-delay: 0.7s; }
+.pro-timeline-item:nth-child(8) { animation-delay: 0.8s; }
+.pro-timeline-item:nth-child(9) { animation-delay: 0.9s; }
+.pro-timeline-item:nth-child(10) { animation-delay: 1.0s; }
+
 .pro-timeline-item:last-child {
   margin-bottom: 0;
 }

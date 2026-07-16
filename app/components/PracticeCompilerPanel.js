@@ -117,6 +117,8 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
                language={language}
                value={code}
                onChange={setCode}
+               onRun={handleRunCode}
+               onAnalyze={handleAnalyzeCode}
              />
           </div>
           

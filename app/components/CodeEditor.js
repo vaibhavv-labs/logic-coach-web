@@ -1,6 +1,6 @@
 import Editor from '@monaco-editor/react';
 
-export default function CodeEditor({ language, value, onChange }) {
+export default function CodeEditor({ language, value, onChange, onRun, onAnalyze }) {
   
   const handleEditorChange = (val) => {
     onChange(val || "");
@@ -19,6 +19,32 @@ export default function CodeEditor({ language, value, onChange }) {
     }
   };
 
+  const handleEditorDidMount = (editor, monaco) => {
+    // Ctrl/Cmd + Enter to Run
+    editor.addAction({
+      id: 'run-code',
+      label: 'Run Code/Tests',
+      keybindings: [
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
+      ],
+      run: () => {
+        if (onRun) onRun();
+      }
+    });
+
+    // Ctrl/Cmd + Shift + Enter to Analyze
+    editor.addAction({
+      id: 'analyze-complexity',
+      label: 'Analyze Big-O Complexity',
+      keybindings: [
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter
+      ],
+      run: () => {
+        if (onAnalyze) onAnalyze();
+      }
+    });
+  };
+
   return (
     <div className="code-editor-wrapper">
       <div className="code-editor-header">
@@ -31,6 +57,7 @@ export default function CodeEditor({ language, value, onChange }) {
           theme="vs-dark"
           value={value}
           onChange={handleEditorChange}
+          onMount={handleEditorDidMount}
           options={{
             minimap: { enabled: false },
             fontSize: 15,

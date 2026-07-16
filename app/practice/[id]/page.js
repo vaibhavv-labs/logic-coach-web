@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import * as Diff from 'diff';
 import { auth, db } from "../../../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
@@ -14,6 +15,7 @@ import DSATeachingPhase from "../../components/DSATeachingPhase";
 import LanguagePath from "../../components/LanguagePath";
 import OnboardingScreen from "../../components/OnboardingScreen";
 import PracticeCompilerPanel from "../../components/PracticeCompilerPanel";
+import LandingPage from "../../components/LandingPage";
 
 // Visualizers
 import ArrayVisualizer from "../../components/visualizers/ArrayVisualizer";
@@ -83,6 +85,18 @@ export default function Home() {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setShowAuthModal(false);
+        setShowCustomModal(false);
+        setShowProgress(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
@@ -292,9 +306,16 @@ export default function Home() {
     const currentCount = userStats.levelCounts[level] || 0;
     const newCount = isNowSolved ? currentCount + 1 : Math.max(0, currentCount - 1);
     
+    const todayStr = new Date().toISOString().split('T')[0];
+    const newActivity = { ...(userStats.activity || {}) };
+    if (isNowSolved) {
+      newActivity[todayStr] = (newActivity[todayStr] || 0) + 1;
+    }
+
     const newStats = {
       levelCounts: { ...userStats.levelCounts, [level]: newCount },
-      solved: Array.from(newSet)
+      solved: Array.from(newSet),
+      activity: newActivity
     };
     
     await updateUserStats(user.uid, newStats);
@@ -312,6 +333,37 @@ export default function Home() {
            setTimerActive(false);
         }
       }
+    }
+  };
+
+  const playSuccessSound = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioContext();
+      
+      const playTone = (freq, startTime, duration) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+        
+        gain.gain.setValueAtTime(0, ctx.currentTime + startTime);
+        gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + startTime + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+        
+        osc.start(ctx.currentTime + startTime);
+        osc.stop(ctx.currentTime + startTime + duration);
+      };
+
+      playTone(523.25, 0, 0.15); // C5
+      playTone(659.25, 0.1, 0.15); // E5
+      playTone(783.99, 0.2, 0.3); // G5
+      playTone(1046.50, 0.3, 0.5); // C6
+    } catch (e) {
+      console.log('Audio not supported or blocked');
     }
   };
 
@@ -397,8 +449,36 @@ export default function Home() {
     setIsExecuting(false);
 
     if (allPassed && !solvedProblems.has(activeProblem.id)) {
+      playSuccessSound();
       await toggleSolved(); 
       alert("All test cases passed! Problem marked as solved.");
+    }
+  };
+
+  const handleAnalyzeBigO = async () => {
+    if (!code.trim() || isExecuting) return;
+    setIsExecuting(true);
+    setShowTestPanel(true);
+    setTestResults([{ passed: true, error: null, isManual: true, actualOutput: "Analyzing code complexity... 🤖\n\n" }]);
+    
+    try {
+      const res = await fetch("/api/analyze-complexity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      setTestResults([{
+        passed: true,
+        isManual: true,
+        actualOutput: `Time Complexity: ${data.timeComplexity}\nSpace Complexity: ${data.spaceComplexity}\n\nAnalysis:\n${data.explanation}`
+      }]);
+    } catch (err) {
+      setTestResults([{ passed: false, error: "Failed to analyze complexity: " + err.message, isManual: true }]);
+    } finally {
+      setIsExecuting(false);
     }
   };
 
@@ -585,6 +665,29 @@ export default function Home() {
           {visualizerContent}
         </div>
       </div>
+    );
+  };
+
+  const renderDiff = (expected, actual) => {
+    if (!expected || !actual) return <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{actual || "(No output)"}</pre>;
+    let diff = [];
+    try {
+      diff = Diff.diffChars(expected, actual);
+    } catch (e) {
+      return <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{actual}</pre>;
+    }
+    return (
+      <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+        {diff.map((part, i) => (
+          <span key={i} style={{ 
+            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(16, 185, 129, 0.3)' : 'transparent',
+            color: part.added ? '#fca5a5' : part.removed ? '#6ee7b7' : '#f3f4f6',
+            textDecoration: part.removed ? 'line-through' : 'none'
+          }}>
+            {part.value}
+          </span>
+        ))}
+      </pre>
     );
   };
 
@@ -881,7 +984,7 @@ export default function Home() {
                       </div>
                     )}
                     {renderProblemVisualizer()}
-                    <CodeEditor language={progLanguage} value={code} onChange={setCode} />
+                    <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                   </div>
 
                   {/* Custom Input / Test Panel */}
@@ -911,7 +1014,17 @@ export default function Home() {
                                    <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap', marginTop: '8px' }}>{tr.error}</div>
                                  ) : (
                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
-                                     Your Output: <br/><pre style={{ background: 'var(--bg-dark)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
+                                     {tr.isManual ? (
+                                        <>
+                                          Your Output: <br/>
+                                          <pre style={{ background: 'var(--bg-dark)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
+                                        </>
+                                     ) : (
+                                        <>
+                                          <div style={{ marginBottom: '4px' }}>Expected vs Actual Output:</div>
+                                          {renderDiff(tr.expectedOutput, tr.actualOutput)}
+                                        </>
+                                     )}
                                    </div>
                                  )}
                                </div>
