@@ -81,6 +81,7 @@ export default function Home() {
 
   // Execution Engine States
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isAnalyzingBigO, setIsAnalyzingBigO] = useState(false);
   const [testResults, setTestResults] = useState(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
 
@@ -871,13 +872,13 @@ export default function Home() {
                        <button onClick={() => setShowTestPanel(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
                      </div>
                      
-                     {isExecuting ? (
-                       <div style={{ color: '#9ca3af', fontSize: '14px' }}>Executing code on server... ⏳</div>
+                     {isExecuting || isAnalyzingBigO ? (
+                       <div style={{ color: '#9ca3af', fontSize: '14px' }}>{isExecuting ? "Executing code on server..." : "Analyzing complexity..."} ⏳</div>
                      ) : testResults ? (
                        testResults.map((tr, idx) => (
-                         <div key={idx} style={{ background: tr.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
+                         <div key={idx} style={{ background: tr.passed ? 'rgba(10, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
                            <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444', marginBottom: '8px' }}>
-                             {tr.isManual ? (tr.passed ? "EXECUTION SUCCESS ✅" : "EXECUTION FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
+                             {tr.isManual ? (tr.passed ? "SUCCESS ✅" : "FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
                            </div>
                            {tr.error ? (
                              <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
@@ -893,7 +894,7 @@ export default function Home() {
                                  </>
                                )}
                                
-                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Your Output (stdout):</div>
+                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Output:</div>
                                <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
                                
                                {tr.stderr && (
@@ -911,23 +912,31 @@ export default function Home() {
                  )}
 
                  <div style={{ display: 'flex', gap: '8px', padding: '8px' }}>
-                   <button 
-                     className="review-btn" 
-                     onClick={handleRunTests}
-                     disabled={isExecuting || !code.trim()}
-                     style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                   >
-                     {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
-                   </button>
-                   <button 
-                     className="review-btn" 
-                     onClick={() => handleSend("Please review the code I have written in the editor.")}
-                     disabled={isLoading || !code.trim()}
-                     style={{ flex: 1 }}
-                   >
-                     Ask AI to Review Code
-                   </button>
-                 </div>
+                    <button 
+                      className="review-btn" 
+                      onClick={handleAnalyzeBigO}
+                      disabled={isAnalyzingBigO || isExecuting || !code.trim()}
+                      style={{ flex: 1, background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
+                    >
+                      {isAnalyzingBigO ? "Analyzing..." : "⚡ Analyze Big-O"}
+                    </button>
+                    <button 
+                      className="review-btn" 
+                      onClick={handleRunTests}
+                      disabled={isExecuting || isAnalyzingBigO || !code.trim()}
+                      style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                      {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
+                    </button>
+                    <button 
+                      className="review-btn" 
+                      onClick={() => handleSend("Please review the code I have written in the editor.")}
+                      disabled={isLoading || isExecuting || isAnalyzingBigO || !code.trim()}
+                      style={{ flex: 1 }}
+                    >
+                      Ask AI to Review Code
+                    </button>
+                  </div>
               </div>
             </div>
           )}
