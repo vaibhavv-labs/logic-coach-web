@@ -11,6 +11,8 @@ import CodeEditor from "../../components/CodeEditor";
 import VoiceChat from "../../components/VoiceChat";
 import DSAPath from "../../components/DSAPath";
 import DSATeachingPhase from "../../components/DSATeachingPhase";
+import LanguagePath from "../../components/LanguagePath";
+import OnboardingScreen from "../../components/OnboardingScreen";
 
 // Visualizers
 import ArrayVisualizer from "../../components/visualizers/ArrayVisualizer";
@@ -48,8 +50,10 @@ export default function Home() {
   
   // DSA states
   const [dsaProgress, setDsaProgress] = useState({});
-  const [viewMode, setViewMode] = useState("logic"); // 'logic' | 'dsa'
+  const [languageProgress, setLanguageProgress] = useState({});
+  const [viewMode, setViewMode] = useState("logic"); // 'logic' | 'dsa' | 'language'
   const [activeDsaTopic, setActiveDsaTopic] = useState(null);
+  const [activeLanguageTopic, setActiveLanguageTopic] = useState(null);
   const [problemVisualState, setProblemVisualState] = useState(null);
   
   // Level 2 Timer states
@@ -134,6 +138,7 @@ export default function Home() {
           levelCounts: data.levelCounts || {}
         });
         setDsaProgress(data.dsaProgress || {});
+        setLanguageProgress(data.languageProgress || {});
       }
     } catch (error) {
       console.error("Error loading progress:", error);
@@ -643,17 +648,24 @@ export default function Home() {
             <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px', paddingLeft: '4px' }}>Navigation</h3>
             <button 
               className={`action-btn ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`} 
-              onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setSidebarOpen(false); }}
+              onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
               style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
             >
               <span style={{ fontSize: '18px' }}>🏠</span> Dashboard Home
             </button>
             <button 
               className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
-              onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setSidebarOpen(false); }}
+              onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
               style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
             >
-              <span style={{ fontSize: '18px' }}>🗺️</span> My Roadmap
+              <span style={{ fontSize: '18px' }}>🗺️</span> DSA Roadmap
+            </button>
+            <button 
+              className={`action-btn ${viewMode === 'language' ? 'active' : ''}`} 
+              onClick={() => { setViewMode('language'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
+            >
+              <span style={{ fontSize: '18px' }}>🚀</span> Language Roadmap
             </button>
           </div>
         </aside>
@@ -677,6 +689,26 @@ export default function Home() {
                  setDsaProgress(newProg);
                  if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
                  alert("Topic Teaching Complete! You can now select a problem level to practice.");
+               }}
+             />
+          ) : viewMode === 'language' && !activeProblem && !activeLanguageTopic ? (
+             <LanguagePath progress={languageProgress} roadmap={userRoadmap} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
+          ) : viewMode === 'language' && activeLanguageTopic && (!languageProgress[activeLanguageTopic.id] || languageProgress[activeLanguageTopic.id].level === 0) ? (
+             <DSATeachingPhase 
+               topic={activeLanguageTopic} 
+               initialStep={languageProgress[activeLanguageTopic.id]?.step || 0}
+               language={language}
+               onLanguageChange={setLanguage}
+               onProgressUpdate={async (step) => {
+                 const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 0, step } };
+                 setLanguageProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { languageProgress: newProg }, { merge: true });
+               }}
+               onComplete={async () => {
+                 const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 1, step: 0 } };
+                 setLanguageProgress(newProg);
+                 if (user) await setDoc(doc(db, "user_progress", user.uid), { languageProgress: newProg }, { merge: true });
+                 alert("Topic Teaching Complete! You can now practice.");
                }}
              />
           ) : !activeProblem ? (
@@ -713,7 +745,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)', borderColor: 'rgba(168, 85, 247, 0.2)' }} onClick={() => setViewMode('dsa')}>
+                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)', borderColor: 'rgba(168, 85, 247, 0.2)' }} onClick={() => setViewMode('language')}>
                     <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
                       <div>
                         <h2 style={{ background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
