@@ -1,27 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --bg-primary: #fcfcfb;
-  --bg-secondary: #ffffff;
-  --bg-subtle: #f5f4f0;
+  /* Crisp clean light mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-subtle: #f1f5f9;
   
-  --text-primary: #1f2937;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
   
-  --accent-teal: #0d9488;
-  --accent-teal-light: #ccfbf1;
-  --accent-teal-hover: #0f766e;
+  --accent-teal: #0284c7; /* Vibrant Sky Blue */
+  --accent-teal-light: #e0f2fe;
+  --accent-teal-hover: #0369a1;
   
-  --accent-orange: #f97316;
-  --accent-orange-light: #ffedd5;
-  --accent-orange-hover: #ea580c;
+  --accent-orange: #f43f5e; /* Vibrant Rose */
+  --accent-orange-light: #ffe4e6;
+  --accent-orange-hover: #e11d48;
   
-  --border-light: #e5e7eb;
+  --border-light: #e2e8f0;
   
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.08);
+
+  --title-gradient: linear-gradient(135deg, #0f172a 0%, #334155 100%);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -33,19 +36,30 @@
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-subtle: #334155;
+  /* Elevated dark mode - readable contrast */
+  --bg-primary: #09090b;
+  --bg-secondary: #18181b;
+  --bg-subtle: #27272a;
   
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #64748b;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
   
-  --border-light: #334155;
+  --accent-teal: #38bdf8;
+  --accent-teal-light: rgba(56, 189, 248, 0.15);
+  --accent-teal-hover: #0ea5e9;
+  
+  --accent-orange: #fb7185;
+  --accent-orange-light: rgba(251, 113, 133, 0.15);
+  --accent-orange-hover: #f43f5e;
+  
+  --border-light: #3f3f46;
   
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.8);
+
+  --title-gradient: linear-gradient(135deg, #f8fafc 0%, #94a3b8 100%);
 }
 
 * {
@@ -244,7 +258,7 @@ body {
   font-weight: 800;
   margin-bottom: 16px;
   letter-spacing: -2px;
-  background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);
+  background: var(--title-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1.1;
