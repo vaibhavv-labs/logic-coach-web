@@ -219,10 +219,9 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
             </select>
           )}
           <button 
-            className="action-btn" 
+            className="practice-code-btn" 
             onClick={() => setIsCompilerOpen(true)} 
-            title="Practice Code" 
-            style={{ fontSize: '14px', padding: '6px 12px', background: 'var(--accent-green)', color: '#fff', fontWeight: 'bold' }}
+            title="Practice Code"
           >
             💻 Practice Code
           </button>

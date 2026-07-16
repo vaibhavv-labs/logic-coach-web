@@ -1916,3 +1916,28 @@ body {
 .terminal-output.error-text {
   color: #f87171;
 }
+
+.practice-code-btn {
+  padding: 6px 12px;
+  background: var(--accent-green);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: bold;
+  font-family: var(--font);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.practice-code-btn:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.practice-code-btn:active {
+  transform: scale(0.97);
+}
