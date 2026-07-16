@@ -841,12 +841,29 @@ export default function Home() {
           ) : (!activeProblem && !fetchingProblem && viewMode === 'dsa' && activeDsaTopic) || (!activeProblem && !fetchingProblem && viewMode === 'language' && activeLanguageTopic) ? (
               <div className="landing-container" style={{ background: 'none' }}>
                 <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--accent-teal-light)', color: 'var(--accent-teal)' }}>🎯</div>
-                <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
-                  {activeDsaTopic ? activeDsaTopic.title : activeLanguageTopic.title} Mastered!
+                 <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
+                  {activeDsaTopic ? activeDsaTopic.title : activeLanguageTopic.title} - Tutorial Completed!
                 </h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px' }}>
-                  You have completed the teaching phase for this topic. Select a difficulty level below to start generating AI practice problems.
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px' }}>
+                  You have already completed the interactive AI teaching phase for this topic. Would you like to review the tutorial, or challenge yourself with practice problems?
                 </p>
+                <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', marginBottom: '32px' }}>
+                  <button 
+                    className="start-btn" 
+                    onClick={() => {
+                      // Reset the topic progress so they can replay the teaching phase
+                      if (activeDsaTopic) {
+                        setDsaProgress(prev => ({ ...prev, [activeDsaTopic.id]: { level: 0, step: 0 } }));
+                      } else {
+                        setLanguageProgress(prev => ({ ...prev, [activeLanguageTopic.id]: { level: 0, step: 0 } }));
+                      }
+                    }}
+                    style={{ background: 'var(--bg-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                  >
+                    ↺ Replay Tutorial
+                  </button>
+                </div>
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', color: 'var(--text-secondary)' }}>Practice Mode</h3>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
                   {[1, 2, 3, 4, 5].map(lvl => (
                     <button 
