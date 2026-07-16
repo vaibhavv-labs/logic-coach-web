@@ -5,6 +5,7 @@ import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import AuthModal from "./components/AuthModal";
+import GuestUpgradeModal from "./components/GuestUpgradeModal";
 import CustomProblemModal from "./components/CustomProblemModal";
 import ProgressScreen from "./components/ProgressScreen";
 import CodeEditor from "./components/CodeEditor";
@@ -63,6 +64,7 @@ export default function Home() {
   // Auth & DB states
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showGuestUpgradeModal, setShowGuestUpgradeModal] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [userRoadmap, setUserRoadmap] = useState(null);
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -264,7 +266,11 @@ export default function Home() {
     }
     
     if (user && !solvedProblems.has(problem.id)) {
-      updateUserStats(user.uid, { totalAttempted: userStats.totalAttempted + 1 });
+      const newTotal = userStats.totalAttempted + 1;
+      updateUserStats(user.uid, { totalAttempted: newTotal });
+      if (user.isAnonymous && newTotal === 3) {
+        setShowGuestUpgradeModal(true);
+      }
     }
   };
 
@@ -618,12 +624,11 @@ export default function Home() {
   return (
     <>
       {showAuthModal && (
-        <AuthModal 
-          onClose={() => setShowAuthModal(false)} 
-          onSuccess={() => setShowAuthModal(false)} 
-        />
+        <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={() => setShowAuthModal(false)} />
       )}
-      
+      {showGuestUpgradeModal && (
+        <GuestUpgradeModal onClose={() => setShowGuestUpgradeModal(false)} onSuccess={() => setShowGuestUpgradeModal(false)} />
+      )}
       {showCustomModal && (
         <CustomProblemModal 
           onClose={() => setShowCustomModal(false)} 

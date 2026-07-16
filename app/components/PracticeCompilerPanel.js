@@ -7,6 +7,7 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
   const [code, setCode] = useState("");
   const [output, setOutput] = useState("");
   const [isExecuting, setIsExecuting] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isError, setIsError] = useState(false);
 
   // Set default code when language changes
@@ -63,6 +64,40 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
     }
   };
 
+  const handleAnalyzeCode = async () => {
+    if (!code.trim()) return;
+    setIsAnalyzing(true);
+    setOutput("AI is analyzing Big-O complexity...");
+    setIsError(false);
+    
+    try {
+      const response = await fetch("/api/analyze-complexity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language, code })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        setIsError(true);
+        setOutput(data.error || "Analysis failed.");
+      } else {
+        setIsError(false);
+        const { timeComplexity, timeExplanation, spaceComplexity, spaceExplanation } = data.analysis;
+        setOutput(
+          `⏱️ Time Complexity: ${timeComplexity}\n  ${timeExplanation}\n\n` +
+          `💾 Space Complexity: ${spaceComplexity}\n  ${spaceExplanation}`
+        );
+      }
+    } catch (err) {
+      setIsError(true);
+      setOutput("Error connecting to AI Analyzer.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <>
       <div 
@@ -88,13 +123,23 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
           <div className="compiler-terminal-section">
             <div className="terminal-header">
               <span>Terminal</span>
-              <button 
-                className={`run-code-btn ${isExecuting ? 'loading' : ''}`} 
-                onClick={handleRunCode}
-                disabled={isExecuting}
-              >
-                {isExecuting ? "Running..." : "▶ Run Code"}
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button 
+                  className={`run-code-btn ${isAnalyzing ? 'loading' : ''}`} 
+                  style={{ background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
+                  onClick={handleAnalyzeCode}
+                  disabled={isAnalyzing || isExecuting}
+                >
+                  {isAnalyzing ? "Analyzing..." : "⚡ Analyze Big-O"}
+                </button>
+                <button 
+                  className={`run-code-btn ${isExecuting ? 'loading' : ''}`} 
+                  onClick={handleRunCode}
+                  disabled={isExecuting || isAnalyzing}
+                >
+                  {isExecuting ? "Running..." : "▶ Run Code"}
+                </button>
+              </div>
             </div>
             <div className="terminal-body">
               <pre className={`terminal-output ${isError ? 'error-text' : 'success-text'}`}>
