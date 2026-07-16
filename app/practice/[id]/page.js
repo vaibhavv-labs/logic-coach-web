@@ -82,6 +82,8 @@ export default function Home() {
   const [isExecuting, setIsExecuting] = useState(false);
   const [testResults, setTestResults] = useState(null);
   const [showTestPanel, setShowTestPanel] = useState(false);
+  const [customInput, setCustomInput] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -375,12 +377,12 @@ export default function Home() {
     const results = [];
     let allPassed = true;
 
-    if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
+    if (!activeProblem?.testCases || activeProblem.testCases.length === 0 || showCustomInput) {
       try {
         const res = await fetch("/api/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ language: progLanguage, code: code, stdin: "" })
+          body: JSON.stringify({ language: progLanguage, code: code, stdin: customInput })
         });
         const data = await res.json();
         
@@ -984,6 +986,15 @@ export default function Home() {
                       </div>
                     )}
                     {renderProblemVisualizer()}
+                    <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', cursor: 'pointer', color: 'var(--text-primary)' }}>
+                        <input type="checkbox" checked={showCustomInput} onChange={(e) => setShowCustomInput(e.target.checked)} />
+                        Use Custom Input (stdin)
+                      </label>
+                      {showCustomInput && (
+                        <textarea className="chat-input" value={customInput} onChange={(e) => setCustomInput(e.target.value)} placeholder="Enter input (stdin) here..." style={{ marginTop: '8px', height: '60px' }} />
+                      )}
+                    </div>
                     <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                   </div>
 
@@ -993,11 +1004,6 @@ export default function Home() {
                       <span>Test against Custom Input</span>
                       <span>{showTestPanel ? '⌄' : '⌃'}</span>
                     </div>
-                    {showTestPanel && (
-                      <div className="test-panel-content" style={{ padding: '16px', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-                        <textarea placeholder="Enter custom input here..." style={{ width: '100%', height: '80px', background: 'var(--bg-dark)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '8px' }}></textarea>
-                      </div>
-                    )}
                     
                     {/* Execution Results */}
                     {(isExecuting || testResults) && (
@@ -1017,7 +1023,7 @@ export default function Home() {
                                      {tr.isManual ? (
                                         <>
                                           Your Output: <br/>
-                                          <pre style={{ background: 'var(--bg-dark)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
+                                          <pre style={{ background: 'var(--bg-dark)', padding: '8px', borderRadius: '4px', marginTop: '4px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
                                         </>
                                      ) : (
                                         <>

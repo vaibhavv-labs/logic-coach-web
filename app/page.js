@@ -51,6 +51,8 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [latestAiMessage, setLatestAiMessage] = useState("");
+  const [customInput, setCustomInput] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
   
   // DSA states
   const [dsaProgress, setDsaProgress] = useState({});
@@ -391,12 +393,12 @@ export default function Home() {
     let results = [];
     let allPassed = true;
 
-    if (!activeProblem?.testCases || activeProblem.testCases.length === 0) {
+    if (!activeProblem?.testCases || activeProblem.testCases.length === 0 || showCustomInput) {
       try {
         const res = await fetch("/api/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ language: progLanguage, code: code, stdin: "" })
+          body: JSON.stringify({ language: progLanguage, code: code, stdin: customInput })
         });
         const data = await res.json();
         
@@ -690,7 +692,7 @@ export default function Home() {
       <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>
         {diff.map((part, i) => (
           <span key={i} style={{ 
-            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(16, 185, 129, 0.3)' : 'transparent',
+            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(10, 185, 129, 0.3)' : 'transparent',
             color: part.added ? '#fca5a5' : part.removed ? '#6ee7b7' : '#f3f4f6',
             textDecoration: part.removed ? 'line-through' : 'none'
           }}>
@@ -993,6 +995,15 @@ export default function Home() {
                    </div>
                  )}
                  {renderProblemVisualizer()}
+                 <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
+                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', cursor: 'pointer' }}>
+                     <input type="checkbox" checked={showCustomInput} onChange={(e) => setShowCustomInput(e.target.checked)} />
+                     Use Custom Input
+                   </label>
+                   {showCustomInput && (
+                     <textarea className="chat-input" value={customInput} onChange={(e) => setCustomInput(e.target.value)} placeholder="Enter input (stdin) here..." style={{ marginTop: '8px', height: '60px' }} />
+                   )}
+                 </div>
                  <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                  
                  {showTestPanel && (
@@ -1014,6 +1025,12 @@ export default function Home() {
                              <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
                            ) : (
                              <>
+                               {tr.isManual && (
+                                 <>
+                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Actual Output:</div>
+                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
+                                 </>
+                               )}
                                {!tr.isManual && (
                                  <>
                                    <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
