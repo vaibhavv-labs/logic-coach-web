@@ -1022,7 +1022,10 @@ body {
 .pro-timeline-item {
   position: relative;
   display: flex;
-  gap: 24px;
+  align-items: flex-start;
+  gap: 32px;
+  margin-bottom: 32px;
+  z-index: 2;
   padding-bottom: 40px;
   opacity: 0;
   animation: fadeSlideUp 0.6s ease forwards;
