@@ -725,14 +725,28 @@ export default function Home() {
                 </div>
                 
                 <div className="bento-grid">
-                  <div className="bento-card bento-span-12 bento-roadmap" onClick={() => setViewMode('dsa')}>
-                    <div className="bento-roadmap-content">
+                  <div className="bento-card bento-span-6 bento-roadmap" onClick={() => setViewMode('dsa')}>
+                    <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
                       <div>
-                        <h2>{userRoadmap?.language ? `DSA & ${userRoadmap.language} Mastery` : 'Data Structures & Algorithms'}</h2>
-                        <p>Continue your personalized learning path to achieve your goals.</p>
+                        <h2>Data Structures & Algorithms</h2>
+                        <p>Master core algorithms and data structures.</p>
                       </div>
                       <button className="bento-btn">
-                        Continue Roadmap <span>→</span>
+                        Start DSA <span>→</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)', borderColor: 'rgba(168, 85, 247, 0.2)' }} onClick={() => setViewMode('dsa')}>
+                    <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
+                      <div>
+                        <h2 style={{ background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                          {userRoadmap?.language ? `${userRoadmap.language} Mastery` : 'Language Mastery'}
+                        </h2>
+                        <p>Level up your syntax and language-specific logic.</p>
+                      </div>
+                      <button className="bento-btn">
+                        Start Language <span>→</span>
                       </button>
                     </div>
                   </div>
