@@ -602,8 +602,8 @@ export default function Home() {
         />
       )}
 
-      <div className="mobile-header">
-        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+      <div className="app-header">
+        <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
         <div className="sidebar-brand"><h2>Logic Coach</h2></div>
         <div style={{ width: 24 }}></div>
       </div>
