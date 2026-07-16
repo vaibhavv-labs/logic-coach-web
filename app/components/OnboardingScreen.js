@@ -51,10 +51,10 @@ export default function OnboardingScreen({ user, onComplete }) {
             <h1 style={{ fontSize: '36px', marginBottom: '16px' }}>Welcome {displayName},</h1>
             <h2 style={{ fontSize: '24px', color: 'var(--accent-orange)' }}>Chef here!</h2>
             <p style={{ marginTop: '24px', fontSize: '18px', color: 'var(--text-secondary)' }}>
-              Let's get to know you so we can personalize your learning journey.
+              Let&apos;s get to know you so we can personalize your learning journey.
             </p>
             <div style={{ marginTop: '48px' }}>
-              <button className="start-btn" onClick={handleNext}>Let's Start</button>
+              <button className="start-btn" onClick={handleNext}>Let&apos;s Start</button>
             </div>
           </div>
         );
