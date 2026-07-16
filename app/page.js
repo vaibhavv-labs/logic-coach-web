@@ -499,6 +499,8 @@ export default function Home() {
             onSuccess={() => { setShowAuthModal(false); setScreen("app"); }} 
           />
         )}
+        <div className="landing-bg-orb orb-1"></div>
+        <div className="landing-bg-orb orb-2"></div>
         <nav className="landing-nav">
           <div className="landing-nav-logo">
             <span className="logo-icon">🧠</span>
@@ -518,7 +520,10 @@ export default function Home() {
         </nav>
         
         <div className="landing-container">
-          <div className="landing-icon">🧠</div>
+          <div className="landing-icon-wrapper">
+            <div className="landing-icon-glow"></div>
+            <div className="landing-icon">🧠</div>
+          </div>
           <h1 className="landing-title">Logic Coach</h1>
           <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
           <p className="landing-desc">
