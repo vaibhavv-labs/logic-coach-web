@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
 
-export default function DSAPath({ progress, roadmap, onSelectTopic, language = "English", userId }) {
+export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, language = "English", userId }) {
   const scrollRef = useRef(null);
 
   // Auto-scroll to current topic
@@ -18,7 +18,10 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
   }, [progress]);
 
   let previousTopicUnlocked = true;
-  const allCompleted = DSA_TOPICS.every(topic => progress?.[topic.id]?.level > 0);
+  const allCompleted = DSA_TOPICS.every(topic => {
+    const isCompleted = progress?.[topic.id]?.level > 0 && userStats?.solved?.some(id => id.startsWith(topic.id + '-'));
+    return isCompleted;
+  });
 
   const getTopicState = (topic, index) => {
     const topicProgress = progress?.[topic.id];
@@ -27,7 +30,10 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
     let stateClass = "locked";
     let btnText = "Locked";
     let badgeText = "Locked";
-    const isCompleted = topicProgress?.level > 0;
+    
+    const teachingComplete = topicProgress?.level > 0;
+    const hasSolvedProblem = userStats?.solved?.some(id => id.startsWith(topic.id + '-')) || false;
+    const isCompleted = teachingComplete && hasSolvedProblem;
 
     if (isCompleted) {
       stateClass = "completed";
@@ -40,6 +46,9 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
       } else if (topicProgress.level === 0) {
         btnText = "Continue";
         badgeText = `Step ${topicProgress.step + 1}/${topic.teachingSteps.length}`;
+      } else if (teachingComplete && !hasSolvedProblem) {
+        btnText = "Practice to Master";
+        badgeText = "Practice Required";
       }
       stateClass = "current";
     }

@@ -1327,6 +1327,7 @@ body {
   justify-content: center;
   font-size: 24px;
   font-weight: bold;
+  color: #ffffff;
   transition: all 0.3s;
 }
 
@@ -1420,10 +1421,13 @@ body {
 
 .ll-node {
   display: flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid #475569;
   border-radius: 8px;
   overflow: hidden;
   background: #334155;
+  color: #ffffff;
   transition: all 0.3s;
 }
 
@@ -1480,6 +1484,8 @@ body {
   align-items: center;
   justify-content: center;
   font-weight: bold;
+  color: #ffffff;
+  position: relative;
   font-size: 18px;
   transition: all 0.3s;
 }

@@ -797,7 +797,7 @@ export default function Home() {
 
         <main className="main-content">
           {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
-             <DSAPath progress={dsaProgress} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
+             <DSAPath progress={dsaProgress} userStats={userStats} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
           ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeDsaTopic} 
@@ -818,7 +818,7 @@ export default function Home() {
                }}
              />
           ) : viewMode === 'language' && !activeProblem && !activeLanguageTopic ? (
-             <LanguagePath progress={languageProgress} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
+             <LanguagePath progress={languageProgress} userStats={userStats} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
           ) : viewMode === 'language' && activeLanguageTopic && (!languageProgress[activeLanguageTopic.id] || languageProgress[activeLanguageTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeLanguageTopic} 
@@ -838,7 +838,7 @@ export default function Home() {
                  alert("Topic Teaching Complete! You can now practice.");
                }}
              />
-          ) : (viewMode === 'dsa' && activeDsaTopic) || (viewMode === 'language' && activeLanguageTopic) ? (
+          ) : (!activeProblem && !fetchingProblem && viewMode === 'dsa' && activeDsaTopic) || (!activeProblem && !fetchingProblem && viewMode === 'language' && activeLanguageTopic) ? (
               <div className="landing-container" style={{ background: 'none' }}>
                 <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--accent-teal-light)', color: 'var(--accent-teal)' }}>🎯</div>
                 <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
