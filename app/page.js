@@ -53,6 +53,7 @@ export default function Home() {
   const [latestAiMessage, setLatestAiMessage] = useState("");
   const [customInput, setCustomInput] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [terminalHeight, setTerminalHeight] = useState(250);
   
   // DSA states
   const [dsaProgress, setDsaProgress] = useState({});
@@ -388,6 +389,7 @@ export default function Home() {
     if (!code.trim()) return;
     setIsExecuting(true);
     setShowTestPanel(true);
+    if (terminalHeight < 100) setTerminalHeight(250);
     setTestResults([{ passed: true, isManual: true, actualOutput: "Executing code on server..." }]);
     
     let results = [];
@@ -1007,7 +1009,26 @@ export default function Home() {
                  <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                  
                  {showTestPanel && (
-                   <div style={{ background: '#1e1e1e', borderTop: '1px solid var(--border)', height: '250px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                   <>
+                     <div 
+                       onMouseDown={(e) => {
+                         e.preventDefault();
+                         const startY = e.clientY;
+                         const startHeight = terminalHeight;
+                         const onMouseMove = (moveEvent) => {
+                           const newHeight = startHeight - (moveEvent.clientY - startY);
+                           setTerminalHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
+                         };
+                         const onMouseUp = () => {
+                           document.removeEventListener("mousemove", onMouseMove);
+                           document.removeEventListener("mouseup", onMouseUp);
+                         };
+                         document.addEventListener("mousemove", onMouseMove);
+                         document.addEventListener("mouseup", onMouseUp);
+                       }}
+                       style={{ height: '8px', background: '#333', cursor: 'row-resize', width: '100%', borderTop: '1px solid #444', borderBottom: '1px solid #444' }}
+                     />
+                     <div style={{ background: '#1e1e1e', height: `${terminalHeight}px`, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                        <h3 style={{ margin: 0, color: '#e5e7eb', fontSize: '14px' }}>Test Results</h3>
                        <button onClick={() => setShowTestPanel(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
@@ -1053,6 +1074,7 @@ export default function Home() {
                        ))
                      ) : null}
                    </div>
+                   </>
                  )}
 
                  <div style={{ display: 'flex', gap: '8px', padding: '8px' }}>

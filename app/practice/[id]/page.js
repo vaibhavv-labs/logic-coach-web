@@ -84,6 +84,7 @@ export default function Home() {
   const [showTestPanel, setShowTestPanel] = useState(false);
   const [customInput, setCustomInput] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const [terminalHeight, setTerminalHeight] = useState(250);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -460,6 +461,7 @@ export default function Home() {
   const handleAnalyzeBigO = async () => {
     if (!code.trim() || isExecuting) return;
     setIsExecuting(true);
+    if (terminalHeight < 100) setTerminalHeight(250);
     setShowTestPanel(true);
     setTestResults([{ passed: true, error: null, isManual: true, actualOutput: "Analyzing code complexity... 🤖\n\n" }]);
     
@@ -998,6 +1000,28 @@ export default function Home() {
                     <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
                   </div>
 
+                  {/* Resizer Handle */}
+                  {(isExecuting || testResults) && (
+                    <div 
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        const startY = e.clientY;
+                        const startHeight = terminalHeight;
+                        const onMouseMove = (moveEvent) => {
+                          const newHeight = startHeight - (moveEvent.clientY - startY);
+                          setTerminalHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
+                        };
+                        const onMouseUp = () => {
+                          document.removeEventListener("mousemove", onMouseMove);
+                          document.removeEventListener("mouseup", onMouseUp);
+                        };
+                        document.addEventListener("mousemove", onMouseMove);
+                        document.addEventListener("mouseup", onMouseUp);
+                      }}
+                      style={{ height: '8px', background: '#333', cursor: 'row-resize', width: '100%', borderTop: '1px solid #444', borderBottom: '1px solid #444' }}
+                    />
+                  )}
+
                   {/* Custom Input / Test Panel */}
                   <div className="ide-test-panel">
                     <div className="test-panel-header" onClick={() => setShowTestPanel(!showTestPanel)}>
@@ -1007,7 +1031,7 @@ export default function Home() {
                     
                     {/* Execution Results */}
                     {(isExecuting || testResults) && (
-                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)', height: `${terminalHeight}px`, overflowY: 'auto' }}>
                         <h4 style={{ margin: '0 0 12px 0' }}>Execution Results</h4>
                         {isExecuting ? <div style={{ color: 'var(--text-muted)' }}>Executing code on server... ⏳</div> : (
                           <div className="results-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
