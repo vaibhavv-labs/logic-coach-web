@@ -997,85 +997,177 @@ body {
   margin-bottom: 40px;
 }
 
-.dsa-roadmap {
+/* ==================== PROFESSIONAL VERTICAL TIMELINE ==================== */
+.pro-timeline {
   display: flex;
   flex-direction: column;
-  gap: 0;
-}
-
-.dsa-node-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
   position: relative;
+  padding: 20px 0 60px 40px;
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.dsa-node {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 24px;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 500px;
-  transition: all 0.3s;
-  cursor: pointer;
-  z-index: 2;
-}
-
-.dsa-node.locked {
-  opacity: 0.6;
-  cursor: not-allowed;
-  background: var(--bg-subtle);
-}
-
-.dsa-node.unlocked:hover {
-  border-color: var(--accent-orange);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.dsa-node.completed {
-  border-color: var(--accent-teal);
-  background: var(--accent-teal-light);
-}
-
-.dsa-node-icon {
-  font-size: 32px;
-  width: 48px;
-  text-align: center;
-}
-
-.dsa-node-info h3 {
-  font-size: 18px;
-  margin-bottom: 4px;
-}
-
-.dsa-status {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.dsa-checkmark {
-  margin-left: auto;
-  color: var(--accent-teal);
-  font-weight: bold;
-  font-size: 20px;
-}
-
-.dsa-connector {
-  width: 4px;
-  height: 40px;
+/* The continuous vertical line */
+.pro-timeline::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  bottom: 80px;
+  left: 64px; /* 40px padding + 24px half icon */
+  width: 2px;
   background: var(--border-light);
-  margin-left: 48px; /* align with icon */
   z-index: 1;
 }
 
-.active-connector {
-  background: var(--accent-teal);
+.pro-timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  position: relative;
+  margin-bottom: 32px;
+  z-index: 2;
+}
+.pro-timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+/* The circular node sitting on the track */
+.pro-timeline-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-light);
+  z-index: 3;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 4px var(--bg-primary); /* cuts out the track line behind it */
+}
+
+/* Status: Locked */
+.pro-timeline-item.locked .pro-timeline-icon {
+  background: var(--bg-subtle);
+  border-color: var(--border-light);
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+.pro-timeline-item.locked .pro-timeline-card {
+  opacity: 0.6;
+  background: var(--bg-subtle);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+.pro-timeline-item.locked .pro-timeline-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Status: Completed */
+.pro-timeline-item.completed .pro-timeline-icon {
+  background: var(--accent-teal-light);
+  border-color: var(--accent-teal);
+}
+.pro-timeline-item.completed .pro-timeline-card {
+  border-left: 3px solid var(--accent-teal);
+}
+
+/* Status: Current */
+.pro-timeline-item.current .pro-timeline-icon {
+  border-color: var(--accent-orange);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 6px var(--accent-orange-light);
+}
+.pro-timeline-item.current .pro-timeline-card {
+  border-color: var(--accent-orange);
+  box-shadow: var(--shadow-md);
+}
+
+/* The rich content card */
+.pro-timeline-card {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+.pro-timeline-card:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-muted);
+}
+
+.pro-timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.pro-timeline-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.pro-timeline-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+.pro-timeline-item.completed .pro-timeline-badge {
+  background: var(--accent-teal-light);
+  color: var(--accent-teal);
+}
+.pro-timeline-item.current .pro-timeline-badge {
+  background: var(--accent-orange);
+  color: #fff;
+}
+
+.pro-timeline-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.pro-timeline-btn {
+  align-self: flex-start;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pro-timeline-card:hover .pro-timeline-btn {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+.pro-timeline-item.completed .pro-timeline-btn {
+  color: var(--accent-teal);
+  border-color: var(--accent-teal-light);
+}
+.pro-timeline-item.current .pro-timeline-btn {
+  background: var(--accent-orange);
+  color: #fff;
+  border-color: var(--accent-orange);
 }
 
 /* Teaching Phase */
