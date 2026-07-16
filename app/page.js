@@ -838,6 +838,28 @@ export default function Home() {
                  alert("Topic Teaching Complete! You can now practice.");
                }}
              />
+          ) : (viewMode === 'dsa' && activeDsaTopic) || (viewMode === 'language' && activeLanguageTopic) ? (
+              <div className="landing-container" style={{ background: 'none' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--accent-teal-light)', color: 'var(--accent-teal)' }}>🎯</div>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
+                  {activeDsaTopic ? activeDsaTopic.title : activeLanguageTopic.title} Mastered!
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px' }}>
+                  You have completed the teaching phase for this topic. Select a difficulty level below to start generating AI practice problems.
+                </p>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {[1, 2, 3, 4, 5].map(lvl => (
+                    <button 
+                      key={lvl}
+                      className="start-btn-small" 
+                      onClick={() => { setActiveLevel(lvl); setActiveProblem(null); getProblemForLevel(lvl); }}
+                      style={{ padding: '10px 24px' }}
+                    >
+                      Level {lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
           ) : !activeProblem ? (
             fetchingProblem ? (
               <div className="landing-container" style={{ background: 'none' }}>
