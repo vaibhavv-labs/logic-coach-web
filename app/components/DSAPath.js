@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
 
-export default function DSAPath({ progress, roadmap, onSelectTopic, language = "English" }) {
+export default function DSAPath({ progress, roadmap, onSelectTopic, language = "English", userId }) {
   const scrollRef = useRef(null);
 
   // Auto-scroll to current topic
@@ -18,6 +18,7 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
   }, [progress]);
 
   let previousTopicUnlocked = true;
+  const allCompleted = DSA_TOPICS.every(topic => progress?.[topic.id]?.level > 0);
 
   const getTopicState = (topic, index) => {
     const topicProgress = progress?.[topic.id];
@@ -60,6 +61,46 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
           : t("dsa_subtitle", language)}
       </p>
 
+      {/* Daily Challenge Card */}
+      <div style={{
+        margin: '0 auto 40px auto',
+        maxWidth: '600px',
+        background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(16, 185, 129, 0.1))',
+        border: '1px solid var(--accent-orange)',
+        borderRadius: '12px',
+        padding: '24px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '20px',
+        cursor: 'pointer',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+      }}
+      className="daily-challenge-card"
+      onClick={() => {
+        // Deterministic daily topic based on day of year
+        const today = new Date();
+        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        const dailyTopicIndex = dayOfYear % DSA_TOPICS.length;
+        onSelectTopic(DSA_TOPICS[dailyTopicIndex]);
+      }}
+      >
+        <div style={{ fontSize: '40px' }}>🔥</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+            Daily Challenge
+          </div>
+          <h3 style={{ margin: '0 0 4px 0', color: 'var(--text-primary)' }}>
+            {DSA_TOPICS[Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24) % DSA_TOPICS.length].title}
+          </h3>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+            Can you solve today's hand-picked logic puzzle? Keep your streak alive!
+          </p>
+        </div>
+        <button style={{ background: 'var(--accent-orange)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+          Solve
+        </button>
+      </div>
+
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}
         {(() => { previousTopicUnlocked = true; return null; })()}
@@ -94,6 +135,31 @@ export default function DSAPath({ progress, roadmap, onSelectTopic, language = "
           );
         })}
       </div>
+
+      {allCompleted && userId && (
+        <div style={{ textAlign: 'center', marginTop: '60px', padding: '40px', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--accent-orange)' }}>
+          <h2 style={{ color: 'var(--text-primary)', marginBottom: '16px' }}>🎉 Roadmap Completed!</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>You have mastered all Data Structures and Algorithms modules.</p>
+          <a 
+            href={`/certificate/${userId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ 
+              display: 'inline-block',
+              background: 'var(--accent-orange)', 
+              color: '#fff', 
+              padding: '16px 32px', 
+              borderRadius: '8px', 
+              fontSize: '18px', 
+              fontWeight: 'bold', 
+              textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)'
+            }}
+          >
+            🎓 Claim Mastery Certificate
+          </a>
+        </div>
+      )}
     </div>
   );
 }

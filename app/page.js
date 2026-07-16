@@ -6,6 +6,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import AuthModal from "./components/AuthModal";
 import GuestUpgradeModal from "./components/GuestUpgradeModal";
+import LeaderboardModal from "./components/LeaderboardModal";
 import CustomProblemModal from "./components/CustomProblemModal";
 import ProgressScreen from "./components/ProgressScreen";
 import CodeEditor from "./components/CodeEditor";
@@ -65,6 +66,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showGuestUpgradeModal, setShowGuestUpgradeModal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [userRoadmap, setUserRoadmap] = useState(null);
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -630,6 +632,9 @@ export default function Home() {
       {showGuestUpgradeModal && (
         <GuestUpgradeModal onClose={() => setShowGuestUpgradeModal(false)} onSuccess={() => setShowGuestUpgradeModal(false)} />
       )}
+      {showLeaderboard && (
+        <LeaderboardModal onClose={() => setShowLeaderboard(false)} />
+      )}
       {showCustomModal && (
         <CustomProblemModal 
           onClose={() => setShowCustomModal(false)} 
@@ -670,6 +675,7 @@ export default function Home() {
                 <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
+                  <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
                   <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
                 </div>
               </div>
@@ -706,7 +712,7 @@ export default function Home() {
 
         <main className="main-content">
           {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
-             <DSAPath progress={dsaProgress} roadmap={userRoadmap} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
+             <DSAPath progress={dsaProgress} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
           ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeDsaTopic} 
@@ -727,7 +733,7 @@ export default function Home() {
                }}
              />
           ) : viewMode === 'language' && !activeProblem && !activeLanguageTopic ? (
-             <LanguagePath progress={languageProgress} roadmap={userRoadmap} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
+             <LanguagePath progress={languageProgress} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
           ) : viewMode === 'language' && activeLanguageTopic && (!languageProgress[activeLanguageTopic.id] || languageProgress[activeLanguageTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeLanguageTopic} 
