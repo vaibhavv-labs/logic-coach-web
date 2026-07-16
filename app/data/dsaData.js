@@ -644,9 +644,45 @@ export const DSA_TOPICS = [
     description: "LIFO, Push/Pop",
     icon: "🥞",
     teachingSteps: [
-      { id: "step1", text: "Push/Pop (LIFO)", visualType: "stack", visualState: "push" },
-      { id: "step2", text: "Stack using Array", visualType: "stack", visualState: "pop" },
-      { id: "step3", text: "Stack using Linked List", visualType: "stack", visualState: "pop" }
+      { 
+        id: "step1", 
+        text: "Push/Pop (LIFO)", 
+        visualType: "stack", 
+        visualState: "push",
+        explanation: "A **Stack** follows the **LIFO (Last In, First Out)** principle. Imagine a stack of plates: the last plate you put on top is the first one you take off.\n\n- **Push**: Add an element to the top.\n- **Pop**: Remove the top element.\n- **Peek/Top**: Look at the top element without removing it.",
+        codeSnippets: {
+          "Python": "stack = []\nstack.append(1) # Push\nstack.append(2)\ntop = stack.pop() # Pop (returns 2)",
+          "C++": "#include <stack>\nstack<int> s;\ns.push(1); // Push\ns.push(2);\nint top = s.top(); // Peek\ns.pop(); // Pop",
+          "Java": "Stack<Integer> stack = new Stack<>();\nstack.push(1);\nstack.push(2);\nint top = stack.pop();",
+          "JavaScript": "let stack = [];\nstack.push(1); // Push\nstack.push(2);\nlet top = stack.pop(); // Pop (returns 2)"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Stack using Array", 
+        visualType: "stack", 
+        visualState: "pop",
+        explanation: "Under the hood, we can build a Stack using a standard Array. We keep a `top` pointer (index) to know where to insert or delete. **Time Complexity: O(1)** for Push/Pop.",
+        codeSnippets: {
+          "Python": "class ArrayStack:\n    def __init__(self):\n        self.arr = []\n    def push(self, val):\n        self.arr.append(val)\n    def pop(self):\n        if not self.arr: return None\n        return self.arr.pop()",
+          "C++": "class ArrayStack {\n    int arr[100];\n    int top = -1;\npublic:\n    void push(int x) { arr[++top] = x; }\n    int pop() { return top >= 0 ? arr[top--] : -1; }\n};",
+          "Java": "class ArrayStack {\n    int[] arr = new int[100];\n    int top = -1;\n    void push(int x) { arr[++top] = x; }\n    int pop() { return top >= 0 ? arr[top--] : -1; }\n}",
+          "JavaScript": "class ArrayStack {\n    constructor() { this.arr = []; }\n    push(val) { this.arr.push(val); }\n    pop() { return this.arr.pop(); }\n}"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Stack using Linked List", 
+        visualType: "stack", 
+        visualState: "pop",
+        explanation: "Alternatively, we can build a Stack using a Linked List. We always insert new nodes at the `head` (Push) and remove from the `head` (Pop). This prevents the need for dynamic array resizing.",
+        codeSnippets: {
+          "Python": "class Node:\n    def __init__(self, data): self.data, self.next = data, None\nclass ListStack:\n    def __init__(self): self.head = None\n    def push(self, data):\n        node = Node(data)\n        node.next = self.head\n        self.head = node",
+          "C++": "struct Node { int data; Node* next; };\nclass ListStack {\n    Node* head = nullptr;\npublic:\n    void push(int val) {\n        Node* n = new Node{val, head};\n        head = n;\n    }\n};",
+          "Java": "class Node { int data; Node next; Node(int d){ data=d; } }\nclass ListStack {\n    Node head;\n    void push(int val) {\n        Node n = new Node(val);\n        n.next = head;\n        head = n;\n    }\n}",
+          "JavaScript": "class Node { constructor(d) { this.data=d; this.next=null; } }\nclass ListStack {\n    constructor() { this.head = null; }\n    push(val) {\n        let n = new Node(val);\n        n.next = this.head;\n        this.head = n;\n    }\n}"
+        }
+      }
     ]
   },
   {
@@ -655,56 +691,251 @@ export const DSA_TOPICS = [
     description: "FIFO, Enqueue/Dequeue",
     icon: "🚶",
     teachingSteps: [
-      { id: "step1", text: "Enqueue/Dequeue (FIFO)", visualType: "queue", visualState: "enqueue" },
-      { id: "step2", text: "Queue using Array/Linked List", visualType: "queue", visualState: "dequeue" },
-      { id: "step3", text: "Stack using Queue", visualType: "queue", visualState: "dequeue" },
-      { id: "step4", text: "Circular Queue", visualType: "queue", visualState: "enqueue" },
-      { id: "step5", text: "Priority Queue", visualType: "queue", visualState: "enqueue" },
-      { id: "step6", text: "Deque", visualType: "queue", visualState: "enqueue" }
+      { 
+        id: "step1", 
+        text: "Enqueue/Dequeue (FIFO)", 
+        visualType: "queue", 
+        visualState: "enqueue",
+        explanation: "A **Queue** follows the **FIFO (First In, First Out)** principle. Think of a line at a grocery store: the first person to join the line is the first to be served.\n\n- **Enqueue**: Add to the back of the line.\n- **Dequeue**: Remove from the front of the line.",
+        codeSnippets: {
+          "Python": "from collections import deque\nq = deque()\nq.append(1) # Enqueue\nq.append(2)\nfront = q.popleft() # Dequeue (returns 1)",
+          "C++": "#include <queue>\nqueue<int> q;\nq.push(1); // Enqueue\nq.push(2);\nint front = q.front(); q.pop(); // Dequeue",
+          "Java": "Queue<Integer> q = new LinkedList<>();\nq.offer(1); // Enqueue\nq.offer(2);\nint front = q.poll(); // Dequeue",
+          "JavaScript": "let q = [];\nq.push(1); // Enqueue\nq.push(2);\nlet front = q.shift(); // Dequeue (returns 1)"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Queue using Array/Linked List", 
+        visualType: "queue", 
+        visualState: "dequeue",
+        explanation: "Implementing a Queue with an Array can be slow (O(N) for dequeue) because you have to shift all elements over. \n\nImplementing with a Linked List gives O(1) Enqueue and Dequeue, by keeping track of a `head` and a `tail` pointer.",
+        codeSnippets: {
+          "Python": "class Node:\n    def __init__(self, d): self.d, self.next = d, None\nclass ListQueue:\n    def __init__(self): self.head = self.tail = None\n    def enqueue(self, val):\n        n = Node(val)\n        if not self.tail: self.head = self.tail = n\n        else: self.tail.next = n; self.tail = n",
+          "C++": "// Maintain head for dequeue, tail for enqueue.\n// O(1) time complexity.",
+          "Java": "// Maintain head for dequeue, tail for enqueue.\n// O(1) time complexity.",
+          "JavaScript": "// Maintain head for dequeue, tail for enqueue.\n// O(1) time complexity."
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Stack using Queue", 
+        visualType: "queue", 
+        visualState: "dequeue",
+        explanation: "A classic interview question: Implement a Stack using 2 Queues.\n\nSince Queues are FIFO, to get LIFO behavior, we can push a new element to an empty `Queue2`, then dequeue everything from `Queue1` into `Queue2`, and swap their names.",
+        codeSnippets: {
+          "Python": "class StackViaQueue:\n    def __init__(self):\n        self.q1 = deque()\n        self.q2 = deque()\n    def push(self, val):\n        self.q2.append(val)\n        while self.q1: self.q2.append(self.q1.popleft())\n        self.q1, self.q2 = self.q2, self.q1",
+          "C++": "// C++: Push to q2, transfer q1 to q2, swap q1 & q2.",
+          "Java": "// Java: Push to q2, transfer q1 to q2, swap q1 & q2.",
+          "JavaScript": "// JS: Push to q2, transfer q1 to q2, swap q1 & q2."
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Circular Queue", 
+        visualType: "queue", 
+        visualState: "enqueue",
+        explanation: "A **Circular Queue** avoids memory waste in an array-based queue. When the `tail` pointer reaches the end of the array, it wraps back around to index 0 using the modulo operator `(tail + 1) % capacity`.",
+        codeSnippets: {
+          "Python": "def enqueue(self, val):\n    if self.is_full(): return False\n    self.tail = (self.tail + 1) % self.capacity\n    self.arr[self.tail] = val\n    self.size += 1",
+          "C++": "void enqueue(int val) {\n    tail = (tail + 1) % capacity;\n    arr[tail] = val;\n}",
+          "Java": "void enqueue(int val) {\n    tail = (tail + 1) % capacity;\n    arr[tail] = val;\n}",
+          "JavaScript": "enqueue(val) {\n    this.tail = (this.tail + 1) % this.capacity;\n    this.arr[this.tail] = val;\n}"
+        }
+      },
+      { 
+        id: "step5", 
+        text: "Priority Queue", 
+        visualType: "queue", 
+        visualState: "enqueue",
+        explanation: "A **Priority Queue** doesn't follow strict FIFO. Instead, each element has a 'priority', and elements with the highest priority are dequeued first. Under the hood, these are usually implemented as Heaps (which we will cover soon).",
+        codeSnippets: {
+          "Python": "import heapq\npq = []\nheapq.heappush(pq, (1, 'task1')) # (priority, item)\nheapq.heappop(pq) # returns (1, 'task1')",
+          "C++": "#include <queue>\npriority_queue<int> pq;\npq.push(10);\npq.push(20);\nint top = pq.top(); // 20",
+          "Java": "PriorityQueue<Integer> pq = new PriorityQueue<>(Collections.reverseOrder());\npq.add(10);\npq.add(20);\nint top = pq.poll(); // 20",
+          "JavaScript": "// JS does not have a built-in Priority Queue.\n// You must implement it manually or use an npm package."
+        }
+      },
+      { 
+        id: "step6", 
+        text: "Deque", 
+        visualType: "queue", 
+        visualState: "enqueue",
+        explanation: "A **Deque (Double Ended Queue)** allows insertion and deletion at BOTH ends (front and back) in O(1) time. It is essentially a combination of a Stack and a Queue.",
+        codeSnippets: {
+          "Python": "from collections import deque\nd = deque()\nd.append(1) # Add to back\nd.appendleft(2) # Add to front\nd.pop() # Remove from back\nd.popleft() # Remove from front",
+          "C++": "#include <deque>\ndeque<int> d;\nd.push_back(1);\nd.push_front(2);\nd.pop_back();\nd.pop_front();",
+          "Java": "Deque<Integer> d = new ArrayDeque<>();\nd.addLast(1);\nd.addFirst(2);\nd.removeLast();\nd.removeFirst();",
+          "JavaScript": "// JS Arrays can act as Deques, though unshift/shift are O(N).\nd.push(1); // back\nd.unshift(2); // front\nd.pop(); // back\nd.shift(); // front"
+        }
+      }
+    ]
+  },
+  {
+    id: "maps",
+    title: "13. Hash Table",
+    description: "Key-value pairs, collisions",
+    icon: "🗂️",
+    teachingSteps: [
+      { 
+        id: "step1", 
+        text: "What is a Hash Table?", 
+        visualType: "hashtable", 
+        visualState: "hash",
+        explanation: "A **Hash Table** stores data in **Key-Value pairs**. Its biggest advantage is that it can look up, insert, and delete data in **O(1) constant time**.\n\nImagine an encyclopedia where you don't have to turn pages; you just think of a word, and it instantly opens to the exact page.",
+        codeSnippets: {
+          "Python": "hash_map = {}\nhash_map[\"Alice\"] = 25 # Insert\nprint(hash_map[\"Alice\"]) # Lookup (O(1))",
+          "C++": "#include <unordered_map>\nunordered_map<string, int> umap;\numap[\"Alice\"] = 25; // Insert\ncout << umap[\"Alice\"]; // Lookup",
+          "Java": "HashMap<String, Integer> map = new HashMap<>();\nmap.put(\"Alice\", 25); // Insert\nint age = map.get(\"Alice\"); // Lookup",
+          "JavaScript": "let map = new Map();\nmap.set(\"Alice\", 25); // Insert\nconsole.log(map.get(\"Alice\")); // Lookup"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Hash Functions", 
+        visualType: "hashtable", 
+        visualState: "hash",
+        explanation: "How does it achieve O(1) time? Using a **Hash Function**. \n\nThe hash function takes the Key (e.g., \"Alice\"), scrambles it mathematically, and spits out an integer index (e.g., 4). The Value is then stored at index 4 in an underlying array.",
+        codeSnippets: {
+          "Python": "index = hash(\"Alice\") % array_size",
+          "C++": "size_t index = hash<string>{}(\"Alice\") % array_size;",
+          "Java": "int index = Math.abs(\"Alice\".hashCode()) % array_size;",
+          "JavaScript": "// Simple custom hash function\nlet hash = 0;\nfor (let i = 0; i < str.length; i++) {\n    hash = (hash << 5) - hash + str.charCodeAt(i);\n}"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Collision Handling", 
+        visualType: "hashtable", 
+        visualState: "hash",
+        explanation: "Sometimes the Hash Function assigns two different keys to the SAME index. This is a **Collision**.\n\n- **Chaining**: The array stores Linked Lists instead of single values. Colliding items are chained together.\n- **Open Addressing**: If the index is full, we probe (search) for the next empty slot in the array.",
+        codeSnippets: {
+          "Python": "# Python dicts use Open Addressing (specifically, randomized probing)",
+          "C++": "// std::unordered_map uses Chaining (linked lists in buckets)",
+          "Java": "// HashMap uses Chaining. (In Java 8+, it upgrades to Trees if chains get too long)",
+          "JavaScript": "// JS Maps handle collisions internally, usually via Chaining or Hash Trees"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Sets vs Maps", 
+        visualType: "hashtable", 
+        visualState: "hash",
+        explanation: "A **Set** is just a Hash Table that only stores Keys (no Values). It is used to quickly check if an item exists or to remove duplicates in O(1) time.",
+        codeSnippets: {
+          "Python": "my_set = set([1, 2, 2, 3]) # {1, 2, 3}\nprint(2 in my_set) # True, O(1)",
+          "C++": "#include <unordered_set>\nunordered_set<int> uset = {1, 2, 2, 3};\nbool exists = uset.count(2);",
+          "Java": "HashSet<Integer> set = new HashSet<>(Arrays.asList(1, 2, 2, 3));\nbool exists = set.contains(2);",
+          "JavaScript": "let set = new Set([1, 2, 2, 3]);\nlet exists = set.has(2);"
+        }
+      }
     ]
   },
   {
     id: "trees",
-    title: "13. Trees",
-    description: "Binary trees, traversals",
+    title: "14. Trees",
+    description: "Binary trees, BST, traversals",
     icon: "🌳",
     teachingSteps: [
-      { id: "step1", text: "Binary Tree (Root, Leaves)", visualType: "tree", visualState: "binary" },
-      { id: "step2", text: "Traversal (Inorder/Preorder/Postorder)", visualType: "tree", visualState: "traverse" },
-      { id: "step3", text: "Types of Binary Tree", visualType: "tree", visualState: "basic" }
-    ]
-  },
-  {
-    id: "bst",
-    title: "14. Binary Search Tree",
-    description: "BST, AVL, RB Tree",
-    icon: "🌲",
-    teachingSteps: [
-      { id: "step1", text: "Search/Insert/Delete", visualType: "tree", visualState: "bst" },
-      { id: "step2", text: "AVL Tree", visualType: "tree", visualState: "bst" },
-      { id: "step3", text: "RB Tree", visualType: "tree", visualState: "bst" },
-      { id: "step4", text: "B-Tree", visualType: "tree", visualState: "basic" },
-      { id: "step5", text: "Splay Tree", visualType: "tree", visualState: "bst" },
-      { id: "step6", text: "Huffman Coding", visualType: "tree", visualState: "binary" }
+      { 
+        id: "step1", 
+        text: "Binary Tree", 
+        visualType: "tree", 
+        visualState: "binary",
+        explanation: "A **Tree** is a hierarchical data structure. A **Binary Tree** restricts each node to have at most 2 children (`left` and `right`).\n\nThe topmost node is the **Root**. Nodes with no children are **Leaves**.",
+        codeSnippets: {
+          "Python": "class TreeNode:\n    def __init__(self, val=0):\n        self.val = val\n        self.left = None\n        self.right = None",
+          "C++": "struct TreeNode {\n    int val;\n    TreeNode* left;\n    TreeNode* right;\n    TreeNode(int x) : val(x), left(NULL), right(NULL) {}\n};",
+          "Java": "class TreeNode {\n    int val;\n    TreeNode left, right;\n    TreeNode(int x) { val = x; }\n}",
+          "JavaScript": "class TreeNode {\n    constructor(val) {\n        this.val = val;\n        this.left = this.right = null;\n    }\n}"
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Binary Search Tree (BST)", 
+        visualType: "tree", 
+        visualState: "bst",
+        explanation: "A **Binary Search Tree (BST)** adds a strict rule: \n- Everything in the **left subtree** is SMALLER than the root.\n- Everything in the **right subtree** is LARGER than the root.\n\nThis makes searching extremely fast: **O(log N)**.",
+        codeSnippets: {
+          "Python": "def search_bst(root, target):\n    if not root: return False\n    if root.val == target: return True\n    elif target < root.val: return search_bst(root.left, target)\n    else: return search_bst(root.right, target)",
+          "C++": "bool searchBST(TreeNode* root, int target) {\n    if(!root) return false;\n    if(root->val == target) return true;\n    if(target < root->val) return searchBST(root->left, target);\n    return searchBST(root->right, target);\n}",
+          "Java": "boolean searchBST(TreeNode root, int target) {\n    if(root == null) return false;\n    if(root.val == target) return true;\n    if(target < root.val) return searchBST(root.left, target);\n    return searchBST(root.right, target);\n}",
+          "JavaScript": "function searchBST(root, target) {\n    if(!root) return false;\n    if(root.val === target) return true;\n    if(target < root.val) return searchBST(root.left, target);\n    return searchBST(root.right, target);\n}"
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Tree Traversals", 
+        visualType: "tree", 
+        visualState: "traverse",
+        explanation: "We use Recursion to traverse trees.\n\n- **Preorder**: Root, Left, Right\n- **Inorder**: Left, Root, Right (This prints a BST in sorted order!)\n- **Postorder**: Left, Right, Root",
+        codeSnippets: {
+          "Python": "def inorder(root):\n    if root:\n        inorder(root.left)\n        print(root.val)\n        inorder(root.right)",
+          "C++": "void inorder(TreeNode* root) {\n    if(root) {\n        inorder(root->left);\n        cout << root->val << \" \";\n        inorder(root->right);\n    }\n}",
+          "Java": "void inorder(TreeNode root) {\n    if(root != null) {\n        inorder(root.left);\n        System.out.println(root.val);\n        inorder(root.right);\n    }\n}",
+          "JavaScript": "function inorder(root) {\n    if(root) {\n        inorder(root.left);\n        console.log(root.val);\n        inorder(root.right);\n    }\n}"
+        }
+      },
+      { 
+        id: "step4", 
+        text: "Balanced Trees", 
+        visualType: "tree", 
+        visualState: "basic",
+        explanation: "If you insert sorted data into a BST (1, 2, 3, 4), it becomes a straight line (a Linked List!). The search time degrades to O(N).\n\n**Balanced Trees** (like AVL Trees or Red-Black Trees) automatically rotate their nodes during insertion to guarantee the tree remains short and wide, maintaining O(log N) speed.",
+        codeSnippets: {
+          "Python": "# Trees like AVL or Red-Black automatically re-balance.",
+          "C++": "// std::map and std::set are implemented as Red-Black Trees.",
+          "Java": "// TreeMap and TreeSet are implemented as Red-Black Trees.",
+          "JavaScript": "// Balanced tree logic involves complex Left/Right Rotations."
+        }
+      }
     ]
   },
   {
     id: "heaps",
     title: "15. Heaps",
-    description: "Binary heaps, heapsort",
+    description: "Priority queue, heapsort",
     icon: "⛰️",
     teachingSteps: [
-      { id: "step1", text: "Binary Heap (Insert/Delete/Heapify)", visualType: "heap", visualState: "insert" },
-      { id: "step2", text: "Heapsort", visualType: "heap", visualState: "heapify" }
-    ]
-  },
-  {
-    id: "maps",
-    title: "16. Maps and Hashtables",
-    description: "Key-value pairs, collisions",
-    icon: "🗂️",
-    teachingSteps: [
-      { id: "step1", text: "Maps and Hashtables", visualType: "hashtable", visualState: "hash" }
+      { 
+        id: "step1", 
+        text: "Min-Heap vs Max-Heap", 
+        visualType: "heap", 
+        visualState: "insert",
+        explanation: "A **Heap** is a complete binary tree used to quickly find the minimum or maximum element.\n\n- **Min-Heap**: The root is the SMALLEST element. Every parent is smaller than its children.\n- **Max-Heap**: The root is the LARGEST element. Every parent is larger than its children.\n\nHeaps are the underlying structure for Priority Queues.",
+        codeSnippets: {
+          "Python": "import heapq\nmin_heap = []\nheapq.heappush(min_heap, 5)\nheapq.heappush(min_heap, 1)\nprint(min_heap[0]) # 1 (Root is smallest)",
+          "C++": "#include <queue>\npriority_queue<int, vector<int>, greater<int>> minHeap;\nminHeap.push(5); minHeap.push(1);\ncout << minHeap.top(); // 1",
+          "Java": "PriorityQueue<Integer> minHeap = new PriorityQueue<>();\nminHeap.add(5); minHeap.add(1);\nSystem.out.println(minHeap.peek()); // 1",
+          "JavaScript": "// JS lacks a built-in heap. Usually implemented with arrays."
+        }
+      },
+      { 
+        id: "step2", 
+        text: "Insertion and Deletion", 
+        visualType: "heap", 
+        visualState: "heapify",
+        explanation: "Because a Heap must remain a complete tree, we insert elements at the very bottom right, then **Bubble Up** (swap with parent) until the heap property is restored. **O(log N)**.\n\nWhen we delete the root, we swap it with the bottom right element, remove it, and then **Bubble Down** (swap with smallest/largest child). **O(log N)**.",
+        codeSnippets: {
+          "Python": "# Bubble Up (simplified concept)\n# while arr[i] < arr[parent(i)]:\n#     swap(arr[i], arr[parent(i)])",
+          "C++": "// Bubble Down (simplified concept)\n// while arr[i] > arr[min_child(i)]:\n//     swap(arr[i], arr[min_child(i)])",
+          "Java": "// The standard library PriorityQueue handles Bubble Up/Down automatically.",
+          "JavaScript": "// Bubble Up / Bubble Down logic requires manual implementation in JS."
+        }
+      },
+      { 
+        id: "step3", 
+        text: "Heap Sort", 
+        visualType: "heap", 
+        visualState: "heapify",
+        explanation: "**Heap Sort** is a highly efficient sorting algorithm (O(N log N) time, O(1) space). \n\nWe convert an array into a Max-Heap (called Heapifying). Then we repeatedly pop the root (the largest element) and move it to the end of the array, shrinking the heap size each time.",
+        codeSnippets: {
+          "Python": "def heapify(arr, n, i):\n    largest = i\n    l = 2 * i + 1\n    r = 2 * i + 2\n    # (Compare and swap logic)\n# heap sort builds heap, then extracts elements.",
+          "C++": "// std::make_heap and std::sort_heap do this automatically in C++.",
+          "Java": "// Heap Sort requires manual array manipulation in Java unless using PriorityQueue.",
+          "JavaScript": "// Heap Sort requires manual array manipulation."
+        }
+      }
     ]
   },
   {
