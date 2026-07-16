@@ -491,6 +491,163 @@ export const LANGUAGE_TOPICS = [
     ]
   },
   {
+    id: "modules",
+    title: "Modules & Packages",
+    description: "Imports, Namespaces, Packages",
+    icon: "📦",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Imports & Exports",
+        visualType: "text",
+        visualState: "text",
+        explanation: "As programs grow, you split them into multiple files called **Modules**. You then `export` functionality from one file and `import` it into another.",
+        codeSnippets: {
+          "Python": "# In math_utils.py:\n# def add(a, b): return a + b\n\n# In main.py:\nfrom math_utils import add\nprint(add(5, 3))",
+          "C++": "// C++ uses header files (.h) and source files (.cpp).\n// In math_utils.h:\n// int add(int a, int b);\n\n#include \"math_utils.h\"\n// Call add(5, 3);",
+          "Java": "// Java uses packages.\npackage com.myapp.math;\npublic class MathUtils { ... }\n\n// In another file:\nimport com.myapp.math.MathUtils;",
+          "JavaScript": "// In math.js:\nexport const add = (a, b) => a + b;\n\n// In main.js:\nimport { add } from './math.js';\nconsole.log(add(5, 3));"
+        }
+      },
+      {
+        id: "step2",
+        text: "Package Managers",
+        visualType: "text",
+        visualState: "text",
+        explanation: "A **Package Manager** allows you to download and use code written by other developers. It handles versions and dependencies automatically.",
+        codeSnippets: {
+          "Python": "# Python uses PIP\n# Terminal: pip install requests\n\nimport requests\nresponse = requests.get('https://api.github.com')",
+          "C++": "// C++ package management is fragmented.\n// Tools like vcpkg or Conan are popular.\n// Terminal: vcpkg install nlohmann-json",
+          "Java": "// Java uses Maven or Gradle\n// Maven pom.xml:\n// <dependency>\n//   <groupId>com.google.code.gson</groupId>\n//   <artifactId>gson</artifactId>\n// </dependency>",
+          "JavaScript": "// JS uses NPM or Yarn\n// Terminal: npm install axios\n\nconst axios = require('axios');"
+        }
+      }
+    ]
+  },
+  {
+    id: "iterators",
+    title: "Iterators & Generators",
+    description: "Lazy Evaluation, Yield",
+    icon: "🔄",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Iterables & Iterators",
+        visualType: "text",
+        visualState: "text",
+        explanation: "An **Iterable** is a collection you can loop over (like an Array). An **Iterator** is the object doing the iterating (it remembers the current position).",
+        codeSnippets: {
+          "Python": "my_list = [1, 2, 3]\nmy_iter = iter(my_list)\nprint(next(my_iter)) # 1\nprint(next(my_iter)) # 2",
+          "C++": "#include <vector>\nusing namespace std;\n\nvector<int> vec = {1, 2, 3};\nauto it = vec.begin();\ncout << *it; // 1\nit++;\ncout << *it; // 2",
+          "Java": "ArrayList<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3));\nIterator<Integer> it = list.iterator();\nSystem.out.println(it.next()); // 1",
+          "JavaScript": "let arr = [1, 2, 3];\nlet it = arr[Symbol.iterator]();\nconsole.log(it.next().value); // 1"
+        }
+      },
+      {
+        id: "step2",
+        text: "Generators (Yield)",
+        visualType: "text",
+        visualState: "text",
+        explanation: "A **Generator** is a special function that can pause its execution and `yield` a value. When called again, it resumes from where it left off. This is great for **lazy evaluation** (saving memory when generating massive sequences).",
+        codeSnippets: {
+          "Python": "def count_up_to(max):\n    count = 1\n    while count <= max:\n        yield count\n        count += 1\n\nfor num in count_up_to(3): print(num)",
+          "C++": "// C++20 introduced Coroutines for Generators\n// It's quite complex, requiring <coroutine> and custom return types.\n// (Advanced topic)",
+          "Java": "// Java doesn't have native yield-based generators.\n// We use Streams to achieve lazy evaluation:\nStream.iterate(1, n -> n + 1).limit(3).forEach(System.out::println);",
+          "JavaScript": "function* countUpTo(max) {\n    let count = 1;\n    while (count <= max) yield count++;\n}\nfor (let num of countUpTo(3)) console.log(num);"
+        }
+      }
+    ]
+  },
+  {
+    id: "functional",
+    title: "Functional Programming",
+    description: "Map, Filter, Reduce",
+    icon: "λ",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Map, Filter, Reduce",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Functional Programming focuses on applying functions to data rather than using loops. **Map** transforms every item, **Filter** removes items, and **Reduce** aggregates items down to a single value.",
+        codeSnippets: {
+          "Python": "nums = [1, 2, 3, 4]\nsquared = list(map(lambda x: x*x, nums))\nevens = list(filter(lambda x: x%2==0, nums))\n# Reduce requires: from functools import reduce",
+          "C++": "#include <algorithm>\n// C++ uses std::transform (Map), std::copy_if (Filter),\n// and std::accumulate (Reduce).",
+          "Java": "List<Integer> nums = List.of(1, 2, 3, 4);\nList<Integer> evens = nums.stream()\n    .filter(x -> x % 2 == 0)\n    .collect(Collectors.toList());",
+          "JavaScript": "let nums = [1, 2, 3, 4];\nlet squared = nums.map(x => x * x);\nlet evens = nums.filter(x => x % 2 === 0);\nlet sum = nums.reduce((acc, val) => acc + val, 0);"
+        }
+      },
+      {
+        id: "step2",
+        text: "Pure Functions & Immutability",
+        visualType: "text",
+        visualState: "text",
+        explanation: "A **Pure Function** always produces the same output for the same input and causes NO side-effects (like modifying a global variable). This makes code highly predictable. **Immutability** means data cannot be changed after it is created.",
+        codeSnippets: {
+          "Python": "# Pure Function\ndef pure_add(a, b):\n    return a + b\n\n# Impure (modifies external state)\ntotal = 0\ndef impure_add(a):\n    global total\n    total += a",
+          "C++": "// Use 'const' to enforce immutability\nconst int max_users = 100;\n// max_users = 200; // ERROR",
+          "Java": "// Use 'final' to enforce immutability\nfinal int MAX_USERS = 100;\n// MAX_USERS = 200; // ERROR",
+          "JavaScript": "// Use 'const' and 'Object.freeze()'\nconst user = Object.freeze({ name: \"Alice\" });\n// user.name = \"Bob\"; // Fails silently or throws in strict mode"
+        }
+      }
+    ]
+  },
+  {
+    id: "stdlib",
+    title: "Standard Library Essentials",
+    description: "Math, Dates, Regex",
+    icon: "🧰",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Math & Date/Time",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Most languages come with a **Standard Library** that handles common tasks so you don't have to write them from scratch, like complex Math operations (pow, sqrt, max) and Date/Time handling.",
+        codeSnippets: {
+          "Python": "import math\nfrom datetime import datetime\n\nprint(math.sqrt(16)) # 4.0\nprint(datetime.now())",
+          "C++": "#include <cmath>\n#include <chrono>\nusing namespace std;\n\n// cout << sqrt(16); // 4\nauto now = chrono::system_clock::now();",
+          "Java": "import java.time.LocalDate;\n\nSystem.out.println(Math.sqrt(16)); // 4.0\nSystem.out.println(LocalDate.now());",
+          "JavaScript": "console.log(Math.sqrt(16)); // 4\nconsole.log(new Date());"
+        }
+      },
+      {
+        id: "step2",
+        text: "Regular Expressions (Regex)",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Regular Expressions** (Regex) are powerful search patterns used for string matching and manipulation. For example, validating an email address or extracting numbers from a sentence.",
+        codeSnippets: {
+          "Python": "import re\n\ntext = \"Contact: user@email.com\"\nmatch = re.search(r\"\\w+@\\w+\\.\\w+\", text)\nif match: print(\"Found email!\")",
+          "C++": "#include <regex>\nusing namespace std;\n\nstring text = \"Contact: user@email.com\";\nregex email_pattern(R\"(\\w+@\\w+\\.\\w+)\");\nif (regex_search(text, email_pattern)) cout << \"Found!\";",
+          "Java": "import java.util.regex.*;\n\nString text = \"Contact: user@email.com\";\nPattern p = Pattern.compile(\"\\\\w+@\\\\w+\\\\.\\\\w+\");\nMatcher m = p.matcher(text);\nif (m.find()) System.out.println(\"Found!\");",
+          "JavaScript": "let text = \"Contact: user@email.com\";\nlet regex = /\\w+@\\w+\\.\\w+/;\nif (regex.test(text)) console.log(\"Found email!\");"
+        }
+      }
+    ]
+  },
+  {
+    id: "testing",
+    title: "Testing & Debugging",
+    description: "Unit Testing, Assertions",
+    icon: "🐛",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Unit Testing & Assertions",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Writing **Unit Tests** ensures that individual functions work correctly. **Assertions** check if a condition is true; if it's false, the program throws an error. Good code is always tested code!",
+        codeSnippets: {
+          "Python": "def add(a, b): return a + b\n\n# Basic Assertion\nassert add(2, 2) == 4, \"Math is broken!\"\nprint(\"Tests passed.\")",
+          "C++": "#include <cassert>\nusing namespace std;\n\nint add(int a, int b) { return a + b; }\n\nint main() {\n    assert(add(2, 2) == 4);\n    return 0;\n}",
+          "Java": "// Java uses JUnit usually.\n// Native assert (requires -ea flag):\nint add(int a, int b) { return a + b; }\nassert add(2, 2) == 4 : \"Math is broken!\";",
+          "JavaScript": "const assert = require('assert');\n\nfunction add(a, b) { return a + b; }\nassert.strictEqual(add(2, 2), 4, \"Math is broken!\");"
+        }
+      }
+    ]
+  },
+  {
     id: "advanced",
     title: "Advanced Concepts",
     description: "Threads, Concurrency",
@@ -507,6 +664,45 @@ export const LANGUAGE_TOPICS = [
           "C++": "#include <thread>\n\nvoid doWork() {\n    cout << \"Working in thread\\n\";\n}\n\nint main() {\n    thread t(doWork);\n    t.join(); // Wait for thread to finish\n}",
           "Java": "Thread t = new Thread(() -> {\n    System.out.println(\"Working in thread\");\n});\nt.start();",
           "JavaScript": "async function fetchData() {\n    let response = await fetch('/api/data');\n    let data = await response.json();\n    console.log(data);\n}"
+        }
+      },
+      {
+        id: "step2",
+        text: "Decorators & Annotations",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Decorators** (Python/JS) and **Annotations** (Java) allow you to dynamically alter or attach metadata to functions and classes without modifying their actual code. They are heavily used in modern frameworks.",
+        codeSnippets: {
+          "Python": "def my_decorator(func):\n    def wrapper():\n        print(\"Before call\")\n        func()\n    return wrapper\n\n@my_decorator\ndef say_hello(): print(\"Hello\")",
+          "C++": "// C++ doesn't have native decorators.\n// C++11 introduced Attributes like [[nodiscard]]\n[[nodiscard]] int getCode() { return 42; }",
+          "Java": "// Annotations in Java\n@Override\npublic void toString() { }\n// Custom annotations require defining an @interface",
+          "JavaScript": "// JS Decorators (often used in TypeScript or Babel)\n// @logger\n// class MyClass {}"
+        }
+      },
+      {
+        id: "step3",
+        text: "Generics & Templates",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Generics** (Java/C#) or **Templates** (C++) allow you to write a function or class that can operate on *any* data type, ensuring type safety without code duplication. (Python and JS are dynamically typed, so they don't strictly need them).",
+        codeSnippets: {
+          "Python": "from typing import TypeVar, List\nT = TypeVar('T')\n\ndef get_first(items: List[T]) -> T:\n    return items[0]",
+          "C++": "template <typename T>\nT add(T a, T b) {\n    return a + b;\n}\n// cout << add<int>(5, 3);",
+          "Java": "public class Box<T> {\n    private T item;\n    public void set(T t) { item = t; }\n    public T get() { return item; }\n}",
+          "JavaScript": "// JS doesn't have Generics natively.\n// TypeScript is used for this:\n// function getFirst<T>(items: T[]): T { return items[0]; }"
+        }
+      },
+      {
+        id: "step4",
+        text: "Design Patterns",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Design Patterns** are proven solutions to common architectural problems. Examples include **Singleton** (only one instance exists), **Factory** (creates objects), and **Observer** (pub/sub events).",
+        codeSnippets: {
+          "Python": "# Singleton Pattern\nclass Database:\n    _instance = None\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n        return cls._instance",
+          "C++": "// Singleton Pattern\nclass Database {\npublic:\n    static Database& getInstance() {\n        static Database instance;\n        return instance;\n    }\nprivate:\n    Database() {}\n};",
+          "Java": "// Singleton Pattern\npublic class Database {\n    private static Database instance;\n    private Database() {}\n    public static Database getInstance() {\n        if (instance == null) instance = new Database();\n        return instance;\n    }\n}",
+          "JavaScript": "// Singleton Pattern\nclass Database {\n    constructor() {\n        if (!Database.instance) Database.instance = this;\n        return Database.instance;\n    }\n}"
         }
       }
     ]
