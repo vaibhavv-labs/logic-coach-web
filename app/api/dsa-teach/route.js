@@ -49,7 +49,16 @@ export async function POST(request) {
     const chat = model.startChat({ history });
     const lastMessage = messages[messages.length - 1];
     
-    const result = await chat.sendMessage(lastMessage.content);
+    let result;
+    try {
+      result = await chat.sendMessage(lastMessage.content);
+    } catch (err) {
+      if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
+        return NextResponse.json({ reply: "My circuits are a bit busy at the moment! Please wait about 10 seconds and tell me your answer again. 🤖💨" });
+      }
+      throw err;
+    }
+
     const text = result.response.text();
 
     return NextResponse.json({ reply: text });

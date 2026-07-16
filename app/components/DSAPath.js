@@ -4,7 +4,7 @@ import React from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
 
-export default function DSAPath({ progress, onSelectTopic, language = "English" }) {
+export default function DSAPath({ progress, roadmap, onSelectTopic, language = "English" }) {
   // progress format expected:
   // {
   //   "arrays": { level: 1 }, // meaning Level 0 done, on Level 1
@@ -16,8 +16,16 @@ export default function DSAPath({ progress, onSelectTopic, language = "English" 
 
   return (
     <div className="dsa-path-container">
-      <h2 className="dsa-path-title">{t("dsa_title", language)}</h2>
-      <p className="dsa-path-subtitle">{t("dsa_subtitle", language)}</p>
+      <h2 className="dsa-path-title">
+        {roadmap && roadmap.language 
+          ? `Your ${roadmap.language} Roadmap` 
+          : t("dsa_title", language)}
+      </h2>
+      <p className="dsa-path-subtitle">
+        {roadmap && roadmap.goal 
+          ? `Goal: ${roadmap.goal} • Focus: ${roadmap.interest}`
+          : t("dsa_subtitle", language)}
+      </p>
 
       <div className="dsa-roadmap">
         {DSA_TOPICS.map((topic, index) => {
@@ -46,7 +54,10 @@ export default function DSAPath({ progress, onSelectTopic, language = "English" 
               >
                 <div className="dsa-node-icon">{topic.icon}</div>
                 <div className="dsa-node-info">
-                  <h3>{topic.title}</h3>
+                  <h3>
+                    {topic.title}
+                    {roadmap && roadmap.language ? ` in ${roadmap.language}` : ''}
+                  </h3>
                   <span className="dsa-status">{statusText}</span>
                 </div>
                 {isCompleted && <div className="dsa-checkmark">✓</div>}

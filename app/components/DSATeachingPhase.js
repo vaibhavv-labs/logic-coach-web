@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import ArrayVisualizer from "./visualizers/ArrayVisualizer";
 import StackVisualizer from "./visualizers/StackVisualizer";
 import QueueVisualizer from "./visualizers/QueueVisualizer";
@@ -229,6 +230,20 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               <div className="visual-content">
                 {renderVisualizer()}
               </div>
+              {stepData.codeSnippet && (
+                <div className="dsa-code-example">
+                  <h4>Example ({stepData.codeLanguage || 'Code'}):</h4>
+                  <pre><code>{stepData.codeSnippet}</code></pre>
+                </div>
+              )}
+              {(stepData.explanation || "Detailed explanation coming soon for this concept...") && (
+                <div className="dsa-explanation-section">
+                  <h4>Concept Explanation</h4>
+                  <div className="explanation-markdown-body">
+                    <ReactMarkdown>{stepData.explanation || "*Detailed text explanation for this step will be added here shortly...*"}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

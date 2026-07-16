@@ -5,10 +5,40 @@ export const DSA_TOPICS = [
     description: "Traversal, searching, basic operations",
     icon: "📦",
     teachingSteps: [
-      { id: "step1", text: "What is an array?", visualType: "array", visualState: "empty" },
-      { id: "step2", text: "How is it stored in memory?", visualType: "array", visualState: "memory" },
-      { id: "step3", text: "How to access an element by index?", visualType: "array", visualState: "access" },
-      { id: "step4", text: "How to traverse it?", visualType: "array", visualState: "traverse" },
+      { 
+        id: "step1", 
+        text: "What is an array?", 
+        visualType: "array", 
+        visualState: "empty",
+        codeLanguage: "Python",
+        codeSnippet: "# Creating an array (list) in Python\nmy_array = [7, 12, 9, 4, 11]\nprint(\"Array created! Length:\", len(my_array))",
+        explanation: "An **Array** is one of the most basic and important data structures. It is used to store a collection of elements (like numbers, strings, or objects) in a contiguous block of memory. \n\nThink of an array like a row of mailboxes: each mailbox has a specific number (an **index**) and can hold exactly one item. Arrays are incredibly useful when you need to keep track of a list of related items, such as the scores of players in a game or a list of temperatures for the week."
+      },
+      { 
+        id: "step2", 
+        text: "How is it stored in memory?", 
+        visualType: "array", 
+        visualState: "memory",
+        explanation: "In computer memory, an array is stored in a **contiguous (continuous) block**. This means all the elements sit right next to each other in RAM. \n\nBecause of this structure, the computer knows exactly where every item is if it knows the starting location and the size of one item. This allows for extremely fast lookups. However, because the size is often fixed when the array is created, it can be difficult to resize it later without copying all the data to a new, larger block of memory."
+      },
+      { 
+        id: "step3", 
+        text: "How to access an element by index?", 
+        visualType: "array", 
+        visualState: "access",
+        codeLanguage: "Python",
+        codeSnippet: "my_array = [7, 12, 9, 4, 11]\n\n# Accessing the first element (0-indexed)\nfirst_element = my_array[0]\nprint(\"First element:\", first_element) # Output: 7\n\n# Accessing the last element\nlast_element = my_array[4]\nprint(\"Last element:\", last_element) # Output: 11",
+        explanation: "Every element in an array has a numbered position called an **index**. In almost all modern programming languages (including Python, Java, C++, and JavaScript), arrays are **zero-indexed**. This means the very first element is at index `0`, the second is at index `1`, and so on.\n\nTo read or change an item, you just use square brackets with the index number, like `my_array[0]`. This operation takes **O(1)** time, meaning it is instantly fast regardless of how big the array is!"
+      },
+      { 
+        id: "step4", 
+        text: "How to traverse it?", 
+        visualType: "array", 
+        visualState: "traverse",
+        codeLanguage: "Python",
+        codeSnippet: "my_array = [7, 12, 9, 4, 11]\n\n# Traversing using a for loop\nfor element in my_array:\n    print(element)\n\n# Finding the lowest value\nlowest = my_array[0]\nfor num in my_array:\n    if num < lowest:\n        lowest = num\nprint(\"Lowest value:\", lowest)",
+        explanation: "**Traversal** means visiting every single element in the array one by one, usually from the beginning to the end. \n\nWe typically use a **loop** (like a `for` loop) to traverse arrays. This is useful when you need to perform an action on every item—such as printing them to the screen, adding them all together to find a sum, or searching for a specific value like the lowest or highest number."
+      },
       { id: "step5", text: "Multidimensional Arrays", visualType: "array", visualState: "memory" },
       { id: "step6", text: "Pass-by-Value and Pass-by-Reference", visualType: "text", visualState: "math" },
       { id: "step7", text: "Dynamic Memory Allocation", visualType: "text", visualState: "math" }

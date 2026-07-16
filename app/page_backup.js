@@ -11,7 +11,6 @@ import CodeEditor from "./components/CodeEditor";
 import VoiceChat from "./components/VoiceChat";
 import DSAPath from "./components/DSAPath";
 import DSATeachingPhase from "./components/DSATeachingPhase";
-import OnboardingScreen from "./components/OnboardingScreen";
 
 // Visualizers
 import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
@@ -45,6 +44,7 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [latestAiMessage, setLatestAiMessage] = useState("");
+  const [activeTab, setActiveTab] = useState("Statement");
   
   // DSA states
   const [dsaProgress, setDsaProgress] = useState({});
@@ -59,8 +59,6 @@ export default function Home() {
   // Auth & DB states
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [onboardingCompleted, setOnboardingCompleted] = useState(true);
-  const [userRoadmap, setUserRoadmap] = useState(null);
   const [showCustomModal, setShowCustomModal] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
   
@@ -85,6 +83,11 @@ export default function Home() {
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
+
+    const onboardingComplete = localStorage.getItem("onboardingComplete");
+    if (!onboardingComplete) {
+      window.location.href = "/onboarding";
+    }
   }, []);
 
   const toggleTheme = () => {
@@ -131,16 +134,6 @@ export default function Home() {
           levelCounts: data.levelCounts || {}
         });
         setDsaProgress(data.dsaProgress || {});
-        
-        if (data.onboardingCompleted !== undefined) {
-          setOnboardingCompleted(data.onboardingCompleted);
-          setUserRoadmap(data.roadmap || null);
-        } else {
-          // If field doesn't exist on old users, force onboarding or default to true
-          setOnboardingCompleted(false);
-        }
-      } else {
-        setOnboardingCompleted(false);
       }
     } catch (error) {
       console.error("Error loading progress:", error);
@@ -512,8 +505,6 @@ export default function Home() {
             onSuccess={() => { setShowAuthModal(false); setScreen("app"); }} 
           />
         )}
-        <div className="landing-bg-orb orb-1"></div>
-        <div className="landing-bg-orb orb-2"></div>
         <nav className="landing-nav">
           <div className="landing-nav-logo">
             <span className="logo-icon">🧠</span>
@@ -533,10 +524,7 @@ export default function Home() {
         </nav>
         
         <div className="landing-container">
-          <div className="landing-icon-wrapper">
-            <div className="landing-icon-glow"></div>
-            <div className="landing-icon">🧠</div>
-          </div>
+          <div className="landing-icon">🧠</div>
           <h1 className="landing-title">Logic Coach</h1>
           <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
           <p className="landing-desc">
@@ -547,18 +535,6 @@ export default function Home() {
           </button>
         </div>
       </div>
-    );
-  }
-
-  if (user && !onboardingCompleted) {
-    return (
-      <OnboardingScreen 
-        user={user} 
-        onComplete={(roadmapData) => {
-          setOnboardingCompleted(true);
-          setUserRoadmap(roadmapData);
-        }} 
-      />
     );
   }
 
@@ -632,8 +608,8 @@ export default function Home() {
         />
       )}
 
-      <div className="app-header">
-        <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+      <div className="mobile-header">
+        <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
         <div className="sidebar-brand"><h2>Logic Coach</h2></div>
         <div style={{ width: 24 }}></div>
       </div>
@@ -708,7 +684,7 @@ export default function Home() {
 
         <main className="main-content">
           {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
-             <DSAPath progress={dsaProgress} roadmap={userRoadmap} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
+             <DSAPath progress={dsaProgress} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
           ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
              <DSATeachingPhase 
                topic={activeDsaTopic} 
@@ -748,126 +724,155 @@ export default function Home() {
               </div>
             )
           ) : (
-            <div className="split-layout">
-              <div className="chat-pane">
-              <div className="chat-header">
-                <div className="chat-header-info">
-                  <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
-                  <div className="chat-header-text">
-                    <h3>{activeProblem.title}</h3>
-                    <p>{activeProblem.category}</p>
+            <div className="ide-layout">
+              {/* Top Navigation Bar */}
+              <div className="ide-topbar">
+                <div className="ide-difficulty">
+                  <span className="icon">☰</span> Difficulty: <strong>{activeProblem.difficulty || activeProblem.level || 'Beginner'}</strong>
+                </div>
+                <div className="ide-module-progress">
+                  <span className="prev-module">&lt; Prev module</span>
+                  <div className="progress-dashes">
+                    <div className="dash active"></div>
+                    <div className="dash"></div>
+                    <div className="dash"></div>
+                    <div className="dash"></div>
+                    <div className="dash"></div>
+                  </div>
+                  <span className="next-module">Next &gt;</span>
+                </div>
+              </div>
+
+              <div className="ide-split">
+                {/* Left Pane - Tabs */}
+                <div className="ide-left-pane">
+                  <div className="ide-tabs">
+                    <button className={`ide-tab ${activeTab === 'Statement' ? 'active' : ''}`} onClick={() => setActiveTab('Statement')}>Statement</button>
+                    <button className={`ide-tab ${activeTab === 'Submissions' ? 'active' : ''}`} onClick={() => setActiveTab('Submissions')}>Submissions</button>
+                    <button className={`ide-tab ${activeTab === 'Solution' ? 'active' : ''}`} onClick={() => setActiveTab('Solution')}>Solution</button>
+                    <button className={`ide-tab ${activeTab === 'Hints' ? 'active' : ''}`} onClick={() => setActiveTab('Hints')}>Hints</button>
+                    <button className={`ide-tab ${activeTab === 'AI Help' ? 'active' : ''} ai-help-tab`} onClick={() => setActiveTab('AI Help')}>AI Help</button>
+                  </div>
+
+                  <div className="ide-tab-content">
+                    {activeTab === 'Statement' && (
+                      <div className="statement-content">
+                        <button className="switch-ai-mode" onClick={() => setActiveTab('AI Help')}>
+                          ✨ Switch to AI Tutor Mode &gt;
+                        </button>
+                        <h2>{activeProblem.title}</h2>
+                        <div className="problem-description">
+                          {activeProblem.description?.split('\n').map((para, i) => <p key={i}>{para}</p>)}
+                        </div>
+                        <h3>Parameters</h3>
+                        <p>Read from Standard Input (stdin).</p>
+                        <h3>Return Value</h3>
+                        <p>Print to Standard Output (stdout).</p>
+                      </div>
+                    )}
+                    {(activeTab === 'Submissions' || activeTab === 'Solution' || activeTab === 'Hints') && (
+                      <div className="coming-soon">
+                        <h3>{activeTab}</h3>
+                        <p>This feature is coming soon.</p>
+                      </div>
+                    )}
+                    {activeTab === 'AI Help' && (
+                      <div className="ide-ai-chat">
+                        <div className="chat-messages">
+                          {currentMessages.map((msg, idx) => (
+                            <div key={idx} className={`message ${msg.role}`}>
+                              <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
+                              <div className="message-bubble">{msg.content}</div>
+                            </div>
+                          ))}
+                          {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}
+                          <div ref={messagesEndRef} />
+                        </div>
+                        <div className="chat-bottom">
+                          <div className="chat-input-wrapper">
+                            <textarea ref={inputRef} className="chat-input" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask the AI Tutor..." />
+                            <button className="send-btn" onClick={() => handleSend()} disabled={!inputText.trim() || isLoading}>➤</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="header-actions">
-                  <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
-                    <option value="Python">Python</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Java">Java</option>
-                    <option value="C++">C++</option>
-                  </select>
-                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme">
-                    {theme === "light" ? "🌙" : "☀️"}
-                  </button>
-                  <button className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`} onClick={toggleSolved}>
-                    {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
-                  </button>
-                </div>
-              </div>
 
-              <div className="chat-messages">
-                {currentMessages.map((msg, idx) => (
-                  <div key={idx} className={`message ${msg.role}`}>
-                    <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
-                    <div className="message-bubble">{msg.content}</div>
+                {/* Right Pane - Editor */}
+                <div className="ide-right-pane">
+                  <div className="ide-editor-header">
+                    <select className="ide-lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
+                      <option value="Python">Python3</option>
+                      <option value="JavaScript">Node.js</option>
+                      <option value="Java">Java</option>
+                      <option value="C++">C++</option>
+                    </select>
+                    <div className="editor-actions">
+                      <button className="icon-btn" onClick={toggleTheme} title="Toggle Theme">{theme === "light" ? "🌙" : "☀️"}</button>
+                    </div>
                   </div>
-                ))}
-                {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}
-                <div ref={messagesEndRef} />
-              </div>
 
-              <div className="chat-bottom">
-                <div className="chat-input-wrapper">
-                  <textarea ref={inputRef} className="chat-input" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyDown} />
-                  <VoiceChat onTranscript={(text) => handleSend(text, true)} />
-                  <button className="send-btn" onClick={() => handleSend()} disabled={!inputText.trim() || isLoading}>➤</button>
+                  <div className="ide-editor-container">
+                    {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
+                      <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
+                        ⏱️ {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+                      </div>
+                    )}
+                    {renderProblemVisualizer()}
+                    <CodeEditor language={progLanguage} value={code} onChange={setCode} />
+                  </div>
+
+                  {/* Custom Input / Test Panel */}
+                  <div className="ide-test-panel">
+                    <div className="test-panel-header" onClick={() => setShowTestPanel(!showTestPanel)}>
+                      <span>Test against Custom Input</span>
+                      <span>{showTestPanel ? '⌄' : '⌃'}</span>
+                    </div>
+                    {showTestPanel && (
+                      <div className="test-panel-content" style={{ padding: '16px', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                        <textarea placeholder="Enter custom input here..." style={{ width: '100%', height: '80px', background: 'var(--bg-dark)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '8px' }}></textarea>
+                      </div>
+                    )}
+                    
+                    {/* Execution Results */}
+                    {(isExecuting || testResults) && (
+                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                        <h4 style={{ margin: '0 0 12px 0' }}>Execution Results</h4>
+                        {isExecuting ? <div style={{ color: 'var(--text-muted)' }}>Executing code on server... ⏳</div> : (
+                          <div className="results-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {testResults?.map((tr, idx) => (
+                               <div key={idx} style={{ background: tr.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
+                                 <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444' }}>
+                                    {tr.isManual ? (tr.passed ? "SUCCESS ✅" : "FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
+                                 </div>
+                                 {tr.error ? (
+                                   <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap', marginTop: '8px' }}>{tr.error}</div>
+                                 ) : (
+                                   <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
+                                     Your Output: <br/><pre style={{ background: 'var(--bg-dark)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
+                                   </div>
+                                 )}
+                               </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Bottom Action Bar */}
+                  <div className="ide-bottom-bar">
+                    <button className="btn-visualize" onClick={() => setActiveTab('AI Help')}>👁 Visualize Code</button>
+                    <div className="right-actions">
+                      <button className="btn-run" onClick={handleRunTests} disabled={isExecuting || !code.trim()}>
+                         {isExecuting ? "Executing..." : "▶ Run"}
+                      </button>
+                      <button className="btn-submit" onClick={toggleSolved}>Submit</button>
+                      <button className="btn-next" onClick={() => { setActiveProblem(null); getProblemForLevel(activeLevel); }}>Next</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-
-              <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
-                 {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
-
-                   <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
-                     ⏱️ {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
-                   </div>
-                 )}
-                 {renderProblemVisualizer()}
-                 <CodeEditor language={progLanguage} value={code} onChange={setCode} />
-                 
-                 {showTestPanel && (
-                   <div style={{ background: '#1e1e1e', borderTop: '1px solid var(--border)', height: '250px', overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                       <h3 style={{ margin: 0, color: '#e5e7eb', fontSize: '14px' }}>Test Results</h3>
-                       <button onClick={() => setShowTestPanel(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
-                     </div>
-                     
-                     {isExecuting ? (
-                       <div style={{ color: '#9ca3af', fontSize: '14px' }}>Executing code on server... ⏳</div>
-                     ) : testResults ? (
-                       testResults.map((tr, idx) => (
-                         <div key={idx} style={{ background: tr.passed ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
-                           <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444', marginBottom: '8px' }}>
-                             {tr.isManual ? (tr.passed ? "EXECUTION SUCCESS ✅" : "EXECUTION FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
-                           </div>
-                           {tr.error ? (
-                             <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
-                           ) : (
-                             <>
-                               {!tr.isManual && (
-                                 <>
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
-                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
-                                   
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Expected Output:</div>
-                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.expectedOutput}</pre>
-                                 </>
-                               )}
-                               
-                               <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Your Output (stdout):</div>
-                               <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
-                               
-                               {tr.stderr && (
-                                 <>
-                                   <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '4px' }}>Error (stderr):</div>
-                                   <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', color: '#ef4444', margin: '0', whiteSpace: 'pre-wrap' }}>{tr.stderr}</pre>
-                                 </>
-                               )}
-                             </>
-                           )}
-                         </div>
-                       ))
-                     ) : null}
-                   </div>
-                 )}
-
-                 <div style={{ display: 'flex', gap: '8px', padding: '8px' }}>
-                   <button 
-                     className="review-btn" 
-                     onClick={handleRunTests}
-                     disabled={isExecuting || !code.trim()}
-                     style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                   >
-                     {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
-                   </button>
-                   <button 
-                     className="review-btn" 
-                     onClick={() => handleSend("Please review the code I have written in the editor.")}
-                     disabled={isLoading || !code.trim()}
-                     style={{ flex: 1 }}
-                   >
-                     Ask AI to Review Code
-                   </button>
-                 </div>
               </div>
             </div>
           )}

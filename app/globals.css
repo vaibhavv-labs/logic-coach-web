@@ -766,6 +766,103 @@ body {
   transform: scale(0.97);
 }
 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==================== ONBOARDING ==================== */
+.onboarding-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.onboarding-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.onboarding-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.onboarding-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-subtle);
+}
+
+.onboarding-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-teal), var(--accent-teal-hover));
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onboarding-content {
+  padding: 48px;
+}
+
+.onboarding-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.onboarding-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.onboarding-options.grid-cols-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.onboarding-option-btn {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-primary);
+  font-family: var(--font);
+}
+
+.onboarding-option-btn:hover {
+  border-color: var(--accent-teal);
+  background: var(--accent-teal-light);
+}
+
+.onboarding-option-btn.selected {
+  border-color: var(--accent-teal);
+  background: var(--accent-teal-light);
+  box-shadow: 0 0 0 1px var(--accent-teal);
+}
+
+.onboarding-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
 @keyframes pop-celebrate {
   0% { transform: scale(1); }
   30% { transform: scale(1.1); background-color: var(--accent-teal-light); }

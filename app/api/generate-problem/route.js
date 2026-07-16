@@ -60,7 +60,24 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
   ] // generate exactly 3 test cases
 }`;
 
-    const result = await model.generateContent(prompt);
+    let result;
+    try {
+      result = await model.generateContent(prompt);
+    } catch (err) {
+      if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
+        return NextResponse.json({
+          title: "Rate Limit Break",
+          category: "Practice",
+          difficulty: level,
+          description: "The AI is currently resting. While it recovers, write a simple program that reads an integer N from standard input and prints 'Hello World' N times.",
+          testCases: [
+            { input: "3", expectedOutput: "Hello World\nHello World\nHello World" },
+            { input: "1", expectedOutput: "Hello World" }
+          ]
+        });
+      }
+      throw err;
+    }
     const responseText = result.response.text();
     
     // Clean up potential markdown formatting
