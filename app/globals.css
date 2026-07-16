@@ -1919,7 +1919,7 @@ body {
 
 .practice-code-btn {
   padding: 6px 12px;
-  background: var(--accent-green);
+  background: #22c55e;
   color: #ffffff;
   border: none;
   border-radius: var(--radius-full);
