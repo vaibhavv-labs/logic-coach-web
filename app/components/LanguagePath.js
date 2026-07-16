@@ -62,44 +62,52 @@ export default function LanguagePath({ progress, roadmap, onSelectTopic, languag
       </p>
 
       {/* Daily Challenge Card */}
-      <div style={{
-        margin: '0 auto 40px auto',
-        maxWidth: '600px',
-        background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(16, 185, 129, 0.1))',
-        border: '1px solid var(--accent-orange)',
-        borderRadius: '12px',
-        padding: '24px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '20px',
-        cursor: 'pointer',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-      }}
-      className="daily-challenge-card"
-      onClick={() => {
-        // Deterministic daily topic based on day of year
-        const today = new Date();
-        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
-        const dailyTopicIndex = dayOfYear % LANGUAGE_TOPICS.length;
-        onSelectTopic(LANGUAGE_TOPICS[dailyTopicIndex]);
-      }}
-      >
-        <div style={{ fontSize: '40px' }}>🔥</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-            Daily Challenge
+      {(() => {
+        // Find the first topic the user hasn't mastered yet (their current learning phase)
+        const currentTopicIndex = LANGUAGE_TOPICS.findIndex((topic, idx) => {
+          const isCompleted = progress?.[topic.id]?.level > 0;
+          return !isCompleted;
+        });
+        
+        // If all completed, use the last one for review
+        const challengeIndex = currentTopicIndex === -1 ? LANGUAGE_TOPICS.length - 1 : currentTopicIndex;
+        const challengeTopic = LANGUAGE_TOPICS[challengeIndex];
+
+        return (
+          <div style={{
+            margin: '0 auto 40px auto',
+            maxWidth: '600px',
+            background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(16, 185, 129, 0.1))',
+            border: '1px solid var(--accent-orange)',
+            borderRadius: '12px',
+            padding: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '20px',
+            cursor: 'pointer',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+          }}
+          className="daily-challenge-card"
+          onClick={() => onSelectTopic(challengeTopic)}
+          >
+            <div style={{ fontSize: '40px' }}>🔥</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--accent-orange)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
+                Your Next Challenge
+              </div>
+              <h3 style={{ margin: '0 0 4px 0', color: 'var(--text-primary)' }}>
+                {challengeTopic.title}
+              </h3>
+              <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
+                Based on your current learning phase, here is your recommended puzzle for today!
+              </p>
+            </div>
+            <button style={{ background: 'var(--accent-orange)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+              Solve
+            </button>
           </div>
-          <h3 style={{ margin: '0 0 4px 0', color: 'var(--text-primary)' }}>
-            {LANGUAGE_TOPICS[Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24) % LANGUAGE_TOPICS.length].title}
-          </h3>
-          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '14px' }}>
-            Can you solve today's hand-picked syntax puzzle? Keep your streak alive!
-          </p>
-        </div>
-        <button style={{ background: 'var(--accent-orange)', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Solve
-        </button>
-      </div>
+        );
+      })()}
 
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}
