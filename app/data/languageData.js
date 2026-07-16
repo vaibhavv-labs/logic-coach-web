@@ -312,6 +312,32 @@ export const LANGUAGE_TOPICS = [
           "Java": "public class Dog {\n    String name;\n    public Dog(String n) { this.name = n; }\n    public void bark() {\n        System.out.println(name + \" says Woof!\");\n    }\n    public static void main(String[] args) {\n        Dog myDog = new Dog(\"Buddy\");\n        myDog.bark();\n    }\n}",
           "JavaScript": "class Dog {\n    constructor(name) {\n        this.name = name;\n    }\n    bark() {\n        console.log(`${this.name} says Woof!`);\n    }\n}\n\nlet myDog = new Dog(\"Buddy\");\nmyDog.bark();"
         }
+      },
+      {
+        id: "step2",
+        text: "Encapsulation & Access Modifiers",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Encapsulation** is the practice of hiding the internal state of an object and requiring all interaction to be performed through an object's methods. We use access modifiers (`public`, `private`, `protected`) to control visibility.",
+        codeSnippets: {
+          "Python": "class BankAccount:\n    def __init__(self, balance):\n        self.__balance = balance # Private variable\n    \n    def get_balance(self):\n        return self.__balance",
+          "C++": "class BankAccount {\nprivate:\n    double balance;\npublic:\n    BankAccount(double b) : balance(b) {}\n    double getBalance() { return balance; }\n};",
+          "Java": "public class BankAccount {\n    private double balance;\n    public BankAccount(double balance) {\n        this.balance = balance;\n    }\n    public double getBalance() { return balance; }\n}",
+          "JavaScript": "class BankAccount {\n    #balance; // Private field\n    constructor(balance) {\n        this.#balance = balance;\n    }\n    getBalance() { return this.#balance; }\n}"
+        }
+      },
+      {
+        id: "step3",
+        text: "Method Overloading",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Method Overloading** allows a class to have multiple methods with the exact same name, as long as their parameters (type or number) are different. *Note: Python and JS do not support strict native overloading.*",
+        codeSnippets: {
+          "Python": "# Python doesn't support true overloading.\n# We use default arguments instead.\ndef add(a, b, c=0):\n    return a + b + c",
+          "C++": "class Math {\npublic:\n    int add(int a, int b) { return a + b; }\n    int add(int a, int b, int c) { return a + b + c; }\n};",
+          "Java": "public class Math {\n    public int add(int a, int b) { return a + b; }\n    public int add(int a, int b, int c) { return a + b + c; }\n}",
+          "JavaScript": "// JS doesn't support overloading.\n// We use the arguments object or rest parameters.\nfunction add(...args) {\n    return args.reduce((sum, val) => sum + val, 0);\n}"
+        }
       }
     ]
   },
@@ -333,6 +359,32 @@ export const LANGUAGE_TOPICS = [
           "Java": "class Animal {\n    public void speak() {}\n}\nclass Cat extends Animal {\n    @Override\n    public void speak() {\n        System.out.println(\"Meow!\");\n    }\n}",
           "JavaScript": "class Animal {\n    speak() {}\n}\nclass Cat extends Animal {\n    speak() {\n        console.log(\"Meow!\");\n    }\n}"
         }
+      },
+      {
+        id: "step2",
+        text: "Polymorphism",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Polymorphism** means \"many forms\". It allows objects of different classes to be treated as objects of a common parent class. A function taking an `Animal` can accept a `Dog` or a `Cat`, and call their specific `speak()` method.",
+        codeSnippets: {
+          "Python": "def make_sound(animal):\n    animal.speak()\n\nmake_sound(Cat()) # Calls Cat's speak()",
+          "C++": "void makeSound(Animal* animal) {\n    animal->speak();\n}\n// makeSound(new Cat());",
+          "Java": "public static void makeSound(Animal animal) {\n    animal.speak();\n}\n// makeSound(new Cat());",
+          "JavaScript": "function makeSound(animal) {\n    animal.speak();\n}\nmakeSound(new Cat());"
+        }
+      },
+      {
+        id: "step3",
+        text: "Abstraction & Interfaces",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Abstraction** hides complex implementation details and only exposes the necessary features. An **Interface** (or Abstract Class) defines a strict contract: \"Any class that implements this must have these specific methods.\"",
+        codeSnippets: {
+          "Python": "from abc import ABC, abstractmethod\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self): pass",
+          "C++": "class Shape {\npublic:\n    // Pure virtual function = Interface\n    virtual double area() = 0;\n};",
+          "Java": "interface Shape {\n    double area();\n}\n\nclass Circle implements Shape {\n    public double area() { return 3.14; }\n}",
+          "JavaScript": "// JS has no native Interfaces.\n// We emulate them by throwing errors in base classes.\nclass Shape {\n    area() { throw new Error(\"Must implement area()\"); }\n}"
+        }
       }
     ]
   },
@@ -353,6 +405,66 @@ export const LANGUAGE_TOPICS = [
           "C++": "int val = 42;\nint* ptr = &val;  // Pointer holds memory address of val\ncout << ptr;      // Outputs address (e.g. 0x7ffe..)\ncout << *ptr;     // Dereferences pointer to get 42",
           "Java": "// Java passes objects by reference value\nArrayList<Integer> listA = new ArrayList<>();\nArrayList<Integer> listB = listA; // Same reference\nlistB.add(4);\nSystem.out.println(listA.size()); // 1",
           "JavaScript": "// JS objects/arrays are passed by reference\nlet listA = [1, 2, 3];\nlet listB = listA;\nlistB.push(4);\nconsole.log(listA); // [1, 2, 3, 4]"
+        }
+      },
+      {
+        id: "step2",
+        text: "Stack vs Heap",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Memory is divided into **Stack** (fast, auto-managed, stores primitive types and function calls) and **Heap** (slower, dynamic, stores large objects/classes). When you create a large Object, the object lives on the Heap, while a reference to it lives on the Stack.",
+        codeSnippets: {
+          "Python": "# Python manages this automatically.\nx = 10 # Usually on the stack\nmy_list = [1, 2, 3] # Lives on the heap, reference on stack",
+          "C++": "int stackVar = 10; // Stack\nint* heapVar = new int(20); // Allocated on Heap\n// Must manually delete!\ndelete heapVar;",
+          "Java": "int stackVar = 10; // Primitive on Stack\nMyObject obj = new MyObject(); // Object on Heap, reference on Stack",
+          "JavaScript": "let stackVar = 10; // Stack\nlet obj = { name: \"Heap\" }; // Object on Heap"
+        }
+      },
+      {
+        id: "step3",
+        text: "Garbage Collection",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**Garbage Collection** (GC) is an automatic memory management feature. The GC periodically looks for objects on the Heap that are no longer referenced by any part of your code and deletes them to free up memory. C++ does *not* have this, requiring manual deletion.",
+        codeSnippets: {
+          "Python": "import gc\n# Python uses reference counting and a cycle-detecting GC\nx = [1, 2, 3]\nx = None # The list [1,2,3] is now eligible for Garbage Collection",
+          "C++": "// C++ has NO Garbage Collector!\nint* ptr = new int(5);\n// If you forget this, you get a memory leak!\ndelete ptr; ",
+          "Java": "// Java automatically garbage collects objects with no references\nMyObject obj = new MyObject();\nobj = null; // Object is now eligible for GC\nSystem.gc(); // You can suggest GC, but can't force it",
+          "JavaScript": "// JS automatically garbage collects\nlet obj = { data: \"temp\" };\nobj = null; // Object memory will be freed automatically"
+        }
+      }
+    ]
+  },
+  {
+    id: "files",
+    title: "File Handling",
+    description: "Read, Write, JSON/CSV",
+    icon: "📄",
+    teachingSteps: [
+      {
+        id: "step1",
+        text: "Reading and Writing Files",
+        visualType: "text",
+        visualState: "text",
+        explanation: "Programs often need to save data persistently. **File Handling** involves opening a file, reading its contents or writing new data, and safely closing it so other programs can access it.",
+        codeSnippets: {
+          "Python": "# Write to file\nwith open('data.txt', 'w') as f:\n    f.write('Hello World')\n\n# Read from file\nwith open('data.txt', 'r') as f:\n    print(f.read())",
+          "C++": "#include <fstream>\nusing namespace std;\n\n// Write\nofstream out(\"data.txt\");\nout << \"Hello World\";\nout.close();\n\n// Read\nifstream in(\"data.txt\");\nstring line;\ngetline(in, line);",
+          "Java": "import java.nio.file.*;\n\n// Write\nFiles.writeString(Paths.get(\"data.txt\"), \"Hello World\");\n\n// Read\nString content = Files.readString(Paths.get(\"data.txt\"));\nSystem.out.println(content);",
+          "JavaScript": "const fs = require('fs');\n\n// Write\nfs.writeFileSync('data.txt', 'Hello World');\n\n// Read\nconst content = fs.readFileSync('data.txt', 'utf8');\nconsole.log(content);"
+        }
+      },
+      {
+        id: "step2",
+        text: "Handling JSON",
+        visualType: "text",
+        visualState: "text",
+        explanation: "**JSON** (JavaScript Object Notation) is the standard format for exchanging data across the internet. Almost all modern languages have built-in or standard libraries to parse a JSON string into a usable Object or Map.",
+        codeSnippets: {
+          "Python": "import json\n\ndata = '{\"name\": \"Alice\", \"age\": 25}'\nparsed = json.loads(data)\nprint(parsed['name']) # Alice",
+          "C++": "// C++ requires an external library like nlohmann/json for JSON.\n#include <nlohmann/json.hpp>\nusing json = nlohmann::json;\n\nauto j = json::parse(\"{\\\"name\\\": \\\"Alice\\\"}\");\ncout << j[\"name\"];",
+          "Java": "// Java typically uses libraries like Jackson or Gson\n// With Jackson:\nObjectMapper mapper = new ObjectMapper();\nJsonNode root = mapper.readTree(\"{\\\"name\\\": \\\"Alice\\\"}\");\nSystem.out.println(root.get(\"name\").asText());",
+          "JavaScript": "let data = '{\"name\": \"Alice\", \"age\": 25}';\nlet parsed = JSON.parse(data);\nconsole.log(parsed.name); // Alice"
         }
       }
     ]
