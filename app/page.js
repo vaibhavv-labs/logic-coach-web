@@ -407,10 +407,14 @@ export default function Home() {
         if (!res.ok) {
            results.push({ passed: false, error: data.error, isManual: true });
         } else {
+           let stderr = data.stderr || "";
+           if (stderr.includes("EOFError: EOF when reading a line")) {
+             stderr = "🚨 INTERACTIVE INPUT ERROR:\nYou tried to use `input()` (or cin, Scanner) but didn't provide any input!\n\nPlease check the 'Use Custom Input' box above the code editor and type your inputs there before clicking Run.\n\n" + stderr;
+           }
            results.push({
              passed: data.code === 0,
              actualOutput: (data.stdout || "").trim(),
-             stderr: data.stderr || "",
+             stderr: stderr,
              exitCode: data.code,
              isManual: true
            });

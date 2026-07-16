@@ -386,18 +386,21 @@ export default function Home() {
           body: JSON.stringify({ language: progLanguage, code: code, stdin: customInput })
         });
         const data = await res.json();
-        
-        if (!res.ok) {
-           results.push({ passed: false, error: data.error, isManual: true });
-        } else {
-           results.push({
-             passed: data.code === 0,
-             actualOutput: (data.stdout || "").trim(),
-             stderr: data.stderr || "",
-             exitCode: data.code,
-             isManual: true
-           });
-        }
+                if (!res.ok) {
+             results.push({ passed: false, error: data.error, isManual: true });
+          } else {
+             let stderr = data.stderr || "";
+             if (stderr.includes("EOFError: EOF when reading a line")) {
+               stderr = "🚨 INTERACTIVE INPUT ERROR:\nYou tried to use `input()` (or cin, Scanner) but didn't provide any input!\n\nPlease check the 'Use Custom Input (stdin)' box above the code editor and type your inputs there before clicking Run.\n\n" + stderr;
+             }
+             results.push({
+               passed: data.code === 0,
+               actualOutput: (data.stdout || "").trim(),
+               stderr: stderr,
+               exitCode: data.code,
+               isManual: true
+             });
+          }
       } catch (err) {
         results.push({ passed: false, error: err.message, isManual: true });
       }
