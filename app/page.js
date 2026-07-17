@@ -18,7 +18,6 @@ import LanguagePath from "./components/LanguagePath";
 import OnboardingScreen from "./components/OnboardingScreen";
 import PracticeCompilerPanel from "./components/PracticeCompilerPanel";
 import LandingPage from "./components/LandingPage";
-import ActivityHeatmap from "./components/ActivityHeatmap";
 
 // Visualizers
 import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
@@ -768,9 +767,6 @@ export default function Home() {
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
                   <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
                   <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
-                </div>
-                <div style={{ marginTop: '12px' }}>
-                  <ActivityHeatmap stats={userStats} />
                 </div>
               </div>
             ) : (
