@@ -23,7 +23,7 @@ export async function POST(request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       systemInstruction: "You are an expert software engineer analyzing code complexity. You must evaluate the provided code and return the Time Complexity (Big O) and Space Complexity (Big O). Provide a very brief (1-2 sentences) explanation for each. Be precise.",
     });
 
@@ -65,7 +65,7 @@ export async function POST(request) {
   } catch (error) {
     console.error("Complexity analysis error:", error);
     return NextResponse.json(
-      { error: "Failed to analyze code complexity." },
+      { error: error.message || "Failed to analyze code complexity." },
       { status: 500 }
     );
   }
