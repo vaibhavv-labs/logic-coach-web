@@ -1078,12 +1078,12 @@ export default function Home() {
                    </>
                  )}
 
-                 <div style={{ display: 'flex', gap: '8px', padding: '8px' }}>
+                 <div className="editor-actions-mobile-fix" style={{ display: 'flex', gap: '8px', padding: '8px', flexWrap: 'wrap' }}>
                     <button 
                       className="review-btn" 
                       onClick={handleAnalyzeBigO}
                       disabled={isAnalyzingBigO || isExecuting || !code.trim()}
-                      style={{ flex: 1, background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
+                      style={{ flex: 1, minWidth: '140px', background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
                     >
                       {isAnalyzingBigO ? "Analyzing..." : "⚡ Analyze Big-O"}
                     </button>
@@ -1091,7 +1091,7 @@ export default function Home() {
                       className="review-btn" 
                       onClick={handleRunTests}
                       disabled={isExecuting || isAnalyzingBigO || !code.trim()}
-                      style={{ flex: 1, background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      style={{ flex: 1, minWidth: '140px', background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
                     </button>
@@ -1099,7 +1099,7 @@ export default function Home() {
                       className="review-btn" 
                       onClick={() => handleSend("Please review the code I have written in the editor.")}
                       disabled={isLoading || isExecuting || isAnalyzingBigO || !code.trim()}
-                      style={{ flex: 1 }}
+                      style={{ flex: '1 1 100%', minWidth: '200px' }}
                     >
                       Ask AI to Review Code
                     </button>

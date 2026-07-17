@@ -339,7 +339,7 @@ body {
 /* ==================== APP LAYOUT ==================== */
 .app-layout {
   display: flex;
-  height: calc(100vh - 61px);
+  height: 100vh;
   overflow: hidden;
   background: var(--bg-primary);
 }
@@ -908,7 +908,7 @@ body {
 
 /* ==================== APP HEADER ==================== */
 .app-header {
-  display: flex;
+  display: none;
   padding: 12px 20px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-light);
@@ -2104,15 +2104,49 @@ body {
   
   .main-content { width: 100%; }
   .bento-grid { display: flex; flex-direction: column; }
-  .split-pane { flex-direction: column; }
+  
+  /* Fix the Split Layout overflowing on mobile */
+  .split-layout { 
+    flex-direction: column !important; 
+    overflow-y: auto;
+  }
+  
+  /* Force panes to stack and take full width */
+  .chat-pane, .editor-pane { 
+    min-width: 100% !important; 
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  /* Make sure the chat pane isn't too tall on mobile so you can scroll down to the editor */
+  .chat-pane {
+    max-height: 50vh;
+  }
+  
+  /* Ensure the editor pane expands properly */
+  .editor-pane {
+    min-height: 500px;
+    height: auto !important;
+  }
   
   .landing-nav { flex-direction: column; padding: 16px; gap: 16px; }
-  .landing-title { font-size: 36px !important; line-height: 1.2; }
+  .landing-title { font-size: 32px !important; line-height: 1.2; }
   .start-btn, .action-btn, .run-btn, .mobile-menu-btn { width: 100%; justify-content: center; }
+  
+  .app-header { display: flex; }
   
   .chat-header { flex-wrap: wrap; gap: 12px; }
   .chat-bottom { padding: 12px; }
   .pro-timeline-item { width: 100%; }
+  
+  .app-layout { height: calc(100vh - 61px); }
+  
+  /* Make modals responsive */
+  .compiler-panel-drawer {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
 }
 
 /* Universal Minimum Touch Targets */
