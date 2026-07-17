@@ -60,9 +60,7 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
   return (
     <div className="dsa-path-container" style={{ paddingBottom: '60px' }} ref={scrollRef}>
       <h2 className="dsa-path-title" style={{ textAlign: 'center', marginBottom: '10px' }}>
-        {roadmap && roadmap.language 
-          ? `Your ${roadmap.language} Roadmap` 
-          : t("dsa_title", language)}
+        {t("dsa_title", language)}
       </h2>
       <p className="dsa-path-subtitle" style={{ textAlign: 'center', marginBottom: '40px' }}>
         {roadmap && roadmap.goal 
