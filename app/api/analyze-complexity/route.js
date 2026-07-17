@@ -22,44 +22,29 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      systemInstruction: "You are an expert software engineer analyzing code complexity. You must evaluate the provided code and return the Time Complexity (Big O) and Space Complexity (Big O). Provide a very brief (1-2 sentences) explanation for each. Be precise.",
-    });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
-    const responseSchema = {
-      type: SchemaType.OBJECT,
-      properties: {
-        timeComplexity: {
-          type: SchemaType.STRING,
-          description: "The Big O time complexity, e.g. O(N) or O(N log N)",
-        },
-        timeExplanation: {
-          type: SchemaType.STRING,
-          description: "1-2 sentence explanation of why this time complexity applies.",
-        },
-        spaceComplexity: {
-          type: SchemaType.STRING,
-          description: "The Big O space complexity, e.g. O(1) or O(N)",
-        },
-        spaceExplanation: {
-          type: SchemaType.STRING,
-          description: "1-2 sentence explanation of why this space complexity applies.",
-        },
-      },
-      required: ["timeComplexity", "timeExplanation", "spaceComplexity", "spaceExplanation"],
-    };
+    const prompt = `You are an expert software engineer analyzing code complexity. 
+You must evaluate the provided code and return ONLY a raw JSON object with the following keys exactly:
+- "timeComplexity" (string: The Big O time complexity, e.g. O(N))
+- "timeExplanation" (string: 1-2 sentence explanation)
+- "spaceComplexity" (string: The Big O space complexity, e.g. O(1))
+- "spaceExplanation" (string: 1-2 sentence explanation)
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: `Analyze the complexity of this ${language || 'code'}:\n\n${code}` }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      },
-    });
+Do not wrap in markdown or backticks. Return valid JSON only.
 
-    const jsonText = result.response.text();
-    const analysis = JSON.parse(jsonText);
+Analyze the complexity of this ${language || 'code'}:
+${code}`;
+
+    const result = await model.generateContent(prompt);
+    
+    let jsonText = result.response.text().trim();
+    // Strip markdown formatting if the model accidentally included it
+    if (jsonText.startsWith('```json')) jsonText = jsonText.replace(/^```json/, '');
+    if (jsonText.startsWith('```')) jsonText = jsonText.replace(/^```/, '');
+    if (jsonText.endsWith('```')) jsonText = jsonText.replace(/```$/, '');
+    
+    const analysis = JSON.parse(jsonText.trim());
 
     return NextResponse.json({ analysis });
   } catch (error) {
