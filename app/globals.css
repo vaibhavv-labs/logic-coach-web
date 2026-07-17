@@ -2228,13 +2228,15 @@ button, .btn, .action-btn, .start-btn, select, input, .mobile-menu-btn, .menu-bt
   flex-direction: column;
   gap: 16px;
   overflow: hidden;
-  animation: fadeOutSplash 0.5s ease-in-out 1.5s forwards;
-  pointer-events: none;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  opacity: 1;
+  visibility: visible;
 }
 
-@keyframes fadeOutSplash {
-  0% { opacity: 1; visibility: visible; }
-  100% { opacity: 0; visibility: hidden; }
+.splash-screen.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .splash-logo-container {

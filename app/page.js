@@ -76,9 +76,15 @@ export default function Home() {
   const [showLanding, setShowLanding] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
   const [appBooting, setAppBooting] = useState(true);
+  const [fadeSplash, setFadeSplash] = useState(false);
   
   useEffect(() => {
-    // Show the starting animation splash screen for a fixed time on initial load
+    // Start fade out after 1.5s
+    const fadeTimer = setTimeout(() => {
+      setFadeSplash(true);
+    }, 1500);
+
+    // Unmount completely after 2.0s
     const bootTimer = setTimeout(() => {
       setAppBooting(false);
     }, 2000);
@@ -96,6 +102,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       clearTimeout(bootTimer);
+      clearTimeout(fadeTimer);
     };
   }, []);
   const [userRoadmap, setUserRoadmap] = useState(null);
@@ -732,7 +739,7 @@ export default function Home() {
   return (
     <>
       {(authLoading || appBooting) && (
-        <div className="splash-screen">
+        <div className={`splash-screen ${fadeSplash ? 'fade-out' : ''}`}>
           {/* Floating math and coding symbols */}
           <div className="splash-symbol" style={{ left: '10%', animationDuration: '15s', fontSize: '32px' }}>{`{ }`}</div>
           <div className="splash-symbol" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s', fontSize: '48px' }}>∑</div>
