@@ -21,8 +21,28 @@ export async function POST(request) {
       );
     }
 
+    // Dynamically fetch available models to prevent 404 errors on restricted API keys
+    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const modelsData = await modelsRes.json();
+    
+    if (!modelsData.models || modelsData.models.length === 0) {
+        return NextResponse.json({ error: "No models available for this API key. Check billing or quota." }, { status: 500 });
+    }
+
+    // Find the first valid gemini text model
+    const validModel = modelsData.models.find(m => 
+      m.supportedGenerationMethods && 
+      m.supportedGenerationMethods.includes("generateContent") && 
+      m.name.includes("gemini")
+    );
+
+    if (!validModel) {
+       return NextResponse.json({ error: "No compatible Gemini text models found for this API key." }, { status: 500 });
+    }
+
+    const modelName = validModel.name.replace("models/", "");
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: modelName });
 
     const prompt = `You are an expert software engineer analyzing code complexity. 
 You must evaluate the provided code and return ONLY a raw JSON object with the following keys exactly:
