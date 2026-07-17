@@ -2,7 +2,6 @@
 
 import React, { useEffect, useRef } from "react";
 import { LANGUAGE_TOPICS } from "../data/languageData";
-import ActivityHeatmap from "./ActivityHeatmap";
 import { t } from "../data/translations";
 
 export default function LanguagePath({ progress, userStats, roadmap, onSelectTopic, language = "English", userId }) {
@@ -70,8 +69,6 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
           ? `Goal: ${roadmap.goal} • Focus: Syntax & Core Concepts`
           : "Master the fundamentals of your chosen language."}
       </p>
-
-      {userStats && <ActivityHeatmap stats={userStats} />}
 
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}

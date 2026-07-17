@@ -2,8 +2,8 @@ import React from "react";
 
 export default function ActivityHeatmap({ stats }) {
   return (
-    <div style={{ marginBottom: '40px', padding: '24px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border)' }}>
-      <h3 style={{ marginBottom: '16px', fontSize: '16px', color: 'var(--text-primary)' }}>GitHub-Style Progress Heatmap</h3>
+    <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
+      <h3 style={{ marginBottom: '12px', fontSize: '14px', color: 'var(--text-primary)' }}>Activity Heatmap</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(20, 1fr)', gap: '6px' }}>
         {Array.from({ length: 140 }).map((_, i) => {
           const today = new Date();

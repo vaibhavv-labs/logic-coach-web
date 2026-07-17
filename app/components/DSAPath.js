@@ -3,7 +3,6 @@
 import React, { useEffect, useRef } from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
-import ActivityHeatmap from "./ActivityHeatmap";
 
 export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, language = "English", userId }) {
   const scrollRef = useRef(null);
@@ -70,8 +69,6 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
           ? `Goal: ${roadmap.goal} • Focus: ${roadmap.interest}`
           : t("dsa_subtitle", language)}
       </p>
-
-      {userStats && <ActivityHeatmap stats={userStats} />}
 
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}
