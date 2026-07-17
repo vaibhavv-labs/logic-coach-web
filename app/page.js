@@ -947,14 +947,32 @@ export default function Home() {
             <div className="split-layout">
               <div className="chat-pane">
               <div className="chat-header">
-                <div className="chat-header-info">
-                  <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
-                  <div className="chat-header-text">
-                    <h3>{activeProblem.title}</h3>
-                    <p>{activeProblem.category}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button 
+                    className="action-btn" 
+                    onClick={() => setActiveProblem(null)} 
+                    title="Back to Dashboard"
+                    style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                  >
+                    ←
+                  </button>
+                  <div className="chat-header-info">
+                    <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
+                    <div className="chat-header-text">
+                      <h3>{activeProblem.title}</h3>
+                      <p>{activeProblem.category}</p>
+                    </div>
                   </div>
                 </div>
                 <div className="header-actions">
+                  <button 
+                    className="action-btn" 
+                    onClick={() => getProblemForLevel(activeLevel || 'Beginner')} 
+                    title="Next Problem"
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                  >
+                    Next ⏭
+                  </button>
                   <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
                     <option value="Python">Python</option>
                     <option value="JavaScript">JavaScript</option>
