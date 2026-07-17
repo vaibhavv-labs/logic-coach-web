@@ -766,7 +766,14 @@ export default function Home() {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
                   <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
-                  <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
+                  <button className="action-btn" onClick={async () => {
+                    await signOut(auth);
+                    setShowLanding(true);
+                    setViewMode('logic');
+                    setActiveProblem(null);
+                    setActiveDsaTopic(null);
+                    setActiveLanguageTopic(null);
+                  }} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
                 </div>
               </div>
             ) : (
