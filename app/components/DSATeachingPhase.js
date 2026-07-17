@@ -21,7 +21,7 @@ import { t } from "../data/translations";
 import VoiceChat from "./VoiceChat";
 import PracticeCompilerPanel from "./PracticeCompilerPanel";
 
-export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", progLanguage = "Python", onLanguageChange }) {
+export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", progLanguage = "Python", onLanguageChange, onBack }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
   const [chatHistory, setChatHistory] = useState([]);
   const [inputText, setInputText] = useState("");
@@ -198,10 +198,22 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   return (
     <div className="dsa-teaching-phase">
       <div className="teaching-header">
-        <div className="teaching-header-info">
-          <h3>{topic.title}</h3>
-          <div className="step-indicator">
-            {t("step_of", language, { X: currentStep + 1, Y: topic.teachingSteps.length })}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {onBack && (
+            <button 
+              className="action-btn" 
+              onClick={onBack} 
+              title="Back to Roadmap"
+              style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+            >
+              ←
+            </button>
+          )}
+          <div className="teaching-header-info">
+            <h3>{topic.title}</h3>
+            <div className="step-indicator">
+              {t("step_of", language, { X: currentStep + 1, Y: topic.teachingSteps.length })}
+            </div>
           </div>
         </div>
         <div className="header-actions">

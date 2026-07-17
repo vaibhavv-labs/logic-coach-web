@@ -810,6 +810,7 @@ export default function Home() {
                progLanguage={userRoadmap?.language || 'Python'}
                language={language}
                onLanguageChange={setLanguage}
+               onBack={() => setActiveDsaTopic(null)}
                onProgressUpdate={async (step) => {
                  const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 0, step } };
                  setDsaProgress(newProg);
@@ -831,6 +832,7 @@ export default function Home() {
                progLanguage={userRoadmap?.language || 'Python'}
                language={language}
                onLanguageChange={setLanguage}
+               onBack={() => setActiveLanguageTopic(null)}
                onProgressUpdate={async (step) => {
                  const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 0, step } };
                  setLanguageProgress(newProg);
