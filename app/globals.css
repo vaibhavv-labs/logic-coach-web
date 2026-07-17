@@ -339,7 +339,7 @@ body {
 /* ==================== APP LAYOUT ==================== */
 .app-layout {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 61px);
   overflow: hidden;
   background: var(--bg-primary);
 }
@@ -908,7 +908,7 @@ body {
 
 /* ==================== APP HEADER ==================== */
 .app-header {
-  display: none;
+  display: flex;
   padding: 12px 20px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-light);
@@ -2133,8 +2133,6 @@ body {
   .landing-nav { flex-direction: column; padding: 16px; gap: 16px; }
   .landing-title { font-size: 32px !important; line-height: 1.2; }
   .start-btn, .action-btn, .run-btn, .mobile-menu-btn { width: 100%; justify-content: center; }
-  
-  .app-header { display: flex; }
   
   .chat-header { flex-wrap: wrap; gap: 12px; }
   .chat-bottom { padding: 12px; }
