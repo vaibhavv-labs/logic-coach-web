@@ -75,8 +75,14 @@ export default function Home() {
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
+  const [appBooting, setAppBooting] = useState(true);
   
   useEffect(() => {
+    // Show the starting animation splash screen for a fixed time on initial load
+    const bootTimer = setTimeout(() => {
+      setAppBooting(false);
+    }, 2000);
+    
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setShowAuthModal(false);
@@ -87,7 +93,10 @@ export default function Home() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(bootTimer);
+    };
   }, []);
   const [userRoadmap, setUserRoadmap] = useState(null);
   const [showCustomModal, setShowCustomModal] = useState(false);
@@ -149,10 +158,7 @@ export default function Home() {
       } else {
         setShowLanding(true);
       }
-      // Ensure splash screen is visible for at least 1.5 seconds so the user can see it!
-      setTimeout(() => {
-        setAuthLoading(false);
-      }, 1500);
+      setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -714,7 +720,7 @@ export default function Home() {
     );
   };
 
-  if (authLoading) {
+  if (authLoading || appBooting) {
     return (
       <div className="splash-screen">
         {/* Floating math and coding symbols */}
@@ -728,7 +734,7 @@ export default function Home() {
         
         <div className="splash-logo-container">
           <div className="splash-brain">🧠</div>
-          <div className="splash-text">Loading Logic Coach...</div>
+          <div className="splash-text">Logic Coach</div>
         </div>
       </div>
     );
