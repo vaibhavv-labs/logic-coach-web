@@ -74,6 +74,7 @@ export default function Home() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -148,6 +149,7 @@ export default function Home() {
       } else {
         setShowLanding(true);
       }
+      setAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -708,6 +710,15 @@ export default function Home() {
       </pre>
     );
   };
+
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ fontSize: '48px', animation: 'pulse 1.5s infinite' }}>🧠</div>
+        <div style={{ fontSize: '18px', fontWeight: 'bold' }}>Loading Logic Coach...</div>
+      </div>
+    );
+  }
 
   return (
     <>
