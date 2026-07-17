@@ -1,3 +1,5 @@
+import ActivityHeatmap from "./ActivityHeatmap";
+
 export default function ProgressScreen({ onClose, solvedCount, totalAttempted, stats }) {
   return (
     <div className="modal-overlay">
@@ -27,57 +29,26 @@ export default function ProgressScreen({ onClose, solvedCount, totalAttempted, s
             <p style={{ color: 'var(--text-secondary)' }}>Pick a difficulty level from the sidebar to get started!</p>
           </div>
         ) : (
-          <>
-            <div className="level-progress">
-              <h3>Level Completion</h3>
-              {['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'].map(level => {
-                const count = stats?.levelCounts?.[level] || 0;
-                return (
-                  <div key={level} className="level-bar-row">
-                    <span className="level-name">{level}</span>
-                    <div className="progress-bar-container">
-                      <div className="progress-bar-fill" style={{ width: `${Math.min(count * 10, 100)}%` }}></div>
-                    </div>
-                    <span className="level-count">{count}</span>
+          <div className="level-progress" style={{ marginBottom: '32px' }}>
+            <h3>Level Completion</h3>
+            {['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'].map(level => {
+              const count = stats?.levelCounts?.[level] || 0;
+              return (
+                <div key={level} className="level-bar-row">
+                  <span className="level-name">{level}</span>
+                  <div className="progress-bar-container">
+                    <div className="progress-bar-fill" style={{ width: `${Math.min(count * 10, 100)}%` }}></div>
                   </div>
-                );
-              })}
-            </div>
-            
-            <div style={{ marginTop: '32px' }}>
-              <h3 style={{ marginBottom: '16px', fontSize: '16px' }}>Activity Heatmap</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(20, 1fr)', gap: '4px' }}>
-                {Array.from({ length: 140 }).map((_, i) => {
-                  const today = new Date();
-                  const d = new Date(today);
-                  d.setDate(today.getDate() - (139 - i));
-                  const dateStr = d.toISOString().split('T')[0];
-                  const count = stats?.activity?.[dateStr] || 0;
-                  
-                  let bgColor = 'var(--bg-subtle)';
-                  if (count === 1) bgColor = '#064e3b';
-                  if (count === 2) bgColor = '#047857';
-                  if (count === 3) bgColor = '#10b981';
-                  if (count >= 4) bgColor = '#34d399';
-                  
-                  return (
-                    <div 
-                      key={dateStr} 
-                      title={`${count} problems on ${dateStr}`}
-                      style={{ 
-                        width: '100%', 
-                        paddingBottom: '100%', 
-                        backgroundColor: bgColor, 
-                        borderRadius: '4px',
-                        border: '1px solid rgba(255,255,255,0.05)'
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          </>
+                  <span className="level-count">{count}</span>
+                </div>
+              );
+            })}
+          </div>
         )}
+
+        <div style={{ marginTop: '20px' }}>
+          <ActivityHeatmap stats={stats} />
+        </div>
       </div>
     </div>
   );
