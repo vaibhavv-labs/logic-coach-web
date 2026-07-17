@@ -2214,16 +2214,27 @@ button, .btn, .action-btn, .start-btn, select, input, .mobile-menu-btn, .menu-bt
 
 /* Splash Screen Animation */
 .splash-screen {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
   background: var(--bg-primary);
   color: var(--text-primary);
   flex-direction: column;
   gap: 16px;
   overflow: hidden;
+  animation: fadeOutSplash 0.5s ease-in-out 1.5s forwards;
+  pointer-events: none;
+}
+
+@keyframes fadeOutSplash {
+  0% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
 .splash-logo-container {
