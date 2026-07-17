@@ -104,7 +104,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #faf9f6; /* Off-white warm base */
+  background-color: var(--bg-primary);
   position: relative;
   overflow: hidden;
 }
@@ -148,9 +148,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 24px 48px;
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
   width: 100%;
 }
 
@@ -192,7 +191,7 @@ body {
 
 .start-btn-small {
   background: var(--text-primary);
-  color: white;
+  color: var(--bg-primary);
   border: none;
   padding: 10px 24px;
   font-size: 15px;
@@ -242,11 +241,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 36px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
   animation: floatIcon 6s ease-in-out infinite;
   z-index: 2;
   position: relative;
