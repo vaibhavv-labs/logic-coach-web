@@ -8,49 +8,57 @@ export async function POST(request) {
       return NextResponse.json({ error: "Code and language are required" }, { status: 400 });
     }
 
-    let pistonLang = language.toLowerCase();
-    let version = "*";
-    if (pistonLang === "python") version = "3.10.0";
-    else if (pistonLang === "javascript") version = "18.15.0";
-    else if (pistonLang === "java") version = "15.0.2";
-    else if (pistonLang === "c++" || pistonLang === "cpp") { pistonLang = "c++"; version = "10.2.0"; }
+    let gbLang = language.toLowerCase();
+    let compiler = "";
+    if (gbLang === "python") { gbLang = "python"; compiler = "python311"; }
+    else if (gbLang === "javascript") { gbLang = "v8"; compiler = "v8trunk"; }
+    else if (gbLang === "java") { gbLang = "java"; compiler = "java2100"; }
+    else if (gbLang === "c++" || gbLang === "cpp") { gbLang = "c++"; compiler = "g141"; }
     else {
       return NextResponse.json({ error: `Language ${language} not supported by execution engine.` }, { status: 400 });
     }
 
-    // Execute code using Piston API
-    const executeRes = await fetch("https://emkc.org/api/v2/piston/execute", {
+    // Execute code using Godbolt Compiler Explorer API
+    const executeRes = await fetch(`https://godbolt.org/api/compiler/${compiler}/compile`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
       body: JSON.stringify({
-        language: pistonLang,
-        version: version,
-        files: [{ content: code }],
-        stdin: stdin || ""
+        source: code,
+        lang: gbLang,
+        options: {
+            userArguments: "",
+            executeParameters: { args: "", stdin: stdin || "" },
+            compilerOptions: { executorRequest: true }
+        },
+        allowStoreCodeDebug: true
       })
     });
 
     const data = await executeRes.json();
     
-    if (data.message) {
-       return NextResponse.json({ error: data.message }, { status: 500 });
-    }
-    
-    // Compilation error
-    if (data.compile && data.compile.code !== 0) {
+    // Check for build/compile errors
+    if (data.buildResult && data.buildResult.code !== 0) {
+      const buildErr = data.buildResult.stderr.map(e => e.text).join('\n');
       return NextResponse.json({
         stdout: "",
-        stderr: data.compile.stderr || data.compile.output,
-        output: data.compile.output,
-        code: data.compile.code
+        stderr: buildErr,
+        output: buildErr,
+        code: data.buildResult.code
       });
     }
 
+    // Combine stdout arrays
+    const stdoutArr = data.stdout ? data.stdout.map(e => e.text).join('\n') : "";
+    const stderrArr = data.stderr ? data.stderr.map(e => e.text).join('\n') : "";
+
     return NextResponse.json({
-      stdout: data.run.stdout || "",
-      stderr: data.run.stderr || "",
-      output: data.run.output || "",
-      code: data.run.code || 0
+      stdout: stdoutArr,
+      stderr: stderrArr,
+      output: stderrArr || stdoutArr,
+      code: parseInt(data.code || "0", 10)
     });
 
   } catch (error) {
