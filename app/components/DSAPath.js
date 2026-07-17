@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { DSA_TOPICS } from "../data/dsaData";
 import { t } from "../data/translations";
+import ActivityHeatmap from "./ActivityHeatmap";
 
 export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, language = "English", userId }) {
   const scrollRef = useRef(null);
@@ -70,6 +71,7 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
           : t("dsa_subtitle", language)}
       </p>
 
+      {userStats && <ActivityHeatmap stats={userStats} />}
 
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}
@@ -105,31 +107,6 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
           );
         })}
       </div>
-
-      {allCompleted && userId && (
-        <div style={{ textAlign: 'center', marginTop: '60px', padding: '40px', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--accent-orange)' }}>
-          <h2 style={{ color: 'var(--text-primary)', marginBottom: '16px' }}>🎉 Roadmap Completed!</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>You have mastered all Data Structures and Algorithms modules.</p>
-          <a 
-            href={`/certificate/${userId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ 
-              display: 'inline-block',
-              background: 'var(--accent-orange)', 
-              color: '#fff', 
-              padding: '16px 32px', 
-              borderRadius: '8px', 
-              fontSize: '18px', 
-              fontWeight: 'bold', 
-              textDecoration: 'none',
-              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)'
-            }}
-          >
-            🎓 Claim Mastery Certificate
-          </a>
-        </div>
-      )}
     </div>
   );
 }

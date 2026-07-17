@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { LANGUAGE_TOPICS } from "../data/languageData";
+import ActivityHeatmap from "./ActivityHeatmap";
 import { t } from "../data/translations";
 
 export default function LanguagePath({ progress, userStats, roadmap, onSelectTopic, language = "English", userId }) {
@@ -70,6 +71,7 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
           : "Master the fundamentals of your chosen language."}
       </p>
 
+      {userStats && <ActivityHeatmap stats={userStats} />}
 
       <div className="pro-timeline">
         {/* Reset unlock state for rendering loop */}
@@ -105,31 +107,6 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
           );
         })}
       </div>
-
-      {allCompleted && userId && (
-        <div style={{ textAlign: 'center', marginTop: '60px', padding: '40px', background: 'var(--bg-secondary)', borderRadius: '16px', border: '1px solid var(--accent-orange)' }}>
-          <h2 style={{ color: 'var(--text-primary)', marginBottom: '16px' }}>🎉 Roadmap Completed!</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>You have mastered all core language syntax concepts.</p>
-          <a 
-            href={`/certificate/${userId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ 
-              display: 'inline-block',
-              background: 'var(--accent-orange)', 
-              color: '#fff', 
-              padding: '16px 32px', 
-              borderRadius: '8px', 
-              fontSize: '18px', 
-              fontWeight: 'bold', 
-              textDecoration: 'none',
-              boxShadow: '0 4px 12px rgba(249, 115, 22, 0.3)'
-            }}
-          >
-            🎓 Claim Mastery Certificate
-          </a>
-        </div>
-      )}
     </div>
   );
 }

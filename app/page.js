@@ -768,9 +768,6 @@ export default function Home() {
                   <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
                   <button className="action-btn" onClick={() => signOut(auth)} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
                 </div>
-                <a href={`/certificate/${user.uid}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: 'var(--accent-teal)', textAlign: 'center', marginTop: '4px', textDecoration: 'underline' }}>
-                  View My Certificate (Demo)
-                </a>
               </div>
             ) : (
               <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '8px', fontSize: '14px' }}>Sign In</button>
