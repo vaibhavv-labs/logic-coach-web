@@ -8,49 +8,49 @@ export async function POST(request) {
       return NextResponse.json({ error: "Code and language are required" }, { status: 400 });
     }
 
-    // Map frontend language strings to Wandbox compiler strings
-    let wandboxLang = language.toLowerCase();
-    let compiler = "";
-    if (wandboxLang === "python") compiler = "cpython-3.14.0";
-    else if (wandboxLang === "javascript") compiler = "nodejs-20.17.0";
-    else if (wandboxLang === "java") compiler = "openjdk-jdk-22+36";
-    else if (wandboxLang === "c++" || wandboxLang === "cpp") compiler = "gcc-head";
+    let pistonLang = language.toLowerCase();
+    let version = "*";
+    if (pistonLang === "python") version = "3.10.0";
+    else if (pistonLang === "javascript") version = "18.15.0";
+    else if (pistonLang === "java") version = "15.0.2";
+    else if (pistonLang === "c++" || pistonLang === "cpp") { pistonLang = "c++"; version = "10.2.0"; }
     else {
       return NextResponse.json({ error: `Language ${language} not supported by execution engine.` }, { status: 400 });
     }
 
-    // Execute code using Wandbox API
-    const executeRes = await fetch("https://wandbox.org/api/compile.json", {
+    // Execute code using Piston API
+    const executeRes = await fetch("https://emkc.org/api/v2/piston/execute", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        compiler: compiler,
-        code: code,
+        language: pistonLang,
+        version: version,
+        files: [{ content: code }],
         stdin: stdin || ""
       })
     });
 
     const data = await executeRes.json();
     
-    if (data.error) {
-       return NextResponse.json({ error: data.error }, { status: 500 });
+    if (data.message) {
+       return NextResponse.json({ error: data.message }, { status: 500 });
     }
     
-    // Compilation error (e.g. C++ syntax error before runtime)
-    if (data.compiler_error) {
+    // Compilation error
+    if (data.compile && data.compile.code !== 0) {
       return NextResponse.json({
         stdout: "",
-        stderr: data.compiler_error,
-        output: data.compiler_error,
-        code: 1
+        stderr: data.compile.stderr || data.compile.output,
+        output: data.compile.output,
+        code: data.compile.code
       });
     }
 
     return NextResponse.json({
-      stdout: data.program_output || data.program_message || "",
-      stderr: data.program_error || "",
-      output: data.program_message || "",
-      code: parseInt(data.status || "0", 10)
+      stdout: data.run.stdout || "",
+      stderr: data.run.stderr || "",
+      output: data.run.output || "",
+      code: data.run.code || 0
     });
 
   } catch (error) {
