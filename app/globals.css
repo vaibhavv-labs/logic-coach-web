@@ -2132,7 +2132,7 @@ body {
   
   .landing-nav { flex-direction: column; padding: 16px; gap: 16px; }
   .landing-title { font-size: 32px !important; line-height: 1.2; }
-  .start-btn, .action-btn, .run-btn, .mobile-menu-btn { width: 100%; justify-content: center; }
+  .start-btn, .run-btn, .mobile-menu-btn { width: 100%; justify-content: center; }
   
   .chat-header { flex-wrap: wrap; gap: 12px; }
   .chat-bottom { padding: 12px; }
