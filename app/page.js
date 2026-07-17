@@ -773,7 +773,12 @@ export default function Home() {
           <div className="sidebar-user-section" style={{ padding: '16px', borderBottom: '1px solid var(--border-light)' }}>
             {user ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
+                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ padding: '4px 8px' }}>
+                    {theme === "light" ? "🌙" : "☀️"}
+                  </button>
+                </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
                   <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
@@ -999,9 +1004,7 @@ export default function Home() {
                     <option value="Java">Java</option>
                     <option value="C++">C++</option>
                   </select>
-                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme">
-                    {theme === "light" ? "🌙" : "☀️"}
-                  </button>
+                  {/* Theme toggle moved to sidebar */}
                   <button className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`} onClick={toggleSolved}>
                     {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
                   </button>

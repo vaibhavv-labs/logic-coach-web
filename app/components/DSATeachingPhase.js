@@ -237,9 +237,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           >
             💻 Practice Code
           </button>
-          <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ fontSize: '18px', padding: '6px 10px' }}>
-            {theme === "light" ? "🌙" : "☀️"}
-          </button>
+                  {/* Theme toggle moved to sidebar */}
         </div>
       </div>
 
