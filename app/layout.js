@@ -8,6 +8,12 @@ export const metadata = {
   keywords: "logic, programming, tutor, AI, Socratic, coding, learn to code",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

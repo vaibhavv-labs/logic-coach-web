@@ -2094,3 +2094,29 @@ body {
 .practice-code-btn:active {
   transform: scale(0.97);
 }
+
+/* Global Mobile Responsiveness Updates */
+@media (max-width: 768px) {
+  .sidebar { width: 100%; left: -100%; z-index: 1000; position: fixed; height: 100vh; overflow-y: auto; }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+  .sidebar-overlay.visible { display: block; }
+  
+  .main-content { width: 100%; }
+  .bento-grid { display: flex; flex-direction: column; }
+  .split-pane { flex-direction: column; }
+  
+  .landing-nav { flex-direction: column; padding: 16px; gap: 16px; }
+  .landing-title { font-size: 36px !important; line-height: 1.2; }
+  .start-btn, .action-btn, .run-btn, .mobile-menu-btn { width: 100%; justify-content: center; }
+  
+  .chat-header { flex-wrap: wrap; gap: 12px; }
+  .chat-bottom { padding: 12px; }
+  .pro-timeline-item { width: 100%; }
+}
+
+/* Universal Minimum Touch Targets */
+button, .btn, .action-btn, .start-btn, select, input, .mobile-menu-btn, .menu-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
