@@ -236,9 +236,11 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           <div className="visualizer-scroll-container">
             <div className="visual-card">
               <div className="visual-title">{stepData.text}</div>
-              <div className="visual-content">
-                {renderVisualizer()}
-              </div>
+              {stepData.visualType !== 'text' && (
+                <div className="visual-content">
+                  {renderVisualizer()}
+                </div>
+              )}
               {stepData.codeSnippets ? (
                 <div className="dsa-code-example">
                   <h4>Example ({progLanguage}):</h4>
