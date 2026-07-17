@@ -31,22 +31,53 @@ export async function POST(request) {
       );
     }
 
+    // Dynamically fetch available models
+    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const modelsData = await modelsRes.json();
+    
+    let modelName = "gemini-pro"; // ultimate fallback
+    if (modelsData.models && modelsData.models.length > 0) {
+      const validModel = modelsData.models.find(m => 
+        m.supportedGenerationMethods && 
+        m.supportedGenerationMethods.includes("generateContent") && 
+        m.name.includes("gemini")
+      );
+      if (validModel) {
+        modelName = validModel.name.replace("models/", "");
+      }
+    }
+
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Updated to the latest model as requested
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      systemInstruction: (isLevel2 ? INTERVIEWER_PROMPT : SYSTEM_PROMPT) + 
-        (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
-        (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
-        (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
-        (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
-        (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag anywhere in your message like [STATE:state_name] to animate it. Valid states are: ${dsaVisuals}` : ""),
-    });
+    const isLegacyPro = modelName === "gemini-pro" || modelName === "gemini-1.0-pro";
+    
+    const instructions = (isLevel2 ? INTERVIEWER_PROMPT : SYSTEM_PROMPT) + 
+      (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
+      (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
+      (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
+      (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
+      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag anywhere in your message like [STATE:state_name] to animate it. Valid states are: ${dsaVisuals}` : "");
+
+    const modelConfig = { model: modelName };
+    if (!isLegacyPro) {
+      modelConfig.systemInstruction = instructions;
+    }
+    
+    const model = genAI.getGenerativeModel(modelConfig);
 
     const history = messages.slice(0, -1).map((msg) => ({
       role: msg.role === "user" ? "user" : "model",
       parts: [{ text: msg.content }],
     }));
+
+    if (isLegacyPro) {
+       history.unshift({
+          role: "user",
+          parts: [{ text: "SYSTEM INSTRUCTIONS (STRICT): " + instructions + "\n\nI will follow these instructions closely." }]
+       }, {
+          role: "model",
+          parts: [{ text: "Understood. I will act exactly as instructed." }]
+       });
+    }
 
     // Gemini API requires the first message in history to be from a 'user'
     if (history.length > 0 && history[0].role === "model") {
