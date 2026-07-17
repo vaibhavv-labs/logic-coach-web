@@ -149,7 +149,10 @@ export default function Home() {
       } else {
         setShowLanding(true);
       }
-      setAuthLoading(false);
+      // Ensure splash screen is visible for at least 1.5 seconds so the user can see it!
+      setTimeout(() => {
+        setAuthLoading(false);
+      }, 1500);
     });
     return () => unsubscribe();
   }, []);
