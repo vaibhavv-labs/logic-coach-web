@@ -1,38 +1,42 @@
 "use client";
-
+import toast from 'react-hot-toast';
+import { t } from '../../data/translations';
 import { useState, useRef, useEffect } from "react";
 import * as Diff from 'diff';
 import { auth, db } from "../../../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import AuthModal from "../../components/AuthModal";
-import CustomProblemModal from "../../components/CustomProblemModal";
-import ProgressScreen from "../../components/ProgressScreen";
-import CodeEditor from "../../components/CodeEditor";
-import VoiceChat from "../../components/VoiceChat";
-import DSAPath from "../../components/DSAPath";
-import DSATeachingPhase from "../../components/DSATeachingPhase";
-import LanguagePath from "../../components/LanguagePath";
-import OnboardingScreen from "../../components/OnboardingScreen";
-import PracticeCompilerPanel from "../../components/PracticeCompilerPanel";
-import LandingPage from "../../components/LandingPage";
+import dynamic from 'next/dynamic';
+import LoadingSpinner from '../../components/LoadingSpinner';
+
+const AuthModal = dynamic(() => import('../../components/AuthModal'), { loading: () => <LoadingSpinner /> });
+const CustomProblemModal = dynamic(() => import('../../components/CustomProblemModal'), { loading: () => <LoadingSpinner /> });
+const ProgressScreen = dynamic(() => import('../../components/ProgressScreen'), { loading: () => <LoadingSpinner /> });
+const CodeEditor = dynamic(() => import('../../components/CodeEditor'), { loading: () => <LoadingSpinner /> });
+const VoiceChat = dynamic(() => import('../../components/VoiceChat'), { loading: () => <LoadingSpinner /> });
+const DSAPath = dynamic(() => import('../../components/DSAPath'), { loading: () => <LoadingSpinner /> });
+const DSATeachingPhase = dynamic(() => import('../../components/DSATeachingPhase'), { loading: () => <LoadingSpinner /> });
+const LanguagePath = dynamic(() => import('../../components/LanguagePath'), { loading: () => <LoadingSpinner /> });
+const OnboardingScreen = dynamic(() => import('../../components/OnboardingScreen'), { loading: () => <LoadingSpinner /> });
+const PracticeCompilerPanel = dynamic(() => import('../../components/PracticeCompilerPanel'), { loading: () => <LoadingSpinner /> });
+const LandingPage = dynamic(() => import('../../components/LandingPage'), { loading: () => <LoadingSpinner /> });
 
 // Visualizers
-import ArrayVisualizer from "../../components/visualizers/ArrayVisualizer";
-import StackVisualizer from "../../components/visualizers/StackVisualizer";
-import QueueVisualizer from "../../components/visualizers/QueueVisualizer";
-import LinkedListVisualizer from "../../components/visualizers/LinkedListVisualizer";
-import TreeVisualizer from "../../components/visualizers/TreeVisualizer";
-import BarsVisualizer from "../../components/visualizers/BarsVisualizer";
-import GraphVisualizer from "../../components/visualizers/GraphVisualizer";
-import StringVisualizer from "../../components/visualizers/StringVisualizer";
-import RecursionVisualizer from "../../components/visualizers/RecursionVisualizer";
-import DPVisualizer from "../../components/visualizers/DPVisualizer";
-import SearchVisualizer from "../../components/visualizers/SearchVisualizer";
-import SortingVisualizer from "../../components/visualizers/SortingVisualizer";
-import HeapVisualizer from "../../components/visualizers/HeapVisualizer";
-import HashtableVisualizer from "../../components/visualizers/HashtableVisualizer";
-import TrieVisualizer from "../../components/visualizers/TrieVisualizer";
+const ArrayVisualizer = dynamic(() => import('../../components/visualizers/ArrayVisualizer'), { loading: () => <LoadingSpinner /> });
+const StackVisualizer = dynamic(() => import('../../components/visualizers/StackVisualizer'), { loading: () => <LoadingSpinner /> });
+const QueueVisualizer = dynamic(() => import('../../components/visualizers/QueueVisualizer'), { loading: () => <LoadingSpinner /> });
+const LinkedListVisualizer = dynamic(() => import('../../components/visualizers/LinkedListVisualizer'), { loading: () => <LoadingSpinner /> });
+const TreeVisualizer = dynamic(() => import('../../components/visualizers/TreeVisualizer'), { loading: () => <LoadingSpinner /> });
+const BarsVisualizer = dynamic(() => import('../../components/visualizers/BarsVisualizer'), { loading: () => <LoadingSpinner /> });
+const GraphVisualizer = dynamic(() => import('../../components/visualizers/GraphVisualizer'), { loading: () => <LoadingSpinner /> });
+const StringVisualizer = dynamic(() => import('../../components/visualizers/StringVisualizer'), { loading: () => <LoadingSpinner /> });
+const RecursionVisualizer = dynamic(() => import('../../components/visualizers/RecursionVisualizer'), { loading: () => <LoadingSpinner /> });
+const DPVisualizer = dynamic(() => import('../../components/visualizers/DPVisualizer'), { loading: () => <LoadingSpinner /> });
+const SearchVisualizer = dynamic(() => import('../../components/visualizers/SearchVisualizer'), { loading: () => <LoadingSpinner /> });
+const SortingVisualizer = dynamic(() => import('../../components/visualizers/SortingVisualizer'), { loading: () => <LoadingSpinner /> });
+const HeapVisualizer = dynamic(() => import('../../components/visualizers/HeapVisualizer'), { loading: () => <LoadingSpinner /> });
+const HashtableVisualizer = dynamic(() => import('../../components/visualizers/HashtableVisualizer'), { loading: () => <LoadingSpinner /> });
+const TrieVisualizer = dynamic(() => import('../../components/visualizers/TrieVisualizer'), { loading: () => <LoadingSpinner /> });
 
 const MAX_CHARS = 2000;
 const LEVELS = ['Beginner', 'Easy', 'Medium', 'Hard', 'Advanced'];
@@ -127,7 +131,7 @@ export default function Home() {
       }, 1000);
     } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false);
-      alert("Time is up! The interview simulation is over. Please try again.");
+      toast.error(t("toast_time_up", language));
     }
     return () => clearInterval(interval);
   }, [timerActive, timeLeft]);
@@ -136,6 +140,10 @@ export default function Home() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        if (currentUser.isAnonymous) {
+           window.location.href = "/";
+           return;
+        }
         setShowAuthModal(false);
         await loadUserProgress(currentUser.uid);
       }
@@ -145,10 +153,18 @@ export default function Home() {
 
   const loadUserProgress = async (uid) => {
     try {
-      const docRef = doc(db, "user_progress", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      const progressRef = doc(db, "user_progress", uid);
+      const profileRef = doc(db, "user_profiles", uid);
+      
+      const [progressSnap, profileSnap] = await Promise.all([
+        getDoc(progressRef),
+        getDoc(profileRef)
+      ]);
+      
+      if (progressSnap.exists()) {
+        const data = progressSnap.data();
+        const profileData = profileSnap.exists() ? profileSnap.data() : (data.roadmap || null);
+
         setSolvedProblems(new Set(data.solved || []));
         setUserStats({
           totalAttempted: data.totalAttempted || 0,
@@ -157,9 +173,11 @@ export default function Home() {
         });
         setDsaProgress(data.dsaProgress || {});
         setLanguageProgress(data.languageProgress || {});
+        setUserRoadmap(profileData);
       }
     } catch (error) {
       console.error("Error loading progress:", error);
+      toast.error(t("error_generic", language));
     }
   };
 
@@ -199,16 +217,24 @@ export default function Home() {
         availableProblems.push({ id: doc.id, ...doc.data() });
       });
 
-      const unsolvedProblems = availableProblems.filter(p => !solvedProblems.has(p.id));
+      const unsolvedProblems = availableProblems.filter(p => {
+        if (solvedProblems.has(p.id)) return false;
+        if (activeDsaTopic && p.category && p.category !== activeDsaTopic.title) return false;
+        return true;
+      });
 
       let selectedProblem;
 
       if (unsolvedProblems.length > 0) {
         selectedProblem = unsolvedProblems[0];
       } else {
+        const token = await user.getIdToken();
         const response = await fetch("/api/generate-problem", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
           body: JSON.stringify({ level, dsaTopic: activeDsaTopic?.title || null, language })
         });
         
@@ -230,6 +256,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching problem:", error);
       setProblemFetchError(error.message);
+      toast.error(t("error_generic", language));
     } finally {
       setFetchingProblem(false);
     }
@@ -283,6 +310,7 @@ export default function Home() {
       await setDoc(docRef, updated, { merge: true });
     } catch (err) {
       console.error("Failed to update stats", err);
+      toast.error(t("error_generic", language));
     }
   };
 
@@ -332,7 +360,7 @@ export default function Home() {
         await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
         
         if (currentLevel === 2) {
-           alert("Mastery Achieved! You successfully passed the Interview Simulation!");
+           toast.success(t("toast_mastery", language));
            setTimerActive(false);
         }
       }
@@ -366,7 +394,7 @@ export default function Home() {
       playTone(783.99, 0.2, 0.3); // G5
       playTone(1046.50, 0.3, 0.5); // C6
     } catch (e) {
-      console.log('Audio not supported or blocked');
+      // Audio not supported or blocked
     }
   };
 
@@ -457,7 +485,7 @@ export default function Home() {
     if (allPassed && !solvedProblems.has(activeProblem.id)) {
       playSuccessSound();
       await toggleSolved(); 
-      alert("All test cases passed! Problem marked as solved.");
+      toast.success(t("toast_all_tests_passed", language));
     }
   };
 
@@ -469,9 +497,13 @@ export default function Home() {
     setTestResults([{ passed: true, error: null, isManual: true, actualOutput: "Analyzing code complexity... 🤖\n\n" }]);
     
     try {
+      const token = await user.getIdToken();
       const res = await fetch("/api/analyze-complexity", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ code })
       });
       const data = await res.json();
@@ -523,9 +555,13 @@ export default function Home() {
         content: msg.content,
       }));
 
+      const token = await user.getIdToken();
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           messages: apiMessages,
           problemContext: {
@@ -548,10 +584,8 @@ export default function Home() {
       }
 
       let replyText = data.reply;
-      const stateMatch = replyText.match(/\[STATE:(.+?)\]/);
-      if (stateMatch) {
-        setProblemVisualState(stateMatch[1]);
-        replyText = replyText.replace(/\[STATE:(.+?)\]/g, "").trim();
+      if (data.state) {
+        setProblemVisualState(data.state);
       }
 
       setMessages((prev) => ({
@@ -665,10 +699,10 @@ export default function Home() {
 
     return (
       <div className="problem-visualizer-wrapper" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ padding: '8px 16px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: 'var(--accent-blue)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
+        <div style={{ padding: '8px 16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: 'var(--accent)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
         </div>
-        <div style={{ padding: '16px', background: 'var(--bg-card)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: '16px', background: 'var(--bg-surface-raised)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {visualizerContent}
         </div>
       </div>
@@ -687,9 +721,9 @@ export default function Home() {
       <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
         {diff.map((part, i) => (
           <span key={i} style={{ 
-            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(16, 185, 129, 0.3)' : 'transparent',
-            color: part.added ? '#fca5a5' : part.removed ? '#6ee7b7' : '#f3f4f6',
-            textDecoration: part.removed ? 'line-through' : 'none'
+            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'var(--accent-light)' : 'transparent',
+            color: part.added ? '#fca5a5' : part.removed ? 'var(--accent)' : '#f3f4f6',
+            textDecoration: 'none'
           }}>
             {part.value}
           </span>
@@ -760,21 +794,21 @@ export default function Home() {
             <button 
               className={`action-btn ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`} 
               onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
             >
               <span style={{ fontSize: '18px' }}>🏠</span> Dashboard Home
             </button>
             <button 
               className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
               onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
             >
               <span style={{ fontSize: '18px' }}>🗺️</span> DSA Roadmap
             </button>
             <button 
               className={`action-btn ${viewMode === 'language' ? 'active' : ''}`} 
               onClick={() => { setViewMode('language'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
             >
               <span style={{ fontSize: '18px' }}>🚀</span> Language Roadmap
             </button>
@@ -800,8 +834,9 @@ export default function Home() {
                  const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 1, step: 0 } };
                  setDsaProgress(newProg);
                  if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
-                 alert("Topic Teaching Complete! You can now select a problem level to practice.");
+                 toast.success(t("topic_complete", language));
                }}
+               onTopicUnlock={(topicTitle) => toast.success(t("toast_topic_unlocked", language, { TOPIC: topicTitle }))}
              />
           ) : viewMode === 'language' && !activeProblem && !activeLanguageTopic ? (
              <LanguagePath progress={languageProgress} roadmap={userRoadmap} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
@@ -821,8 +856,9 @@ export default function Home() {
                  const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 1, step: 0 } };
                  setLanguageProgress(newProg);
                  if (user) await setDoc(doc(db, "user_progress", user.uid), { languageProgress: newProg }, { merge: true });
-                 alert("Topic Teaching Complete! You can now practice.");
+                 toast.success(t("topic_complete", language));
                }}
+               onTopicUnlock={(topicTitle) => toast.success(t("toast_topic_unlocked", language, { TOPIC: topicTitle }))}
              />
           ) : !activeProblem ? (
             fetchingProblem ? (
@@ -1034,7 +1070,7 @@ export default function Home() {
                     
                     {/* Execution Results */}
                     {(isExecuting || testResults) && (
-                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)', height: `${terminalHeight}px`, overflowY: 'auto' }}>
+                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-surface)', height: `${terminalHeight}px`, overflowY: 'auto' }}>
                         <h4 style={{ margin: '0 0 12px 0' }}>Execution Results</h4>
                         {isExecuting ? <div style={{ color: 'var(--text-muted)' }}>Executing code on server... ⏳</div> : (
                           <div className="results-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -1050,7 +1086,7 @@ export default function Home() {
                                      {tr.isManual ? (
                                         <>
                                           Your Output: <br/>
-                                          <pre style={{ background: 'var(--bg-dark)', padding: '8px', borderRadius: '4px', marginTop: '4px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
+                                          <pre style={{ background: 'var(--bg-surface-raised)', padding: '8px', borderRadius: '4px', marginTop: '4px', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
                                         </>
                                      ) : (
                                         <>

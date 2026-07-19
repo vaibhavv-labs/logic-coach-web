@@ -128,7 +128,7 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button 
                   className={`run-code-btn ${isAnalyzing ? 'loading' : ''}`} 
-                  style={{ background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
+                  style={{ background: 'var(--bg-surface)', color: 'var(--accent)', border: '1px solid var(--accent)' }}
                   onClick={handleAnalyzeCode}
                   disabled={isAnalyzing || isExecuting}
                 >

@@ -26,7 +26,7 @@ export default function GuestUpgradeModal({ onClose, onSuccess }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content auth-modal" style={{ textAlign: 'center' }}>
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         <h2 style={{ fontSize: '24px', marginBottom: '8px' }}>You're on fire! 🔥</h2>
         <p className="auth-subtitle" style={{ marginBottom: '24px' }}>
           You've solved 3 problems! If you leave now, your progress will be lost forever. 
@@ -39,7 +39,7 @@ export default function GuestUpgradeModal({ onClose, onSuccess }) {
           className="google-btn" 
           onClick={handleLinkGoogle}
           disabled={loading}
-          style={{ background: 'var(--accent-orange)', color: '#fff', border: 'none', justifyContent: 'center' }}
+          style={{ background: 'var(--accent)', color: '#fff', border: 'none', justifyContent: 'center' }}
         >
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" style={{ background: '#fff', borderRadius: '50%', padding: '2px' }} />
           {loading ? "Linking..." : "Save Progress with Google"}

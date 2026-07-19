@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import toast from 'react-hot-toast';
+import { t } from '../data/translations';
 
-export default function CustomProblemModal({ onClose, onSubmit, user }) {
+export default function CustomProblemModal({ onClose, onSubmit, user, language = "English" }) {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,10 +33,15 @@ export default function CustomProblemModal({ onClose, onSubmit, user }) {
         icon: "✏️"
       };
 
+      toast.success(t("toast_problem_submitted", language));
       onSubmit(newProblem);
     } catch (error) {
       console.error("Error adding custom problem: ", error);
-      alert("Failed to submit problem.");
+      if (error.code === 'permission-denied') {
+         toast.error(t("toast_auth_blocked", language));
+      } else {
+         toast.error(t("toast_problem_failed", language));
+      }
     } finally {
       setLoading(false);
     }
@@ -43,7 +50,7 @@ export default function CustomProblemModal({ onClose, onSubmit, user }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         <h2>Submit Your Own Problem</h2>
         <p>Stuck on an assignment or personal project? Paste it here and the Logic Coach will guide you!</p>
         

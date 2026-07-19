@@ -1,40 +1,46 @@
 "use client";
-
+import toast from 'react-hot-toast';
+import { t } from './data/translations';
 import { useState, useRef, useEffect } from "react";
 import * as Diff from 'diff';
 import { auth, db } from "../lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import AuthModal from "./components/AuthModal";
-import GuestUpgradeModal from "./components/GuestUpgradeModal";
-import LeaderboardModal from "./components/LeaderboardModal";
-import CustomProblemModal from "./components/CustomProblemModal";
-import ProgressScreen from "./components/ProgressScreen";
-import CodeEditor from "./components/CodeEditor";
-import VoiceChat from "./components/VoiceChat";
-import DSAPath from "./components/DSAPath";
-import DSATeachingPhase from "./components/DSATeachingPhase";
-import LanguagePath from "./components/LanguagePath";
-import OnboardingScreen from "./components/OnboardingScreen";
-import PracticeCompilerPanel from "./components/PracticeCompilerPanel";
-import LandingPage from "./components/LandingPage";
+import dynamic from 'next/dynamic';
+import LoadingSpinner from './components/LoadingSpinner';
+import EmptyState from './components/EmptyState';
+
+const AuthModal = dynamic(() => import('./components/AuthModal'), { loading: () => <LoadingSpinner /> });
+const GuestUpgradeModal = dynamic(() => import('./components/GuestUpgradeModal'), { loading: () => <LoadingSpinner /> });
+const LeaderboardModal = dynamic(() => import('./components/LeaderboardModal'), { loading: () => <LoadingSpinner /> });
+const CustomProblemModal = dynamic(() => import('./components/CustomProblemModal'), { loading: () => <LoadingSpinner /> });
+const Footer = dynamic(() => import('./components/Footer'));
+const ProgressScreen = dynamic(() => import('./components/ProgressScreen'), { loading: () => <LoadingSpinner /> });
+const CodeEditor = dynamic(() => import('./components/CodeEditor'), { loading: () => <LoadingSpinner /> });
+const VoiceChat = dynamic(() => import('./components/VoiceChat'), { loading: () => <LoadingSpinner /> });
+const DSAPath = dynamic(() => import('./components/DSAPath'), { loading: () => <LoadingSpinner /> });
+const DSATeachingPhase = dynamic(() => import('./components/DSATeachingPhase'), { loading: () => <LoadingSpinner /> });
+const LanguagePath = dynamic(() => import('./components/LanguagePath'), { loading: () => <LoadingSpinner /> });
+const OnboardingScreen = dynamic(() => import('./components/OnboardingScreen'), { loading: () => <LoadingSpinner /> });
+const PracticeCompilerPanel = dynamic(() => import('./components/PracticeCompilerPanel'), { loading: () => <LoadingSpinner /> });
+const LandingPage = dynamic(() => import('./components/LandingPage'), { loading: () => <LoadingSpinner /> });
 
 // Visualizers
-import ArrayVisualizer from "./components/visualizers/ArrayVisualizer";
-import StackVisualizer from "./components/visualizers/StackVisualizer";
-import QueueVisualizer from "./components/visualizers/QueueVisualizer";
-import LinkedListVisualizer from "./components/visualizers/LinkedListVisualizer";
-import TreeVisualizer from "./components/visualizers/TreeVisualizer";
-import BarsVisualizer from "./components/visualizers/BarsVisualizer";
-import GraphVisualizer from "./components/visualizers/GraphVisualizer";
-import StringVisualizer from "./components/visualizers/StringVisualizer";
-import RecursionVisualizer from "./components/visualizers/RecursionVisualizer";
-import DPVisualizer from "./components/visualizers/DPVisualizer";
-import SearchVisualizer from "./components/visualizers/SearchVisualizer";
-import SortingVisualizer from "./components/visualizers/SortingVisualizer";
-import HeapVisualizer from "./components/visualizers/HeapVisualizer";
-import HashtableVisualizer from "./components/visualizers/HashtableVisualizer";
-import TrieVisualizer from "./components/visualizers/TrieVisualizer";
+const ArrayVisualizer = dynamic(() => import('./components/visualizers/ArrayVisualizer'), { loading: () => <LoadingSpinner /> });
+const StackVisualizer = dynamic(() => import('./components/visualizers/StackVisualizer'), { loading: () => <LoadingSpinner /> });
+const QueueVisualizer = dynamic(() => import('./components/visualizers/QueueVisualizer'), { loading: () => <LoadingSpinner /> });
+const LinkedListVisualizer = dynamic(() => import('./components/visualizers/LinkedListVisualizer'), { loading: () => <LoadingSpinner /> });
+const TreeVisualizer = dynamic(() => import('./components/visualizers/TreeVisualizer'), { loading: () => <LoadingSpinner /> });
+const BarsVisualizer = dynamic(() => import('./components/visualizers/BarsVisualizer'), { loading: () => <LoadingSpinner /> });
+const GraphVisualizer = dynamic(() => import('./components/visualizers/GraphVisualizer'), { loading: () => <LoadingSpinner /> });
+const StringVisualizer = dynamic(() => import('./components/visualizers/StringVisualizer'), { loading: () => <LoadingSpinner /> });
+const RecursionVisualizer = dynamic(() => import('./components/visualizers/RecursionVisualizer'), { loading: () => <LoadingSpinner /> });
+const DPVisualizer = dynamic(() => import('./components/visualizers/DPVisualizer'), { loading: () => <LoadingSpinner /> });
+const SearchVisualizer = dynamic(() => import('./components/visualizers/SearchVisualizer'), { loading: () => <LoadingSpinner /> });
+const SortingVisualizer = dynamic(() => import('./components/visualizers/SortingVisualizer'), { loading: () => <LoadingSpinner /> });
+const HeapVisualizer = dynamic(() => import('./components/visualizers/HeapVisualizer'), { loading: () => <LoadingSpinner /> });
+const HashtableVisualizer = dynamic(() => import('./components/visualizers/HashtableVisualizer'), { loading: () => <LoadingSpinner /> });
+const TrieVisualizer = dynamic(() => import('./components/visualizers/TrieVisualizer'), { loading: () => <LoadingSpinner /> });
 
 const MAX_CHARS = 2000;
 
@@ -77,17 +83,27 @@ export default function Home() {
   const [authLoading, setAuthLoading] = useState(true);
   const [appBooting, setAppBooting] = useState(true);
   const [fadeSplash, setFadeSplash] = useState(false);
+  const [splashText, setSplashText] = useState("");
   
   useEffect(() => {
-    // Start fade out after 1.5s
+    // Typing effect for the splash screen text
+    const text = "Initializing Logic Core...";
+    let i = 0;
+    const typeInterval = setInterval(() => {
+      setSplashText(text.slice(0, i));
+      i++;
+      if (i > text.length) clearInterval(typeInterval);
+    }, 50);
+
+    // Start fade out after 2.5s (longer to be unmissable)
     const fadeTimer = setTimeout(() => {
       setFadeSplash(true);
-    }, 1500);
+    }, 2500);
 
-    // Unmount completely after 2.0s
+    // Unmount completely after 3.2s
     const bootTimer = setTimeout(() => {
       setAppBooting(false);
-    }, 2000);
+    }, 3200);
     
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -101,6 +117,7 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      clearInterval(typeInterval);
       clearTimeout(bootTimer);
       clearTimeout(fadeTimer);
     };
@@ -148,7 +165,7 @@ export default function Home() {
       }, 1000);
     } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false);
-      alert("Time is up! The interview simulation is over. Please try again.");
+      toast.error(t("toast_time_up", language));
     }
     return () => clearInterval(interval);
   }, [timerActive, timeLeft]);
@@ -172,10 +189,18 @@ export default function Home() {
 
   const loadUserProgress = async (uid) => {
     try {
-      const docRef = doc(db, "user_progress", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
+      const progressRef = doc(db, "user_progress", uid);
+      const profileRef = doc(db, "user_profiles", uid);
+      
+      const [progressSnap, profileSnap] = await Promise.all([
+        getDoc(progressRef),
+        getDoc(profileRef)
+      ]);
+      
+      if (progressSnap.exists()) {
+        const data = progressSnap.data();
+        const profileData = profileSnap.exists() ? profileSnap.data() : (data.roadmap || null);
+
         setSolvedProblems(new Set(data.solved || []));
         setUserStats({
           totalAttempted: data.totalAttempted || 0,
@@ -186,12 +211,12 @@ export default function Home() {
         setLanguageProgress(data.languageProgress || {});
         
         if (data.onboardingCompleted !== undefined) {
-          if (data.roadmap && !data.roadmap.username) {
+          if (profileData && !profileData.username) {
             setOnboardingCompleted(false);
           } else {
             setOnboardingCompleted(data.onboardingCompleted);
           }
-          setUserRoadmap(data.roadmap || null);
+          setUserRoadmap(profileData);
         } else {
           // If field doesn't exist on old users, force onboarding or default to true
           setOnboardingCompleted(false);
@@ -201,6 +226,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Error loading progress:", error);
+      toast.error(t("error_generic", language));
     }
   };
 
@@ -270,6 +296,7 @@ export default function Home() {
 
     } catch (error) {
       console.error("Error fetching problem:", error);
+      toast.error(t("error_generic", language));
       setProblemFetchError(error.message);
     } finally {
       setFetchingProblem(false);
@@ -328,6 +355,7 @@ export default function Home() {
       await setDoc(docRef, updated, { merge: true });
     } catch (err) {
       console.error("Failed to update stats", err);
+      toast.error(t("error_generic", language));
     }
   };
 
@@ -377,7 +405,7 @@ export default function Home() {
         await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
         
         if (currentLevel === 2) {
-           alert("Mastery Achieved! You successfully passed the Interview Simulation!");
+           toast.success(t("toast_mastery", language));
            setTimerActive(false);
         }
       }
@@ -494,9 +522,9 @@ export default function Home() {
       playSuccessSound();
       if (!solvedProblems.has(activeProblem.id)) {
         await toggleSolved(); 
-        alert("🎉 All test cases passed! Problem marked as solved.");
+        toast.success(t("toast_all_tests_passed", language));
       } else {
-        alert("🎉 All test cases passed!");
+        toast.success(t("toast_all_tests_passed", language));
       }
     }
   };
@@ -560,10 +588,8 @@ export default function Home() {
       }
 
       let replyText = data.reply;
-      const stateMatch = replyText.match(/\[STATE:(.+?)\]/);
-      if (stateMatch) {
-        setProblemVisualState(stateMatch[1]);
-        replyText = replyText.replace(/\[STATE:(.+?)\]/g, "").trim();
+      if (data.state) {
+        setProblemVisualState(data.state);
       }
 
       setMessages((prev) => ({
@@ -703,10 +729,10 @@ export default function Home() {
 
     return (
       <div className="problem-visualizer-wrapper" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ padding: '8px 16px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: 'var(--accent-blue)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
+        <div style={{ padding: '8px 16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: 'var(--accent)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
         </div>
-        <div style={{ padding: '16px', background: 'var(--bg-card)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: '16px', background: 'var(--bg-surface-raised)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {visualizerContent}
         </div>
       </div>
@@ -725,9 +751,9 @@ export default function Home() {
       <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>
         {diff.map((part, i) => (
           <span key={i} style={{ 
-            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'rgba(10, 185, 129, 0.3)' : 'transparent',
-            color: part.added ? '#fca5a5' : part.removed ? '#6ee7b7' : '#f3f4f6',
-            textDecoration: part.removed ? 'line-through' : 'none'
+            backgroundColor: part.added ? 'rgba(239, 68, 68, 0.3)' : part.removed ? 'var(--accent-light)' : 'transparent',
+            color: part.added ? '#fca5a5' : part.removed ? 'var(--accent)' : '#f3f4f6',
+            textDecoration: 'none'
           }}>
             {part.value}
           </span>
@@ -740,7 +766,6 @@ export default function Home() {
     <>
       {(authLoading || appBooting) && (
         <div className={`splash-screen ${fadeSplash ? 'fade-out' : ''}`}>
-          {/* Floating math and coding symbols */}
           <div className="splash-symbol" style={{ left: '10%', animationDuration: '15s', fontSize: '32px' }}>{`{ }`}</div>
           <div className="splash-symbol" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s', fontSize: '48px' }}>∑</div>
           <div className="splash-symbol" style={{ left: '40%', animationDuration: '22s', animationDelay: '1s', fontSize: '28px' }}>λ</div>
@@ -749,9 +774,10 @@ export default function Home() {
           <div className="splash-symbol" style={{ left: '85%', animationDuration: '19s', animationDelay: '4s', fontSize: '50px' }}>∀</div>
           <div className="splash-symbol" style={{ left: '50%', animationDuration: '25s', animationDelay: '5s', fontSize: '32px' }}>∃</div>
           
-          <div className="splash-logo-container">
-            <div className="splash-brain">🧠</div>
+          <div className="splash-logo-container splash-pulse-effect">
+            <div className="splash-brain splash-spin">🧠</div>
             <div className="splash-text">Logic Coach</div>
+            <div className="splash-typing">{splashText}<span className="cursor-blink">|</span></div>
           </div>
         </div>
       )}
@@ -789,7 +815,7 @@ export default function Home() {
       {(!showLanding || user) && (
         <>
           <div className="app-header">
-            <button className="menu-btn" onClick={() => setSidebarOpen(true)}>☰</button>
+            <button className="menu-btn" onClick={() => setSidebarOpen(true)} aria-label="Toggle sidebar menu">☰</button>
             <div className="sidebar-brand"><h2>Logic Coach</h2></div>
             <div style={{ width: 24 }}></div>
           </div>
@@ -809,13 +835,13 @@ export default function Home() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
-                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" style={{ padding: '4px 8px' }}>
+                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle dark/light theme" style={{ padding: '4px 8px' }}>
                     {theme === "light" ? "🌙" : "☀️"}
                   </button>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
-                  <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-orange-light)', color: 'var(--accent-orange)', border: '1px solid var(--accent-orange)' }}>🏆 Rank</button>
+                  <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-light)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>🏆 Rank</button>
                   <button className="action-btn" onClick={async () => {
                     await signOut(auth);
                     setShowLanding(true);
@@ -836,24 +862,28 @@ export default function Home() {
             <button 
               className={`action-btn ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`} 
               onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
             >
               <span style={{ fontSize: '18px' }}>🏠</span> Dashboard Home
             </button>
             <button 
               className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
               onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
             >
               <span style={{ fontSize: '18px' }}>🗺️</span> DSA Roadmap
             </button>
             <button 
               className={`action-btn ${viewMode === 'language' ? 'active' : ''}`} 
               onClick={() => { setViewMode('language'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-subtle)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
+              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
             >
               <span style={{ fontSize: '18px' }}>🚀</span> Language Roadmap
             </button>
+          </div>
+          
+          <div style={{ marginTop: 'auto', paddingTop: '32px' }}>
+            <Footer />
           </div>
         </aside>
 
@@ -877,8 +907,9 @@ export default function Home() {
                  const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 1, step: 0 } };
                  setDsaProgress(newProg);
                  if (user) await setDoc(doc(db, "user_progress", user.uid), { dsaProgress: newProg }, { merge: true });
-                 alert("Topic Teaching Complete! You can now select a problem level to practice.");
+                 toast.success(t("topic_complete", language));
                }}
+               onTopicUnlock={(topicTitle) => toast.success(t("toast_topic_unlocked", language, { TOPIC: topicTitle }))}
              />
           ) : viewMode === 'language' && !activeProblem && !activeLanguageTopic ? (
              <LanguagePath progress={languageProgress} userStats={userStats} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveLanguageTopic(t); }} />
@@ -899,12 +930,13 @@ export default function Home() {
                  const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 1, step: 0 } };
                  setLanguageProgress(newProg);
                  if (user) await setDoc(doc(db, "user_progress", user.uid), { languageProgress: newProg }, { merge: true });
-                 alert("Topic Teaching Complete! You can now practice.");
+                 toast.success(t("topic_complete", language));
                }}
+               onTopicUnlock={(topicTitle) => toast.success(t("toast_topic_unlocked", language, { TOPIC: topicTitle }))}
              />
           ) : (!activeProblem && !fetchingProblem && viewMode === 'dsa' && activeDsaTopic) || (!activeProblem && !fetchingProblem && viewMode === 'language' && activeLanguageTopic) ? (
               <div className="landing-container" style={{ background: 'none' }}>
-                <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--accent-teal-light)', color: 'var(--accent-teal)' }}>🎯</div>
+                <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--accent-light)', color: 'var(--accent)' }}>🎯</div>
                  <h2 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>
                   {activeDsaTopic ? activeDsaTopic.title : activeLanguageTopic.title} - Tutorial Completed!
                 </h2>
@@ -922,7 +954,7 @@ export default function Home() {
                         setLanguageProgress(prev => ({ ...prev, [activeLanguageTopic.id]: { level: 0, step: 0 } }));
                       }
                     }}
-                    style={{ background: 'var(--bg-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                    style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                   >
                     ↺ Replay Tutorial
                   </button>
@@ -1011,7 +1043,7 @@ export default function Home() {
                     className="action-btn" 
                     onClick={() => setActiveProblem(null)} 
                     title="Back to Dashboard"
-                    style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+                    style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-surface-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
                   >
                     ←
                   </button>
@@ -1028,7 +1060,7 @@ export default function Home() {
                     className="action-btn" 
                     onClick={() => getProblemForLevel(activeLevel || 'Beginner')} 
                     title="Next Problem"
-                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+                    style={{ background: 'var(--bg-surface-raised)', border: '1px solid var(--border)' }}
                   >
                     Next ⏭
                   </button>
@@ -1046,6 +1078,14 @@ export default function Home() {
               </div>
 
               <div className="chat-messages">
+                {currentMessages.length === 0 && !isLoading && (
+                  <EmptyState 
+                    icon="💬" 
+                    title="empty_chat_title" 
+                    description="empty_chat_desc" 
+                    language={language}
+                  />
+                )}
                 {currentMessages.map((msg, idx) => (
                   <div key={idx} className={`message ${msg.role}`}>
                     <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
@@ -1158,7 +1198,7 @@ export default function Home() {
                       className="review-btn" 
                       onClick={handleAnalyzeBigO}
                       disabled={isAnalyzingBigO || isExecuting || !code.trim()}
-                      style={{ flex: 1, minWidth: '140px', background: 'var(--bg-subtle)', color: 'var(--accent-teal)', border: '1px solid var(--accent-teal)' }}
+                      style={{ flex: 1, minWidth: '140px', background: 'var(--bg-surface)', color: 'var(--accent)', border: '1px solid var(--accent)' }}
                     >
                       {isAnalyzingBigO ? "Analyzing..." : "⚡ Analyze Big-O"}
                     </button>
@@ -1166,7 +1206,7 @@ export default function Home() {
                       className="review-btn" 
                       onClick={handleRunTests}
                       disabled={isExecuting || isAnalyzingBigO || !code.trim()}
-                      style={{ flex: 1, minWidth: '140px', background: 'var(--accent-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                      style={{ flex: 1, minWidth: '140px', background: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
                     </button>

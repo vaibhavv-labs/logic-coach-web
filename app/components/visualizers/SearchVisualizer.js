@@ -45,7 +45,7 @@ export default function SearchVisualizer({ state }) {
           
           return (
             <div key={idx} className="array-cell-container">
-              <div style={{ fontSize: '12px', color: 'var(--accent-orange)', minHeight: '18px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--accent)', minHeight: '18px' }}>
                 {isL && "↓ L"} {isR && "↓ R"} {isM && "↓ M"} {isCurr && "↓ scan"}
               </div>
               <div className={`array-cell ${activeIndices.includes(idx) ? "active" : ""}`}>

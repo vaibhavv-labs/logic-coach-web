@@ -1,14 +1,61 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { enforceRateLimit } from "../../../lib/rateLimit";
 
 export async function POST(request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
+    const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-    if (!apiKey) {
+    if (!apiKey || !fbApiKey) {
       return NextResponse.json(
-        { error: "API key not configured on the server." },
+        { error: "API keys not configured on the server." },
         { status: 500 }
+      );
+    }
+
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Missing or invalid authorization token" }, { status: 401 });
+    }
+    const token = authHeader.split("Bearer ")[1];
+
+    // Verify token using Firebase REST API
+    const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token })
+    });
+    
+    if (!verifyRes.ok) {
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    }
+    
+    const verifyData = await verifyRes.json();
+    const userInfo = verifyData.users?.[0];
+    const uid = userInfo?.localId;
+    
+    if (!userInfo || !userInfo.providerUserInfo || userInfo.providerUserInfo.length === 0) {
+      return NextResponse.json({ error: "Guests are not allowed to access this feature." }, { status: 403 });
+    }
+
+    // Rate Limiting
+    const rateLimit = await enforceRateLimit('complexity', request, uid);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { 
+          error: "Rate limit exceeded",
+          retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000)
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimit.reset - Date.now()) / 1000).toString(),
+            'X-RateLimit-Limit': rateLimit.limit.toString(),
+            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+            'X-RateLimit-Reset': rateLimit.reset.toString()
+          }
+        }
       );
     }
 
@@ -69,6 +116,14 @@ ${code}`;
     return NextResponse.json({ analysis });
   } catch (error) {
     console.error("Complexity analysis error:", error);
+    
+    if (error.status === 429 || error.message?.includes('429') || error.message?.includes('quota')) {
+      return NextResponse.json(
+        { error: "Whoops! The AI is currently receiving too many requests. Please wait 30 seconds and try again." },
+        { status: 429 }
+      );
+    }
+    
     return NextResponse.json(
       { error: error.message || "Failed to analyze code complexity." },
       { status: 500 }

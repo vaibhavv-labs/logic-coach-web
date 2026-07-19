@@ -63,7 +63,7 @@ export default function AuthModal({ onClose, onSuccess }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content auth-modal">
-        <button className="modal-close" onClick={onClose}>×</button>
+        <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
         <p className="auth-subtitle">
           Sign in to save your progress and unlock unlimited problems.
@@ -82,7 +82,7 @@ export default function AuthModal({ onClose, onSuccess }) {
 
         <button 
           className="google-btn" 
-          style={{ marginTop: '10px', background: 'var(--bg-subtle)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
+          style={{ marginTop: '10px', background: 'var(--bg-surface)', color: 'var(--text-primary)', border: '1px solid var(--border-light)' }}
           onClick={handleGuestSignIn}
           disabled={loading}
         >

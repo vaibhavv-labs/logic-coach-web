@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. USER PROGRESS (PUBLIC STATS)
+    // Read: Anyone can read (needed for the Global Leaderboard)
+    // Write: Users can only write to a document if the document ID matches their own Auth UID.
+    match /user_progress/{userId} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false; 
+    }
+
+    // 1.5 USER PROFILES (PRIVATE PII)
+    // Read/Write: Strictly limited to the authenticated user.
+    match /user_profiles/{userId} {
+      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // 2. GLOBAL PROBLEMS
+    // Read: Anyone can read the generated problems.
+    // Write: Authenticated users can create new problems (saved from Gemini API).
+    // Update/Delete: Blocked. Once generated, a problem cannot be modified by the client.
+    match /problems/{problemId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // 3. CUSTOM PROBLEMS (Abuse Prevention)
+    // Read: Users can only read custom problems they submitted.
+    // Create: Must be authenticated. The UID in the document must match their Auth UID.
+    // Length Limit: The problem description is restricted to a maximum of 3000 characters to prevent spam/abuse.
+    match /custom_problems/{problemId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null 
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.description is string
+                    && request.resource.data.description.size() > 0
+                    && request.resource.data.description.size() <= 3000;
+      allow update, delete: if false;
+    }
+  }
+}

@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
+import { db, auth } from "../../../lib/firebase";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+
+import EmptyState from "../../components/EmptyState";
 
 export default function CertificatePage() {
   const params = useParams();
@@ -19,18 +21,37 @@ export default function CertificatePage() {
 
     const fetchUser = async () => {
       try {
-        const docRef = doc(db, "user_progress", userId);
-        const docSnap = await getDoc(docRef);
+        const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+          if (currentUser?.isAnonymous) {
+            window.location.href = "/";
+            return;
+          }
+          const progressRef = doc(db, "user_progress", userId);
+          const profileRef = doc(db, "user_profiles", userId);
+          
+          const [progressSnap, profileSnap] = await Promise.all([
+          getDoc(progressRef),
+          getDoc(profileRef)
+        ]);
         
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        } else {
-          setError("Certificate not found. This user does not exist.");
-        }
+          if (progressSnap.exists()) {
+            const progressData = progressSnap.data();
+            const profileData = profileSnap.exists() ? profileSnap.data() : (progressData.roadmap || null);
+            setUserData({
+              ...progressData,
+              roadmap: profileData
+            });
+          } else {
+            setError("empty_cert_desc");
+          }
+          setLoading(false);
+        });
+        
+        // Cleanup listener on unmount
+        return () => unsubscribe();
       } catch (err) {
         console.error("Error fetching certificate:", err);
-        setError("Failed to load certificate data.");
-      } finally {
+        setError("empty_cert_desc");
         setLoading(false);
       }
     };
@@ -40,7 +61,7 @@ export default function CertificatePage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
+      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-base)' }}>
         <h2 style={{ color: 'var(--text-secondary)' }}>Verifying Certificate... ⏳</h2>
       </div>
     );
@@ -48,9 +69,17 @@ export default function CertificatePage() {
 
   if (error || !userData) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
-        <h2 style={{ color: 'var(--accent-orange)' }}>{error || "Invalid Certificate"}</h2>
-        <Link href="/" style={{ marginTop: '16px', color: 'var(--accent-blue)' }}>Return Home</Link>
+      <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-base)' }}>
+        <EmptyState 
+          icon="📜" 
+          title="empty_cert_title" 
+          description={error || "empty_cert_desc"} 
+          actionButton={
+            <Link href="/" className="start-btn" style={{ textDecoration: 'none' }}>
+              Return Home
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -62,18 +91,18 @@ export default function CertificatePage() {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
+      minHeight: '100dvh', 
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
       justifyContent: 'center', 
-      background: 'var(--bg-primary)',
+      background: 'var(--bg-base)',
       padding: '24px'
     }}>
       
       <div style={{
-        background: 'var(--bg-secondary)',
-        border: '8px solid var(--accent-orange)',
+        background: 'var(--bg-surface)',
+        border: '8px solid var(--accent)',
         borderRadius: '16px',
         padding: '60px',
         maxWidth: '800px',
@@ -84,8 +113,8 @@ export default function CertificatePage() {
         overflow: 'hidden'
       }}>
         {/* Decorative elements */}
-        <div style={{ position: 'absolute', top: -50, left: -50, width: 150, height: 150, background: 'var(--accent-orange-light)', borderRadius: '50%', opacity: 0.1 }}></div>
-        <div style={{ position: 'absolute', bottom: -50, right: -50, width: 150, height: 150, background: 'var(--accent-teal-light)', borderRadius: '50%', opacity: 0.1 }}></div>
+        <div style={{ position: 'absolute', top: -50, left: -50, width: 150, height: 150, background: 'var(--accent-light)', borderRadius: '50%', opacity: 0.1 }}></div>
+        <div style={{ position: 'absolute', bottom: -50, right: -50, width: 150, height: 150, background: 'var(--accent-light)', borderRadius: '50%', opacity: 0.1 }}></div>
 
         <h3 style={{ color: 'var(--text-secondary)', fontSize: '20px', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '40px' }}>
           Certificate of Completion
@@ -101,11 +130,11 @@ export default function CertificatePage() {
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginBottom: '40px' }}>
           <div>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent-teal)' }}>{totalSolved}</div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)' }}>{totalSolved}</div>
             <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Problems Solved</div>
           </div>
           <div>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent-teal)' }}>{userData.streak || 0}</div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)' }}>{userData.streak || 0}</div>
             <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>Highest Streak</div>
           </div>
         </div>
@@ -116,7 +145,7 @@ export default function CertificatePage() {
             <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>{issueDate}</div>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent-orange)' }}>Logic Coach</div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--accent)' }}>Logic Coach</div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Verified Digital Credential</div>
           </div>
         </div>
@@ -125,13 +154,13 @@ export default function CertificatePage() {
       <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>
         <button 
           onClick={() => window.print()}
-          style={{ background: 'var(--accent-teal)', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
+          style={{ background: 'var(--accent)', color: '#fff', border: 'none', padding: '12px 24px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}
         >
           🖨️ Print / Save PDF
         </button>
         <Link 
           href="/"
-          style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', padding: '12px 24px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none' }}
+          style={{ background: 'var(--bg-surface)', color: 'var(--text-primary)', border: '1px solid var(--border-light)', padding: '12px 24px', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none' }}
         >
           Return Home
         </Link>

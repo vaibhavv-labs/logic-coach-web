@@ -83,7 +83,11 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
               
               <div 
                 className="pro-timeline-card"
+                role="button"
+                tabIndex={isUnlocked ? 0 : -1}
+                aria-label={isUnlocked ? `Start topic: ${topic.title}` : `Locked topic: ${topic.title}`}
                 onClick={() => isUnlocked && onSelectTopic(topic)}
+                onKeyDown={(e) => { if (isUnlocked && (e.key === 'Enter' || e.key === ' ')) onSelectTopic(topic); }}
               >
                 <div className="pro-timeline-header">
                   <h3 className="pro-timeline-title">{topic.title}</h3>

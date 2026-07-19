@@ -40,7 +40,7 @@ export default function StringVisualizer({ state }) {
       <div className="array-row">
         {chars.map((char, idx) => (
           <div key={idx} className="array-cell-container">
-            {pointers[idx] && <div style={{ fontSize: '12px', color: 'var(--accent-orange)' }}>↓ {pointers[idx]}</div>}
+            {pointers[idx] && <div style={{ fontSize: '12px', color: 'var(--accent)' }}>↓ {pointers[idx]}</div>}
             <div className={`array-cell ${activeIndices.includes(idx) ? "active" : ""}`}>
               {char}
             </div>

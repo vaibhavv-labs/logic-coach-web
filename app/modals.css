@@ -2,7 +2,9 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(11, 14, 20, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +12,9 @@
 }
 
 .modal-content {
-  background: var(--bg-secondary);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 32px;
   border-radius: var(--radius-xl);
   width: 90%;
@@ -19,7 +23,13 @@
   overflow-y: auto;
   position: relative;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-light);
+  border: 1px solid var(--glass-border);
+  animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPopIn {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .modal-close {
@@ -31,6 +41,11 @@
   font-size: 24px;
   cursor: pointer;
   color: var(--text-muted);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
@@ -125,7 +140,7 @@
 .auth-switch button {
   background: none;
   border: none;
-  color: var(--accent-teal);
+  color: var(--accent);
   font-weight: 600;
   cursor: pointer;
   font-size: 14px;
@@ -160,7 +175,7 @@
 
 .btn-secondary {
   padding: 10px 20px;
-  background: var(--bg-subtle);
+  background: var(--bg-surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -169,7 +184,7 @@
 
 .btn-primary {
   padding: 10px 20px;
-  background: var(--accent-teal);
+  background: var(--accent);
   color: white;
   border: none;
   border-radius: var(--radius-md);
@@ -191,7 +206,7 @@
 
 .stat-card {
   flex: 1;
-  background: var(--bg-subtle);
+  background: var(--bg-surface);
   padding: 16px;
   border-radius: var(--radius-md);
   text-align: center;
@@ -232,7 +247,7 @@
 
 .progress-bar-fill {
   height: 100%;
-  background: var(--accent-teal);
+  background: var(--accent);
   border-radius: 4px;
   transition: width 0.3s ease;
 }

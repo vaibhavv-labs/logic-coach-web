@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { db } from '../../lib/firebase';
 import { doc, updateDoc, setDoc, getDoc } from 'firebase/firestore';
+import toast from 'react-hot-toast';
+import { t } from '../data/translations';
 
 export default function OnboardingScreen({ user, onComplete }) {
   const [step, setStep] = useState(1);
@@ -34,10 +36,11 @@ export default function OnboardingScreen({ user, onComplete }) {
       } else {
         await setDoc(docRef, { roadmap: roadmapData, onboardingCompleted: true, totalAttempted: 0, streak: 0 });
       }
+      toast.success(t("toast_prefs_saved", "English"));
       onComplete(roadmapData);
     } catch (error) {
       console.error("Error saving onboarding data", error);
-      alert("Failed to save your preferences. Please try again.");
+      toast.error(t("toast_prefs_failed", "English"));
     } finally {
       setLoading(false);
     }
@@ -51,7 +54,7 @@ export default function OnboardingScreen({ user, onComplete }) {
         return (
           <div className="onboarding-fade-in" style={{ textAlign: 'center' }}>
             <h1 style={{ fontSize: '36px', marginBottom: '16px' }}>Welcome {displayName},</h1>
-            <h2 style={{ fontSize: '24px', color: 'var(--accent-orange)' }}>Chef here!</h2>
+            <h2 style={{ fontSize: '24px', color: 'var(--accent)' }}>Chef here!</h2>
             <p style={{ marginTop: '24px', fontSize: '18px', color: 'var(--text-secondary)' }}>
               Let&apos;s get to know you so we can personalize your learning journey.
             </p>
@@ -69,7 +72,7 @@ export default function OnboardingScreen({ user, onComplete }) {
               value={username} 
               onChange={(e) => setUsername(e.target.value)} 
               placeholder="Enter your specific username..." 
-              style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontSize: '18px', marginBottom: '32px' }}
+              style={{ width: '100%', maxWidth: '400px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-base)', color: 'var(--text-primary)', fontSize: '18px', marginBottom: '32px' }}
               autoFocus
             />
             <div className="onboarding-actions" style={{ justifyContent: 'center' }}>

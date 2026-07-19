@@ -572,10 +572,10 @@ export default function Home() {
 
     return (
       <div className="problem-visualizer-wrapper" style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ padding: '8px 16px', background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ color: 'var(--accent-blue)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
+        <div style={{ padding: '8px 16px', background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)', fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: 'var(--accent)' }}>⚡</span> Visual Debugger: {activeDsaTopic.title}
         </div>
-        <div style={{ padding: '16px', background: 'var(--bg-card)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ padding: '16px', background: 'var(--bg-surface-raised)', minHeight: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {visualizerContent}
         </div>
       </div>
@@ -644,18 +644,18 @@ export default function Home() {
               <button 
                 className={`action-btn ${viewMode === 'logic' ? 'active' : ''}`} 
                 onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); }}
-                style={{ flex: 1, padding: '8px', background: viewMode === 'logic' ? 'var(--accent-blue)' : 'var(--bg-card)' }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'logic' ? 'var(--accent)' : 'var(--bg-surface-raised)' }}
               >Logic</button>
               <button 
                 className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
                 onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); }}
-                style={{ flex: 1, padding: '8px', background: viewMode === 'dsa' ? 'var(--accent-orange)' : 'var(--bg-card)' }}
+                style={{ flex: 1, padding: '8px', background: viewMode === 'dsa' ? 'var(--accent)' : 'var(--bg-surface-raised)' }}
               >DSA Path</button>
             </div>
 
             <button 
               className="start-btn" 
-              style={{ width: '100%', marginBottom: '16px', background: 'var(--accent-orange)', padding: '10px' }}
+              style={{ width: '100%', marginBottom: '16px', background: 'var(--accent)', padding: '10px' }}
               onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
             >
               + Custom Problem
@@ -830,14 +830,14 @@ export default function Home() {
                       <span>{showTestPanel ? '⌄' : '⌃'}</span>
                     </div>
                     {showTestPanel && (
-                      <div className="test-panel-content" style={{ padding: '16px', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
-                        <textarea placeholder="Enter custom input here..." style={{ width: '100%', height: '80px', background: 'var(--bg-dark)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '8px' }}></textarea>
+                      <div className="test-panel-content" style={{ padding: '16px', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}>
+                        <textarea placeholder="Enter custom input here..." style={{ width: '100%', height: '80px', background: 'var(--bg-surface-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)', padding: '8px' }}></textarea>
                       </div>
                     )}
                     
                     {/* Execution Results */}
                     {(isExecuting || testResults) && (
-                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-secondary)' }}>
+                      <div className="execution-results" style={{ padding: '16px', borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                         <h4 style={{ margin: '0 0 12px 0' }}>Execution Results</h4>
                         {isExecuting ? <div style={{ color: 'var(--text-muted)' }}>Executing code on server... ⏳</div> : (
                           <div className="results-list" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -850,7 +850,7 @@ export default function Home() {
                                    <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap', marginTop: '8px' }}>{tr.error}</div>
                                  ) : (
                                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
-                                     Your Output: <br/><pre style={{ background: 'var(--bg-dark)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
+                                     Your Output: <br/><pre style={{ background: 'var(--bg-surface-raised)', padding: '4px', marginTop: '4px', color: 'var(--text-primary)' }}>{tr.actualOutput || "(No output)"}</pre>
                                    </div>
                                  )}
                                </div>

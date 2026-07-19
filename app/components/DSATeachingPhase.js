@@ -2,24 +2,28 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import ArrayVisualizer from "./visualizers/ArrayVisualizer";
-import StackVisualizer from "./visualizers/StackVisualizer";
-import QueueVisualizer from "./visualizers/QueueVisualizer";
-import LinkedListVisualizer from "./visualizers/LinkedListVisualizer";
-import TreeVisualizer from "./visualizers/TreeVisualizer";
-import BarsVisualizer from "./visualizers/BarsVisualizer";
-import GraphVisualizer from "./visualizers/GraphVisualizer";
-import StringVisualizer from "./visualizers/StringVisualizer";
-import RecursionVisualizer from "./visualizers/RecursionVisualizer";
-import DPVisualizer from "./visualizers/DPVisualizer";
-import SearchVisualizer from "./visualizers/SearchVisualizer";
-import SortingVisualizer from "./visualizers/SortingVisualizer";
-import HeapVisualizer from "./visualizers/HeapVisualizer";
-import HashtableVisualizer from "./visualizers/HashtableVisualizer";
-import TrieVisualizer from "./visualizers/TrieVisualizer";
+import dynamic from 'next/dynamic';
+import LoadingSpinner from './LoadingSpinner';
+
+const ArrayVisualizer = dynamic(() => import('./visualizers/ArrayVisualizer'), { loading: () => <LoadingSpinner /> });
+const StackVisualizer = dynamic(() => import('./visualizers/StackVisualizer'), { loading: () => <LoadingSpinner /> });
+const QueueVisualizer = dynamic(() => import('./visualizers/QueueVisualizer'), { loading: () => <LoadingSpinner /> });
+const LinkedListVisualizer = dynamic(() => import('./visualizers/LinkedListVisualizer'), { loading: () => <LoadingSpinner /> });
+const TreeVisualizer = dynamic(() => import('./visualizers/TreeVisualizer'), { loading: () => <LoadingSpinner /> });
+const BarsVisualizer = dynamic(() => import('./visualizers/BarsVisualizer'), { loading: () => <LoadingSpinner /> });
+const GraphVisualizer = dynamic(() => import('./visualizers/GraphVisualizer'), { loading: () => <LoadingSpinner /> });
+const StringVisualizer = dynamic(() => import('./visualizers/StringVisualizer'), { loading: () => <LoadingSpinner /> });
+const RecursionVisualizer = dynamic(() => import('./visualizers/RecursionVisualizer'), { loading: () => <LoadingSpinner /> });
+const DPVisualizer = dynamic(() => import('./visualizers/DPVisualizer'), { loading: () => <LoadingSpinner /> });
+const SearchVisualizer = dynamic(() => import('./visualizers/SearchVisualizer'), { loading: () => <LoadingSpinner /> });
+const SortingVisualizer = dynamic(() => import('./visualizers/SortingVisualizer'), { loading: () => <LoadingSpinner /> });
+const HeapVisualizer = dynamic(() => import('./visualizers/HeapVisualizer'), { loading: () => <LoadingSpinner /> });
+const HashtableVisualizer = dynamic(() => import('./visualizers/HashtableVisualizer'), { loading: () => <LoadingSpinner /> });
+const TrieVisualizer = dynamic(() => import('./visualizers/TrieVisualizer'), { loading: () => <LoadingSpinner /> });
 import { t } from "../data/translations";
 import VoiceChat from "./VoiceChat";
 import PracticeCompilerPanel from "./PracticeCompilerPanel";
+import { auth } from "../../lib/firebase";
 
 export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, onProgressUpdate, language = "English", progLanguage = "Python", onLanguageChange, onBack }) {
   const [currentStep, setCurrentStep] = useState(initialStep);
@@ -104,9 +108,13 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
     setChatHistory(updatedHistory);
 
     try {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const response = await fetch("/api/dsa-teach", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           messages: updatedHistory.map(m => ({ role: m.role === "coach" ? "model" : "user", content: m.content })),
           concept: stepData.text,
@@ -124,17 +132,14 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
       }
 
       let cleanReply = data.reply;
-      const tagRegex = /\[STATE:([^\]]+)\]/g;
-      const tags = [...cleanReply.matchAll(tagRegex)];
-      if (tags.length > 0) {
-        setAiVisualState(tags[tags.length - 1][1]);
+      
+      if (data.state) {
+        setAiVisualState(data.state);
       }
-      cleanReply = cleanReply.replace(tagRegex, "").trim();
 
-      if (cleanReply.includes("[UNDERSTOOD]")) {
-        const finalReply = cleanReply.replace("[UNDERSTOOD]", "").trim();
-        setChatHistory(prev => [...prev, { role: "coach", content: finalReply }]);
-        setLatestAiMessage(finalReply);
+      if (data.understood) {
+        setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
+        setLatestAiMessage(cleanReply);
         if (fromVoice) setIsAiSpeaking(true);
 
         // Add a class for celebration on the container or UI
@@ -204,7 +209,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               className="action-btn" 
               onClick={onBack} 
               title="Back to Roadmap"
-              style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+              style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-surface-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
             >
               ←
             </button>
@@ -284,7 +289,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
                   {msg.role === "error" && msg.retryMessage && (
                     <button 
                       onClick={() => handleSend(msg.retryMessage)}
-                      style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                      style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: 'var(--error, #f43f5e)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
                     >
                       ↻ Try Again
                     </button>
@@ -306,7 +311,8 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               <button 
                 className="action-btn" 
                 onClick={handleSkip}
-                style={{ background: '#fef2f2', color: '#dc2626', borderColor: '#fca5a5' }}
+                aria-label={t("skip_step", language)}
+                style={{ background: 'var(--error-light)', color: 'var(--error)', borderColor: 'var(--error)' }}
               >
                 {t("skip_step", language)}
               </button>
@@ -315,13 +321,13 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
 
           <div className="chat-bottom">
             <div className="quick-actions">
-              <button className="action-btn" onClick={() => handleSend("Explain simpler please")}>
+              <button className="action-btn" onClick={() => handleSend("Explain simpler please")} aria-label="Explain simpler">
                 🧸 Explain simpler
               </button>
-              <button className="action-btn" onClick={() => handleSend("I am completely stuck")}>
+              <button className="action-btn" onClick={() => handleSend("I am completely stuck")} aria-label="I'm stuck">
                 😵 I'm stuck
               </button>
-              <button className="action-btn" onClick={() => handleSend("Is my answer correct?")}>
+              <button className="action-btn" onClick={() => handleSend("Is my answer correct?")} aria-label="Check my answer">
                 ✅ Check my answer
               </button>
             </div>
@@ -341,7 +347,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
                 aiMessage={latestAiMessage}
                 onAiSpeechEnd={() => setIsAiSpeaking(false)}
               />
-              <button className="send-btn" onClick={() => handleSend(null)} disabled={!inputText.trim() || isLoading}>➤</button>
+              <button className="send-btn" onClick={() => handleSend(null)} disabled={!inputText.trim() || isLoading} aria-label="Send message">➤</button>
             </div>
           </div>
         </div>

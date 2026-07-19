@@ -39,7 +39,7 @@ export default function RecursionVisualizer({ state }) {
     <div className="visualizer-container stack-visualizer" style={{ overflowX: 'auto', padding: '10px' }}>
       <div className="stack-container" style={{ width: '200px' }}>
         {frames.map((frame, idx) => (
-          <div key={idx} className="stack-item animate-in" style={{ background: state === 'base' && idx === frames.length-1 ? '#22c55e' : 'var(--accent-orange)' }}>
+          <div key={idx} className="stack-item animate-in" style={{ background: state === 'base' && idx === frames.length-1 ? 'var(--success)' : 'var(--accent)' }}>
             {frame}
           </div>
         ))}

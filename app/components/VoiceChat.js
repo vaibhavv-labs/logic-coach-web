@@ -99,6 +99,7 @@ export default function VoiceChat({ onTranscript, isAiSpeaking, aiMessage, onAiS
       className={`mic-btn ${isRecording ? 'recording' : ''}`}
       onClick={toggleRecording}
       title={isRecording ? "Stop Listening" : "Speak to Tutor"}
+      aria-label="Toggle voice chat"
     >
       {isRecording ? (
         <div className="mic-waveform">

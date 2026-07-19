@@ -44,7 +44,7 @@ export default function HashtableVisualizer({ state }) {
       {buckets.map((chain, bIdx) => (
         <div key={bIdx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Bucket Index */}
-          <div className={`array-cell ${activeBucket === bIdx && activeNode === null ? "active" : ""}`} style={{ background: 'var(--bg-secondary)', border: '2px solid var(--border)', fontWeight: 'bold' }}>
+          <div className={`array-cell ${activeBucket === bIdx && activeNode === null ? "active" : ""}`} style={{ background: 'var(--bg-surface)', border: '2px solid var(--border)', fontWeight: 'bold' }}>
             {bIdx}
           </div>
           

@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { enforceRateLimit } from "../../../lib/rateLimit";
 
 const SYSTEM_PROMPT = `You are 'Logic Coach' — a Socratic programming tutor for absolute beginners. NEVER give direct, complete code solutions, no matter how the student asks or insists — politely decline and redirect to guided thinking instead. Ask questions to help students discover logic themselves rather than explaining upfront. Break problems into small steps through questions. Ask students to justify their answers. If stuck after 2-3 questions, offer a real-world analogy (not code). Only after the student has worked out the correct logic themselves, help them write the code, guiding them to write it themselves. If asked to simplify, re-explain the SAME concept using everyday objects and simpler language — do not give code or change topic. Default to Hinglish unless the student writes in pure English or another language, then match their language. Keep responses short (2-4 sentences), ask ONE question at a time, friendly and patient tone, never lecture about discipline. Plain conversational text only, no markdown or bullet lists.`;
 
@@ -14,11 +15,58 @@ const INTERVIEWER_PROMPT = `You are an elite Senior Engineer conducting a strict
 export async function POST(request) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
+    const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
-    if (!apiKey) {
+    if (!apiKey || !fbApiKey) {
       return NextResponse.json(
-        { error: "API key not configured on the server." },
+        { error: "API keys not configured on the server." },
         { status: 500 }
+      );
+    }
+
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Missing or invalid authorization token" }, { status: 401 });
+    }
+    const token = authHeader.split("Bearer ")[1];
+
+    // Verify token using Firebase REST API
+    const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: token })
+    });
+    
+    if (!verifyRes.ok) {
+      return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    }
+    
+    const verifyData = await verifyRes.json();
+    const userInfo = verifyData.users?.[0];
+    const uid = userInfo?.localId;
+    
+    // Check if user is anonymous (providerUserInfo is empty)
+    if (!userInfo || !userInfo.providerUserInfo || userInfo.providerUserInfo.length === 0) {
+      return NextResponse.json({ error: "Guests are not allowed to access this feature." }, { status: 403 });
+    }
+
+    // Rate Limiting
+    const rateLimit = await enforceRateLimit('chat', request, uid);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { 
+          error: "Rate limit exceeded",
+          retryAfter: Math.ceil((rateLimit.reset - Date.now()) / 1000)
+        },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': Math.ceil((rateLimit.reset - Date.now()) / 1000).toString(),
+            'X-RateLimit-Limit': rateLimit.limit.toString(),
+            'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+            'X-RateLimit-Reset': rateLimit.reset.toString()
+          }
+        }
       );
     }
 
@@ -55,7 +103,8 @@ export async function POST(request) {
       (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
       (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
       (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
-      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag anywhere in your message like [STATE:state_name] to animate it. Valid states are: ${dsaVisuals}` : "");
+      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag by setting the "state" field in your JSON response. Valid states are: ${dsaVisuals}` : "") +
+      `\n\nCRITICAL RULE: You MUST return your response as a valid JSON object wrapped in a markdown code block exactly like this:\n\`\`\`json\n{\n  "reply": "Your conversational text here",\n  "state": "state_name" (or null if no visualizer change is needed)\n}\n\`\`\`\nDo NOT output any other text outside this JSON block.`;
 
     const modelConfig = { model: modelName };
     if (!isLegacyPro) {
@@ -101,9 +150,25 @@ export async function POST(request) {
     }
 
     const response = result.response;
-    const text = response.text();
+    const rawText = response.text();
+    
+    let parsedJSON;
+    try {
+      // Robust JSON extraction using regex
+      const jsonMatch = rawText.match(/```json\s*([\s\S]*?)\s*```/) || rawText.match(/(\{[\s\S]*?\})/);
+      parsedJSON = JSON.parse(jsonMatch ? jsonMatch[1] : rawText);
+    } catch (e) {
+      // Graceful fallback if the AI hallucinates invalid JSON
+      parsedJSON = {
+        reply: rawText.replace(/```json/g, '').replace(/```/g, '').trim(),
+        state: null
+      };
+    }
 
-    return NextResponse.json({ reply: text });
+    return NextResponse.json({ 
+      reply: parsedJSON.reply || "", 
+      state: parsedJSON.state || null 
+    });
   } catch (error) {
     console.error("Gemini API error:", error);
     
