@@ -967,6 +967,19 @@ export default function Home() {
             <SidebarButton icon="👤" label="Profile" id="profile" />
             <SidebarButton icon="⚙️" label="Settings" id="settings" />
             <SidebarButton icon="💬" label="Feedback" id="feedback" />
+            
+            <div style={{ marginTop: '32px', padding: '0 8px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '12px' }}>
+                <a href="/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Privacy</a>
+                <a href="/terms" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>Terms</a>
+                <a href="https://github.com/vaibhavv-labs" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>GitHub</a>
+                <a href="https://linkedin.com/in/vaibhav-bhoyate" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.2s' }}>LinkedIn</a>
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                © {new Date().getFullYear()} Logic Coach.<br/>
+                Created by Vaibhav Bhoyate
+              </div>
+            </div>
           </div>
 
           <div className="sidebar-user-bottom" style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid var(--border-light)', background: 'var(--bg-surface)' }}>
