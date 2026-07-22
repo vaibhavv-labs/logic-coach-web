@@ -121,7 +121,7 @@ Contributions are what make the open source community such an amazing place to l
 **Vaibhav Bhoyate** - Lead Developer & Creator
 
 - **GitHub:** [@vaibhavv-labs](https://github.com/vaibhavv-labs)
-- **LinkedIn:** [Vaibhav Bhoyate](https://linkedin.com/in/vaibhav-bhoyate)
+- **LinkedIn:** [Vaibhav Bhoyate](https://www.linkedin.com/in/vaibhav-bhoyate-6328802a9/)
 - **WhatsApp:** [Chat with me](https://wa.me/918830269849) 
 
 ## 📜 License
