@@ -122,7 +122,7 @@ Contributions are what make the open source community such an amazing place to l
 
 - **GitHub:** [@vaibhavv-labs](https://github.com/vaibhavv-labs)
 - **LinkedIn:** [Vaibhav Bhoyate](https://linkedin.com/in/vaibhav-bhoyate)
-- **WhatsApp:** [Chat with me](https://wa.me/919999999999) *(Update this placeholder number!)*
+- **WhatsApp:** [Chat with me](https://wa.me/918830269849) 
 
 ## 📜 License
 
