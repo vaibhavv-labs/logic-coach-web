@@ -7,7 +7,7 @@ import { t } from '../data/translations';
 export default function OnboardingScreen({ user, onComplete }) {
   const [step, setStep] = useState(1);
   const [role, setRole] = useState("");
-  const [interest, setInterest] = useState("");
+  const [interest, setInterest] = useState([]);
   const [language, setLanguage] = useState("");
   const [goal, setGoal] = useState("");
   const [username, setUsername] = useState("");
@@ -115,13 +115,20 @@ export default function OnboardingScreen({ user, onComplete }) {
       case 5:
         return (
           <div className="onboarding-fade-in">
-            <h2 style={{ fontSize: '28px', marginBottom: '24px', textAlign: 'center' }}>What are you interested in?</h2>
+            <h2 style={{ fontSize: '28px', marginBottom: '8px', textAlign: 'center' }}>What are you interested in?</h2>
+            <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>(Select all that apply)</p>
             <div className="onboarding-options grid-cols-2">
               {['Programming Languages', 'Data Structures & Algorithms', 'Web Development', 'Data Analytics', 'Competitive Programming'].map(opt => (
                 <button 
                   key={opt}
-                  className={`onboarding-option-btn ${interest === opt ? 'selected' : ''}`}
-                  onClick={() => setInterest(opt)}
+                  className={`onboarding-option-btn ${interest.includes(opt) ? 'selected' : ''}`}
+                  onClick={() => {
+                    if (interest.includes(opt)) {
+                      setInterest(interest.filter(i => i !== opt));
+                    } else {
+                      setInterest([...interest, opt]);
+                    }
+                  }}
                 >
                   {opt}
                 </button>
@@ -129,7 +136,7 @@ export default function OnboardingScreen({ user, onComplete }) {
             </div>
             <div className="onboarding-actions">
               <button className="login-btn-ghost" onClick={handlePrev}>Back</button>
-              <button className="start-btn-small" disabled={!interest} onClick={handleNext}>Next</button>
+              <button className="start-btn-small" disabled={interest.length === 0} onClick={handleNext}>Next</button>
             </div>
           </div>
         );
