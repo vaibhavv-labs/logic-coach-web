@@ -1,5 +1,3 @@
-<div align="center">
-  <img src="https://raw.githubusercontent.com/vaibhavv-labs/logic-coach-web/main/public/favicon.ico" alt="Logo" width="80" height="80">
 
   <h3 align="center">Logic Coach 🧠</h3>
 
