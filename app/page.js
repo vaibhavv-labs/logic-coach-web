@@ -268,6 +268,16 @@ export default function Home() {
     return () => unsubscribe();
   }, [userStats.totalAttempted]);
 
+  const notifyTelegramLogin = (uid, email, displayName, roadmapData) => {
+    if (!uid || sessionStorage.getItem(`telegram_notified_${uid}`)) return;
+    sessionStorage.setItem(`telegram_notified_${uid}`, 'true');
+    fetch('/api/telegram-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid, email, displayName, roadmap: roadmapData })
+    }).catch(e => console.error(e));
+  };
+
   const loadUserProgress = async (uid) => {
     try {
       const progressRef = doc(db, "user_progress", uid);
@@ -297,6 +307,9 @@ export default function Home() {
             setOnboardingCompleted(false);
           } else {
             setOnboardingCompleted(data.onboardingCompleted);
+            if (data.onboardingCompleted) {
+              notifyTelegramLogin(uid, auth.currentUser?.email, auth.currentUser?.displayName, profileData);
+            }
           }
           setUserRoadmap(profileData);
         } else {
@@ -761,6 +774,7 @@ export default function Home() {
         onComplete={(roadmapData) => {
           setOnboardingCompleted(true);
           setUserRoadmap(roadmapData);
+          notifyTelegramLogin(user.uid, user.email, user.displayName, roadmapData);
         }} 
       />
     );
