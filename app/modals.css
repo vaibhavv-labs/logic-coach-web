@@ -69,8 +69,9 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: white;
-  border: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 16px;
   font-weight: 500;
@@ -111,16 +112,22 @@
 
 .auth-form input {
   padding: 12px;
-  border: 1px solid var(--border-light);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   font-size: 15px;
   font-family: var(--font);
 }
 
+.auth-form input::placeholder {
+  color: var(--text-muted);
+}
+
 .email-btn {
   padding: 12px;
   background: var(--text-primary);
-  color: white;
+  color: var(--bg-base);
   border: none;
   border-radius: var(--radius-md);
   font-size: 16px;
