@@ -4,7 +4,7 @@
   <p align="center">
     An intelligent, gamified platform to master Data Structures & Algorithms and Programming Languages with AI-driven insights.
     <br />
-    <a href="https://logic-coach-web.vercel.app"><strong>Explore the platform »</strong></a>
+    <a href="https://logic-coach.vercel.app/"><strong>Explore the platform »</strong></a>
     <br />
     <br />
     <a href="https://github.com/vaibhavv-labs/logic-coach-web/issues">Report Bug</a>
