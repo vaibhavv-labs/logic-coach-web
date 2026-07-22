@@ -23,7 +23,7 @@ export default function Footer() {
           <Link href="/privacy" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>Privacy</Link>
           <Link href="/terms" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>Terms</Link>
           <a href="https://github.com/vaibhavv-labs" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>GitHub</a>
-          <a href="https://linkedin.com/in/vaibhav-bhoyate" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>LinkedIn</a>
+          <a href="https://linkedin.com/in/vaibhav-bhoyate-6328802a9/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>LinkedIn</a>
         </div>
         
         <div style={{ color: 'var(--text-muted)', fontSize: '13px', textAlign: 'center', letterSpacing: '0.5px' }}>
