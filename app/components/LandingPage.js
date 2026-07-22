@@ -1,8 +1,10 @@
 import React from 'react';
 
+import Footer from './Footer';
+
 export default function LandingPage({ user, onStart, onLogin }) {
   return (
-    <div className="landing-layout">
+    <div className="landing-layout" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Background Floating Symbols */}
       <div className="splash-symbol" style={{ left: '10%', animationDuration: '15s', fontSize: '32px' }}>{`{ }`}</div>
       <div className="splash-symbol" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s', fontSize: '48px' }}>∑</div>
@@ -33,7 +35,7 @@ export default function LandingPage({ user, onStart, onLogin }) {
         </div>
       </nav>
       
-      <div className="landing-container">
+      <div className="landing-container" style={{ flex: 1 }}>
         <div className="landing-icon-wrapper">
           <div className="landing-icon-glow"></div>
           <div className="landing-icon">🧠</div>
@@ -47,6 +49,8 @@ export default function LandingPage({ user, onStart, onLogin }) {
           {user ? "Resume Learning" : "Start Learning for Free"}
         </button>
       </div>
+
+      <Footer />
     </div>
   );
 }
