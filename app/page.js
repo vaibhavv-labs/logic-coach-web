@@ -13,7 +13,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import EmptyState from './components/EmptyState';
 
 const AuthModal = dynamic(() => import('./components/AuthModal'), { loading: () => <LoadingSpinner /> });
-const GuestUpgradeModal = dynamic(() => import('./components/GuestUpgradeModal'), { loading: () => <LoadingSpinner /> });
+
 const LeaderboardModal = dynamic(() => import('./components/LeaderboardModal'), { loading: () => <LoadingSpinner /> });
 const CustomProblemModal = dynamic(() => import('./components/CustomProblemModal'), { loading: () => <LoadingSpinner /> });
 const Footer = dynamic(() => import('./components/Footer'));
@@ -85,7 +85,7 @@ export default function Home() {
   // Auth & DB states
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showGuestUpgradeModal, setShowGuestUpgradeModal] = useState(false);
+
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
@@ -117,7 +117,6 @@ export default function Home() {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         setShowAuthModal(false);
-        setShowGuestUpgradeModal(false);
         setShowLeaderboard(false);
         setShowCustomModal(false);
         setShowTestPanel(false);
@@ -255,9 +254,6 @@ export default function Home() {
       setUser(u);
       if (u) {
         setShowLanding(false);
-        if (u.isAnonymous && userStats.totalAttempted >= 3) {
-          setShowGuestUpgradeModal(true);
-        }
         await loadUserProgress(u.uid);
       } else {
         setShowLanding(true);
@@ -447,9 +443,6 @@ export default function Home() {
     if (user && !solvedProblems.has(problem.id)) {
       const newTotal = userStats.totalAttempted + 1;
       updateUserStats(user.uid, { totalAttempted: newTotal });
-      if (user.isAnonymous && newTotal === 3) {
-        setShowGuestUpgradeModal(true);
-      }
     }
   };
 
@@ -907,9 +900,7 @@ export default function Home() {
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={() => setShowAuthModal(false)} />
       )}
-      {showGuestUpgradeModal && (
-        <GuestUpgradeModal onClose={() => setShowGuestUpgradeModal(false)} onSuccess={() => setShowGuestUpgradeModal(false)} />
-      )}
+
       {showLeaderboard && (
         <LeaderboardModal onClose={() => setShowLeaderboard(false)} />
       )}
