@@ -1,51 +1,100 @@
-# Logic Coach 🧠
+<div align="center">
+  <img src="https://raw.githubusercontent.com/vaibhavv-labs/logic-coach-web/main/public/favicon.ico" alt="Logo" width="80" height="80">
 
-Logic Coach is an intelligent, interactive, and gamified web application designed to help users master Data Structures & Algorithms (DSA), competitive programming, and multiple programming languages. Powered by advanced AI (Gemini 2.0 Flash) and Firebase, it offers a personalized learning journey with real-time feedback, interactive coding sessions, and detailed progress tracking.
+  <h3 align="center">Logic Coach 🧠</h3>
 
-## 🚀 Features
+  <p align="center">
+    An intelligent, gamified platform to master Data Structures & Algorithms and Programming Languages with AI-driven insights.
+    <br />
+    <a href="https://logic-coach-web.vercel.app"><strong>Explore the platform »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/vaibhavv-labs/logic-coach-web/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/vaibhavv-labs/logic-coach-web/issues">Request Feature</a>
+  </p>
+</div>
 
-- **Personalized Onboarding:** Tailored learning paths based on user roles, interests (e.g., Web Development, DSA), language preferences, and goals.
-- **AI-Powered Code Analysis:** Seamlessly integrated with Gemini API to provide real-time Big O complexity analysis, debugging hints, and step-by-step problem-solving guidance.
-- **Integrated Code Editor:** Write, run, and test code directly in the browser across multiple languages (Python, JavaScript, C++, Java, Rust, Go) using the Piston Execution API.
-- **Interactive Dashboards:** Track your learning streak, problem-solving stats, and GitHub-style activity heatmaps.
-- **Global Leaderboard:** Compete with peers by tracking total problems solved in a real-time leaderboard.
-- **Dark Mode Support:** A sleek, fully responsive dark theme interface accessible on both desktop and mobile devices.
-- **Secure Authentication:** User data is securely managed through Firebase Authentication (Google Sign-In, Email/Password, and Guest accounts).
-- **Telegram Notifications:** Admins get real-time pings on Telegram whenever a user signs up or logs into the platform.
+<!-- BADGES -->
+<div align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+</div>
 
-## 🛠️ Tech Stack
+<br />
 
-- **Frontend Framework:** [Next.js](https://nextjs.org/) (React)
-- **Styling:** Vanilla CSS (CSS Variables, Flexbox, CSS Grid)
-- **Database & Auth:** [Firebase](https://firebase.google.com/) (Firestore, Firebase Authentication)
-- **AI Model:** Google [Gemini 2.0 Flash](https://aistudio.google.com/) (via @google/genai)
-- **Code Execution Engine:** [Piston API](https://github.com/engineer-man/piston)
-- **Deployment:** [Vercel](https://vercel.com/)
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#key-features">Key Features</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#environment-variables">Environment Variables</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
 
-## 📦 Getting Started
+## 💡 About The Project
 
-### 1. Clone the repository
+Logic Coach is a next-generation learning platform built to help developers, students, and professionals master competitive programming, Data Structures & Algorithms (DSA), and core programming languages.
 
-```bash
-git clone https://github.com/vaibhavv-labs/logic-coach-web.git
-cd logic-coach-web
-```
+By integrating the powerful **Google Gemini 2.0 Flash AI**, the platform offers personalized guidance, real-time code analysis, and Big O complexity breakdowns as if you were pair-programming with an expert engineer. Users can write, test, and execute code directly in their browser using an integrated IDE powered by the **Piston Code Execution API**.
 
-### 2. Install dependencies
+## ✨ Key Features
 
-```bash
-npm install
-```
+- **🎯 Personalized Onboarding:** Tailored learning paths adapted to your specific role, interests, and goals.
+- **🤖 AI-Powered Mentorship:** Get real-time hints, debugging assistance, and step-by-step Socratic teaching from the integrated Gemini AI.
+- **💻 Integrated Web IDE:** Write and execute code instantly in Python, JavaScript, C++, Java, Rust, and Go without leaving the browser.
+- **📊 Real-Time Analytics:** Visualize your progress with GitHub-style activity heatmaps, daily streaks, and problem-solving statistics.
+- **🏆 Global Leaderboard:** Compete against other developers in real-time.
+- **🌙 Seamless Dark Mode:** A sleek, fully responsive dark theme designed for deep focus.
+- **🔒 Secure Authentication:** Multi-provider authentication (Google, Email/Password, and Guest accounts) powered by Firebase.
 
-### 3. Setup Environment Variables
+## 🚀 Getting Started
 
-Create a `.env.local` file in the root directory and add your keys:
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+Ensure you have Node.js installed on your machine.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/vaibhavv-labs/logic-coach-web.git
+   ```
+2. Navigate to the project directory
+   ```sh
+   cd logic-coach-web
+   ```
+3. Install NPM packages
+   ```sh
+   npm install
+   ```
+4. Start the development server
+   ```sh
+   npm run dev
+   ```
+
+## 🔐 Environment Variables
+
+Create a `.env.local` file in the root directory and add the following keys to connect your own Firebase and AI instances:
 
 ```env
-# Gemini AI
+# Gemini AI (Required)
 GEMINI_API_KEY=your_gemini_api_key
 
-# Firebase Client config
+# Firebase Configuration (Required)
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
@@ -59,14 +108,18 @@ TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 TELEGRAM_CHAT_ID=your_telegram_chat_id
 ```
 
-### 4. Run the development server
+## 🤝 Contributing
 
-```bash
-npm run dev
-```
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 License
+## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
