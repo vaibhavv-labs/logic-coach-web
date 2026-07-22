@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function SettingsDashboard({ language, setLanguage, theme, toggleTheme, user, onSignOut }) {
+export default function SettingsDashboard({ language, setLanguage, theme, toggleTheme, user, onSignOut, onDeleteAccount }) {
   return (
     <div style={{ padding: 'clamp(20px, 5vw, 40px)', maxWidth: '800px', margin: '0 auto', width: '100%', height: '100%', overflowY: 'auto' }}>
       <div style={{ marginBottom: '40px' }}>
@@ -81,7 +81,7 @@ export default function SettingsDashboard({ language, setLanguage, theme, toggle
               <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Permanently delete your account</div>
             </div>
             <button 
-              onClick={() => alert("Contact support to delete account.")}
+              onClick={() => onDeleteAccount && onDeleteAccount()}
               style={{ padding: '8px 16px', background: 'transparent', color: '#991b1b', border: '1px solid #991b1b', borderRadius: '8px', cursor: 'pointer' }}
             >
               Delete Account

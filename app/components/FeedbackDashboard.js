@@ -17,14 +17,38 @@ export default function FeedbackDashboard({ user }) {
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(db, "feedbacks"), {
-        uid: user?.uid || "anonymous",
-        email: user?.email || "anonymous",
-        category,
-        details,
-        status: "new",
-        createdAt: serverTimestamp()
+      // Send to Telegram via our secure API route
+      const response = await fetch('/api/telegram', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          category,
+          details,
+          userEmail: user?.email || "anonymous"
+        })
       });
+
+      if (!response.ok) {
+        throw new Error("Telegram API failed");
+      }
+
+      // Try saving to Firebase (optional backup, might fail due to security rules)
+      try {
+        await addDoc(collection(db, "feedbacks"), {
+          uid: user?.uid || "anonymous",
+          email: user?.email || "anonymous",
+          category,
+          details,
+          status: "new",
+          createdAt: serverTimestamp()
+        });
+      } catch (fbError) {
+        console.warn("Could not save to Firebase (permissions), but Telegram sent successfully.", fbError);
+      }
+
+
       toast.success("Feedback submitted successfully! Thank you.");
       setDetails("");
     } catch (error) {

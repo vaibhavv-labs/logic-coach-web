@@ -6,7 +6,7 @@ import { LANGUAGE_TOPICS } from './data/languageData';
 import { useState, useRef, useEffect } from "react";
 import * as Diff from 'diff';
 import { auth, db } from "../lib/firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut, deleteUser } from "firebase/auth";
 import { collection, query, where, getDocs, addDoc, serverTimestamp, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import dynamic from 'next/dynamic';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -161,6 +161,65 @@ export default function Home() {
     if (savedLang) setLanguage(savedLang);
   }, []);
 
+  // --- Internal State-Based Navigation History ---
+  // We completely detach from window.history to prevent any browser conflicts
+  const [internalHistory, setInternalHistory] = useState([]);
+  
+  // Track previous state to know when we've moved forward
+  const stateSignature = `${viewMode}-${activeProblem?.id || 'none'}-${activeDsaTopic?.id || 'none'}-${activeLanguageTopic?.id || 'none'}`;
+  const prevSigRef = useRef(stateSignature);
+  const prevStateObjRef = useRef({ viewMode, activeProblem, activeDsaTopic, activeLanguageTopic });
+  const isPopping = useRef(false);
+
+  useEffect(() => {
+    // Ignore intermediate transitional states from cluttering the history
+    if (fetchingProblem) return;
+
+    if (stateSignature !== prevSigRef.current) {
+      if (!isPopping.current) {
+        // Forward navigation: push the exact previous state onto the history stack
+        // Filter out identical consecutive states to prevent the "stuck back button" issue
+        setInternalHistory(prev => {
+          if (prev.length > 0) {
+            const last = prev[prev.length - 1];
+            if (last.viewMode === prevStateObjRef.current.viewMode &&
+                last.activeProblem?.id === prevStateObjRef.current.activeProblem?.id &&
+                last.activeDsaTopic?.id === prevStateObjRef.current.activeDsaTopic?.id &&
+                last.activeLanguageTopic?.id === prevStateObjRef.current.activeLanguageTopic?.id) {
+              return prev; // Do not push duplicate
+            }
+          }
+          return [...prev, prevStateObjRef.current];
+        });
+      }
+      prevSigRef.current = stateSignature;
+      prevStateObjRef.current = { viewMode, activeProblem, activeDsaTopic, activeLanguageTopic };
+      isPopping.current = false;
+    }
+  }, [stateSignature, viewMode, activeProblem, activeDsaTopic, activeLanguageTopic, fetchingProblem]);
+
+  const handleUiBack = () => {
+     if (internalHistory.length > 0) {
+         // Pop the most recent previous state
+         const prevState = internalHistory[internalHistory.length - 1];
+         setInternalHistory(stack => stack.slice(0, -1));
+         
+         // Set flag so we don't accidentally push this backwards movement onto the stack
+         isPopping.current = true;
+         
+         setViewMode(prevState.viewMode);
+         setActiveProblem(prevState.activeProblem);
+         setActiveDsaTopic(prevState.activeDsaTopic);
+         setActiveLanguageTopic(prevState.activeLanguageTopic);
+     } else {
+         isPopping.current = true;
+         setViewMode('dashboard');
+         setActiveProblem(null);
+         setActiveDsaTopic(null);
+         setActiveLanguageTopic(null);
+     }
+  };
+
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -227,7 +286,8 @@ export default function Home() {
         setUserStats({
           totalAttempted: data.totalAttempted || 0,
           streak: data.streak || 0,
-          levelCounts: data.levelCounts || {}
+          levelCounts: data.levelCounts || {},
+          solved: data.solved || []
         });
         setDsaProgress(data.dsaProgress || {});
         setLanguageProgress(data.languageProgress || {});
@@ -295,9 +355,13 @@ export default function Home() {
       if (unsolvedProblems.length > 0) {
         selectedProblem = unsolvedProblems[Math.floor(Math.random() * unsolvedProblems.length)];
       } else {
+        const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
         const response = await fetch("/api/generate-problem", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: headers,
           body: JSON.stringify({ level, dsaTopic: activeDsaTopic?.title || null, language })
         });
         
@@ -331,7 +395,14 @@ export default function Home() {
   };
 
   const setupProblem = (problem) => {
-    setActiveProblem(problem);
+    let pId = problem.id;
+    if (viewMode === 'dsa' && activeDsaTopic && !pId.startsWith(`dsa_${activeDsaTopic.id}_`)) {
+      pId = `dsa_${activeDsaTopic.id}_${pId}`;
+    } else if (viewMode === 'language' && activeLanguageTopic && !pId.startsWith(`lang_${activeLanguageTopic.id}_`)) {
+      pId = `lang_${activeLanguageTopic.id}_${pId}`;
+    }
+    
+    setActiveProblem({ ...problem, id: pId });
     setProblemFetchError(null);
     setCode(""); 
     setIsAiSpeaking(false);
@@ -589,9 +660,13 @@ export default function Home() {
         content: msg.content,
       }));
 
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           messages: apiMessages,
           problemContext: {
@@ -607,26 +682,50 @@ export default function Home() {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.error || "Failed to get response");
-      }
-
-      let replyText = data.reply;
-      if (data.state) {
-        setProblemVisualState(data.state);
+        let errorText = "Failed to get response";
+        try {
+          const errData = await response.json();
+          errorText = errData.error || errorText;
+        } catch(e) {}
+        throw new Error(errorText);
       }
 
       setMessages((prev) => ({
         ...prev,
         [activeProblem.id]: [
           ...prev[activeProblem.id],
-          { role: "coach", content: replyText },
+          { role: "coach", content: "" },
         ],
       }));
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let accumulatedText = "";
+      let displayText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulatedText += decoder.decode(value, { stream: true });
+        
+        displayText = accumulatedText;
+        const stateMatch = accumulatedText.match(/:::state=(.*?):::/);
+        if (stateMatch) {
+          setProblemVisualState(stateMatch[1]);
+          displayText = accumulatedText.replace(stateMatch[0], "").trim();
+        }
+
+        setMessages((prev) => {
+          const currentMsgs = prev[activeProblem.id] || [];
+          const updatedMsgs = [...currentMsgs];
+          updatedMsgs[updatedMsgs.length - 1] = { role: "coach", content: displayText };
+          return { ...prev, [activeProblem.id]: updatedMsgs };
+        });
+      }
+
       if (fromVoice) {
-        setLatestAiMessage(replyText);
+        setLatestAiMessage(displayText);
         setIsAiSpeaking(true);
       }
     } catch (error) {
@@ -877,15 +976,19 @@ export default function Home() {
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pro Member</div>
                 </div>
-                <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle dark/light theme" style={{ padding: '6px', background: 'transparent', border: 'none', fontSize: '16px', cursor: 'pointer', flexShrink: 0 }}>
-                  {theme === "light" ? "🌙" : "☀️"}
+                <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle dark/light theme" style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {theme === "light" ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                  )}
                 </button>
                 <button className="action-btn" onClick={async () => {
                   await signOut(auth);
                   setShowLanding(true);
                   handleNav('dashboard');
-                }} title="Sign Out" style={{ padding: '6px', background: 'transparent', border: 'none', fontSize: '16px', cursor: 'pointer', flexShrink: 0 }}>
-                  🚪
+                }} title="Sign Out" style={{ padding: '6px', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 </button>
               </div>
             ) : (
@@ -895,6 +998,14 @@ export default function Home() {
         </aside>
 
         <main className="main-content">
+          {(viewMode !== 'dashboard' || activeProblem || activeDsaTopic || activeLanguageTopic) && (
+             <div style={{ padding: '20px 20px 0 20px', maxWidth: '1200px', margin: '0 auto', width: '100%', display: 'flex' }}>
+               <button onClick={handleUiBack} className="action-btn" style={{ padding: '8px 16px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontWeight: 600 }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                  Back
+               </button>
+             </div>
+          )}
           {viewMode === 'dsa' && !activeProblem && !activeDsaTopic ? (
              <DSAPath progress={dsaProgress} userStats={userStats} roadmap={userRoadmap} userId={user?.uid} onSelectTopic={(t) => { if (requireAuth()) setActiveDsaTopic(t); }} />
           ) : viewMode === 'dsa' && activeDsaTopic && (!dsaProgress[activeDsaTopic.id] || dsaProgress[activeDsaTopic.id].level === 0) ? (
@@ -1098,6 +1209,13 @@ export default function Home() {
                 userRoadmap={userRoadmap} 
                 userStats={userStats} 
                 dsaProgress={dsaProgress} 
+                onUpdateProfile={async (updates) => {
+                  if (!user) return;
+                  const newRoadmap = { ...userRoadmap, ...updates };
+                  setUserRoadmap(newRoadmap);
+                  const { doc, setDoc } = require('firebase/firestore');
+                  await setDoc(doc(db, "user_progress", user.uid), { roadmap: newRoadmap }, { merge: true });
+                }}
               />
             ) : viewMode === 'settings' ? (
               <SettingsDashboard 
@@ -1107,6 +1225,15 @@ export default function Home() {
                 toggleTheme={toggleTheme}
                 user={user}
                 onSignOut={async () => { await signOut(auth); }}
+                onDeleteAccount={async () => {
+                  if (window.confirm("Are you sure you want to permanently delete your account? This action cannot be undone.")) {
+                    try {
+                      if (user) await deleteUser(user);
+                    } catch (e) {
+                      toast.error("Failed to delete account. Please sign out and sign back in to verify your identity before trying again.");
+                    }
+                  }
+                }}
               />
             ) : viewMode === 'leaderboard' ? (
               <LeaderboardDashboard user={user} />
@@ -1141,13 +1268,46 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="header-actions">
+                  {solvedProblems.has(activeProblem?.id) && ((viewMode === 'dsa' && activeDsaTopic) || (viewMode === 'language' && activeLanguageTopic)) && (
+                    <button 
+                      className="action-btn"
+                      onClick={() => {
+                        if (viewMode === 'dsa' && activeDsaTopic) {
+                          const currentIndex = DSA_TOPICS.findIndex(t => t.id === activeDsaTopic.id);
+                          if (currentIndex !== -1 && currentIndex < DSA_TOPICS.length - 1) {
+                            setActiveDsaTopic(DSA_TOPICS[currentIndex + 1]);
+                            setActiveProblem(null);
+                          }
+                        } else if (viewMode === 'language' && activeLanguageTopic) {
+                          const currentIndex = LANGUAGE_TOPICS.findIndex(t => t.id === activeLanguageTopic.id);
+                          if (currentIndex !== -1 && currentIndex < LANGUAGE_TOPICS.length - 1) {
+                            setActiveLanguageTopic(LANGUAGE_TOPICS[currentIndex + 1]);
+                            setActiveProblem(null);
+                          }
+                        }
+                      }}
+                      title="Jump to Next Topic"
+                      style={{ background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)' }}
+                    >
+                      Next Topic ⏭
+                    </button>
+                  )}
                   <button 
                     className="action-btn" 
-                    onClick={() => getProblemForLevel(activeLevel || 'Beginner')} 
-                    title="Next Problem"
+                    onClick={() => {
+                      if (activeProblem?.difficulty === 'Custom') {
+                        setShowCustomModal(true);
+                      } else {
+                        getProblemForLevel(activeLevel || 'Beginner');
+                      }
+                    }} 
+                    title={activeProblem?.difficulty === 'Custom' ? "New Custom Problem" : "Next Problem"}
                     style={{ background: 'var(--bg-surface-raised)', border: '1px solid var(--border)' }}
                   >
-                    Next ⏭
+                    {
+                      (activeProblem?.difficulty === 'Custom') ? (solvedProblems.has(activeProblem?.id) ? "New Custom ⏭" : "↻ Skip") : 
+                      (solvedProblems.has(activeProblem?.id) ? "Next Problem ⏭" : "↻ Skip")
+                    }
                   </button>
                   <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
                     <option value="Python">Python</option>
@@ -1172,9 +1332,19 @@ export default function Home() {
                   />
                 )}
                 {currentMessages.map((msg, idx) => (
-                  <div key={idx} className={`message ${msg.role}`}>
-                    <div className="message-avatar">{msg.role === "user" ? "👤" : "🤖"}</div>
-                    <div className="message-bubble">{msg.content}</div>
+                  <div key={idx} className={`message ${msg.role === "error" ? "error" : msg.role}`}>
+                    <div className="message-avatar">{msg.role === "user" ? "👤" : msg.role === "error" ? "⚠️" : "🤖"}</div>
+                    <div className="message-bubble">
+                      {msg.content}
+                      {msg.role === "error" && msg.retryMessage && (
+                        <button 
+                          onClick={() => handleSend(msg.retryMessage)}
+                          style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: 'var(--error, #f43f5e)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                        >
+                          ↻ Try Again
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}

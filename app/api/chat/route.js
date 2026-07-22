@@ -103,8 +103,8 @@ export async function POST(request) {
       (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
       (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
       (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
-      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag by setting the "state" field in your JSON response. Valid states are: ${dsaVisuals}` : "") +
-      `\n\nCRITICAL RULE: You MUST return your response as a valid JSON object wrapped in a markdown code block exactly like this:\n\`\`\`json\n{\n  "reply": "Your conversational text here",\n  "state": "state_name" (or null if no visualizer change is needed)\n}\n\`\`\`\nDo NOT output any other text outside this JSON block.`;
+      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag by appending :::state=state_name::: at the VERY END of your response. Valid states are: ${dsaVisuals}` : "") +
+      `\n\nCRITICAL RULE: DO NOT use JSON output. Return plain conversational text. If a visualizer state change is needed, append :::state=state_name::: at the very end of the text. If no state change is needed, do not include the tag.`;
 
     const modelConfig = { model: modelName };
     if (!isLegacyPro) {
@@ -140,34 +140,43 @@ export async function POST(request) {
     const lastMessage = messages[messages.length - 1];
     
     let result;
-    try {
-      result = await chat.sendMessage(lastMessage.content);
-    } catch (err) {
-      if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
-        return NextResponse.json({ reply: "I am receiving a lot of messages right now and need a short break! Please wait about 15 seconds and try sending your answer again so I can give it my full attention. 🧘‍♂️" });
+    let retries = 3;
+    let delay = 3000;
+
+    while (retries > 0) {
+      try {
+        result = await chat.sendMessageStream(lastMessage.content);
+        break;
+      } catch (err) {
+        if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
+          retries--;
+          if (retries === 0) {
+            return NextResponse.json({ error: "That's a great point! Let me gather my thoughts for a few seconds. Could you click 'Try Again' in just a moment? 🤔" }, { status: 429 });
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2; // 3s, 6s, etc.
+        } else {
+          throw err;
+        }
       }
-      throw err;
     }
 
-    const response = result.response;
-    const rawText = response.text();
-    
-    let parsedJSON;
-    try {
-      // Robust JSON extraction using regex
-      const jsonMatch = rawText.match(/```json\s*([\s\S]*?)\s*```/) || rawText.match(/(\{[\s\S]*?\})/);
-      parsedJSON = JSON.parse(jsonMatch ? jsonMatch[1] : rawText);
-    } catch (e) {
-      // Graceful fallback if the AI hallucinates invalid JSON
-      parsedJSON = {
-        reply: rawText.replace(/```json/g, '').replace(/```/g, '').trim(),
-        state: null
-      };
-    }
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            controller.enqueue(new TextEncoder().encode(chunkText));
+          }
+          controller.close();
+        } catch (e) {
+          controller.error(e);
+        }
+      }
+    });
 
-    return NextResponse.json({ 
-      reply: parsedJSON.reply || "", 
-      state: parsedJSON.state || null 
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
   } catch (error) {
     console.error("Gemini API error:", error);

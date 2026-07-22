@@ -107,22 +107,34 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
 }`;
 
     let result;
-    try {
-      result = await model.generateContent(prompt);
-    } catch (err) {
-      if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
-        return NextResponse.json({
-          title: "Rate Limit Break",
-          category: "Practice",
-          difficulty: level,
-          description: "The AI is currently resting. While it recovers, write a simple program that reads an integer N from standard input and prints 'Hello World' N times.",
-          testCases: [
-            { input: "3", expectedOutput: "Hello World\nHello World\nHello World" },
-            { input: "1", expectedOutput: "Hello World" }
-          ]
-        });
+    let retries = 3;
+    let delay = 3000;
+
+    while (retries > 0) {
+      try {
+        result = await model.generateContent(prompt);
+        break;
+      } catch (err) {
+        if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
+          retries--;
+          if (retries === 0) {
+            return NextResponse.json({
+              title: "Rate Limit Break",
+              category: "Practice",
+              difficulty: level,
+              description: "The AI is currently resting. While it recovers, write a simple program that reads an integer N from standard input and prints 'Hello World' N times.",
+              testCases: [
+                { input: "3", expectedOutput: "Hello World\nHello World\nHello World" },
+                { input: "1", expectedOutput: "Hello World" }
+              ]
+            });
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2;
+        } else {
+          throw err;
+        }
       }
-      throw err;
     }
     const responseText = result.response.text();
     
@@ -147,7 +159,7 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
     
     if (error.status === 429 || error.message?.includes('429') || error.message?.includes('quota')) {
       return NextResponse.json(
-        { error: "Whoops! The AI is currently receiving too many requests. Please wait 30 seconds and try again." },
+        { error: "I'm generating an awesome problem for you! Just give me a few seconds to gather my thoughts and try clicking again. 💡" },
         { status: 429 }
       );
     }

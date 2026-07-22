@@ -1,50 +1,188 @@
-import React from "react";
+import React from 'react';
 
-export default function ActivityHeatmap({ stats }) {
+export default function ActivityHeatmap({ activity = {} }) {
+  // Generate the last 365 days + current week padding
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+  
+  // Start from Sunday of the week 52 weeks ago
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - (52 * 7 + dayOfWeek));
+
+  const days = [];
+  const currentDate = new Date(startDate);
+  
+  // Create an array of Date objects up to today
+  while (currentDate <= today) {
+    days.push(new Date(currentDate));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  // Format YYYY-MM-DD local time correctly
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = '' + (d.getMonth() + 1);
+    const day = '' + d.getDate();
+    const year = d.getFullYear();
+    return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+  };
+
+  const getIntensityLevel = (count) => {
+    if (!count) return 0;
+    if (count === 1) return 1;
+    if (count <= 3) return 2;
+    if (count <= 6) return 3;
+    return 4;
+  };
+
+  const getColor = (level) => {
+    const colors = {
+      0: 'var(--bg-surface-raised, #f1f5f9)',
+      1: '#9be9a8',
+      2: '#40c463',
+      3: '#30a14e',
+      4: '#216e39'
+    };
+    return colors[level];
+  };
+
+  // Ensure tooltips show above
+  const Tooltip = ({ count, dateStr }) => (
+    <div className="heatmap-tooltip">
+      {count ? `${count} problems` : 'No activity'} on {dateStr}
+    </div>
+  );
+
   return (
-    <div style={{ padding: '16px', background: 'var(--bg-surface)', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
-      <h3 style={{ marginBottom: '12px', fontSize: '14px', color: 'var(--text-primary)' }}>Activity Heatmap</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(20, 1fr)', gap: '6px' }}>
-        {Array.from({ length: 140 }).map((_, i) => {
-          const today = new Date();
-          const d = new Date(today);
-          d.setDate(today.getDate() - (139 - i));
-          const dateStr = d.toISOString().split('T')[0];
-          const count = stats?.activity?.[dateStr] || 0;
-          
-          let bgColor = 'var(--bg-surface)';
-          if (count === 1) bgColor = '#064e3b'; // Very dark green
-          if (count === 2) bgColor = '#047857'; // Dark green
-          if (count === 3) bgColor = '#10b981'; // Green
-          if (count >= 4) bgColor = '#34d399';  // Light green
-          
-          return (
-            <div 
-              key={dateStr} 
-              title={`${count} problems solved on ${dateStr}`}
-              style={{ 
-                width: '100%', 
-                paddingBottom: '100%', 
-                backgroundColor: bgColor, 
-                borderRadius: '4px',
-                border: '1px solid rgba(255,255,255,0.02)',
-                transition: 'transform 0.1s',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            />
-          );
-        })}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '12px', gap: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
-        <span>Less</span>
-        <div style={{ width: '12px', height: '12px', backgroundColor: 'var(--bg-surface)', borderRadius: '2px' }}></div>
-        <div style={{ width: '12px', height: '12px', backgroundColor: '#064e3b', borderRadius: '2px' }}></div>
-        <div style={{ width: '12px', height: '12px', backgroundColor: '#047857', borderRadius: '2px' }}></div>
-        <div style={{ width: '12px', height: '12px', backgroundColor: '#10b981', borderRadius: '2px' }}></div>
-        <div style={{ width: '12px', height: '12px', backgroundColor: '#34d399', borderRadius: '2px' }}></div>
-        <span>More</span>
+    <div className="activity-heatmap-container">
+      <style dangerouslySetInnerHTML={{__html: `
+        .activity-heatmap-container {
+          overflow-x: auto;
+          padding: 24px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          margin-bottom: 48px;
+        }
+        .heatmap-scroll-wrapper {
+          min-width: max-content;
+        }
+        .heatmap-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        .heatmap-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+        .heatmap-grid {
+          display: grid;
+          grid-template-rows: repeat(7, 12px);
+          grid-auto-flow: column;
+          grid-auto-columns: 12px;
+          gap: 4px;
+          margin-bottom: 16px;
+        }
+        .heatmap-cell {
+          width: 12px;
+          height: 12px;
+          border-radius: 2px;
+          position: relative;
+          cursor: crosshair;
+        }
+        .heatmap-cell[data-theme='dark'] {
+          background-color: #161b22;
+        }
+        .heatmap-cell .heatmap-tooltip {
+          visibility: hidden;
+          background-color: var(--text-primary);
+          color: var(--bg-base);
+          text-align: center;
+          border-radius: 4px;
+          padding: 4px 8px;
+          position: absolute;
+          z-index: 10;
+          bottom: 150%;
+          left: 50%;
+          transform: translateX(-50%);
+          white-space: nowrap;
+          font-size: 12px;
+          font-weight: 500;
+          opacity: 0;
+          transition: opacity 0.2s;
+          pointer-events: none;
+        }
+        .heatmap-cell:hover .heatmap-tooltip {
+          visibility: visible;
+          opacity: 1;
+        }
+        .heatmap-legend {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 6px;
+          font-size: 12px;
+          color: var(--text-secondary);
+        }
+        .legend-box {
+          width: 12px;
+          height: 12px;
+          border-radius: 2px;
+        }
+      `}} />
+      
+      <div className="heatmap-scroll-wrapper">
+        <div className="heatmap-header">
+          <div className="heatmap-title">365 Days of Code</div>
+          <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+            {Object.values(activity).reduce((a, b) => a + b, 0)} contributions in the last year
+          </div>
+        </div>
+
+        <div className="heatmap-grid" dir="ltr">
+          {days.map((date, idx) => {
+            const dateStr = formatDate(date);
+            const count = activity[dateStr] || 0;
+            const level = getIntensityLevel(count);
+            
+            // Adjust colors based on theme if dark mode uses different colors
+            const isDark = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
+            let bg = getColor(level);
+            if (isDark && level === 0) bg = '#161b22'; // github dark mode empty cell
+            if (isDark && level === 1) bg = '#0e4429';
+            if (isDark && level === 2) bg = '#006d32';
+            if (isDark && level === 3) bg = '#26a641';
+            if (isDark && level === 4) bg = '#39d353';
+
+            return (
+              <div 
+                key={idx} 
+                className="heatmap-cell"
+                style={{ backgroundColor: bg }}
+              >
+                <Tooltip count={count} dateStr={dateStr} />
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="heatmap-legend">
+          <span>Less</span>
+          {[0, 1, 2, 3, 4].map(level => {
+            const isDark = typeof window !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
+            let bg = getColor(level);
+            if (isDark && level === 0) bg = '#161b22';
+            if (isDark && level === 1) bg = '#0e4429';
+            if (isDark && level === 2) bg = '#006d32';
+            if (isDark && level === 3) bg = '#26a641';
+            if (isDark && level === 4) bg = '#39d353';
+            return <div key={level} className="legend-box" style={{ backgroundColor: bg }} />
+          })}
+          <span>More</span>
+        </div>
       </div>
     </div>
   );

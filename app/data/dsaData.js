@@ -6,7 +6,7 @@ export const DSA_TOPICS = [
     icon: "📦",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_arrays_step1", 
         text: "What is an array?", 
         visualType: "array", 
         visualState: "empty",
@@ -19,7 +19,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_arrays_step2", 
         text: "How is it stored in memory?", 
         visualType: "array", 
         visualState: "memory",
@@ -32,7 +32,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_arrays_step3", 
         text: "How to access an element by index?", 
         visualType: "array", 
         visualState: "access",
@@ -45,7 +45,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_arrays_step4", 
         text: "How to traverse it?", 
         visualType: "array", 
         visualState: "traverse",
@@ -58,7 +58,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_arrays_step5", 
         text: "Multidimensional Arrays", 
         visualType: "array", 
         visualState: "matrix",
@@ -71,7 +71,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step6", 
+        id: "dsa_arrays_step6", 
         text: "Pass-by-Value vs Pass-by-Reference", 
         visualType: "array", 
         visualState: "memory",
@@ -84,7 +84,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step7", 
+        id: "dsa_arrays_step7", 
         text: "Dynamic Memory Allocation", 
         visualType: "array", 
         visualState: "memory",
@@ -105,7 +105,7 @@ export const DSA_TOPICS = [
     icon: "🎯",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_functions_step1", 
         text: "Pointers with Functions (Pass by Reference)", 
         visualType: "array", 
         visualState: "memory",
@@ -126,7 +126,7 @@ export const DSA_TOPICS = [
     icon: "🧮",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_math_step1", 
         text: "Bitwise Operators", 
         visualType: "text", 
         visualState: "math",
@@ -139,7 +139,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_math_step2", 
         text: "Bit Manipulation", 
         visualType: "text", 
         visualState: "math",
@@ -152,7 +152,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_math_step3", 
         text: "Prime Number Algorithms", 
         visualType: "text", 
         visualState: "math",
@@ -165,7 +165,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_math_step4", 
         text: "Square Root Algorithms", 
         visualType: "text", 
         visualState: "math",
@@ -178,7 +178,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_math_step5", 
         text: "HCF/LCM", 
         visualType: "text", 
         visualState: "math",
@@ -191,7 +191,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step6", 
+        id: "dsa_math_step6", 
         text: "Euclidean Algorithm", 
         visualType: "text", 
         visualState: "math",
@@ -212,7 +212,7 @@ export const DSA_TOPICS = [
     icon: "🔲",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_matrices_step1", 
         text: "What is a 2D Matrix?", 
         visualType: "array", 
         visualState: "matrix",
@@ -225,7 +225,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_matrices_step2", 
         text: "Matrix Traversal (Row vs Column Major)", 
         visualType: "array", 
         visualState: "matrix",
@@ -246,7 +246,7 @@ export const DSA_TOPICS = [
     icon: "🔤",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_strings_step1", 
         text: "Strings as character arrays", 
         visualType: "string", 
         visualState: "string",
@@ -259,7 +259,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_strings_step2", 
         text: "String manipulation (concatenation)", 
         visualType: "string", 
         visualState: "concat",
@@ -272,7 +272,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_strings_step3", 
         text: "Substring and patterns", 
         visualType: "string", 
         visualState: "substring",
@@ -293,7 +293,7 @@ export const DSA_TOPICS = [
     icon: "⏱️",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_complexity_step1", 
         text: "Asymptotic Notation (Big O, Omega, Theta)", 
         visualType: "text", 
         visualState: "time",
@@ -306,7 +306,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_complexity_step2", 
         text: "Time Complexity Calculation", 
         visualType: "text", 
         visualState: "time",
@@ -319,7 +319,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_complexity_step3", 
         text: "Best, Worst, and Average Case", 
         visualType: "text", 
         visualState: "time",
@@ -340,7 +340,7 @@ export const DSA_TOPICS = [
     icon: "🔍",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_searching_step1", 
         text: "Linear Search", 
         visualType: "search", 
         visualState: "linear",
@@ -353,7 +353,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_searching_step2", 
         text: "Binary Search", 
         visualType: "search", 
         visualState: "binary",
@@ -366,7 +366,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_searching_step3", 
         text: "Ternary Search", 
         visualType: "search", 
         visualState: "binary",
@@ -387,7 +387,7 @@ export const DSA_TOPICS = [
     icon: "📶",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_sorting_step1", 
         text: "Bubble Sort", 
         visualType: "sorting", 
         visualState: "bubble",
@@ -400,7 +400,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_sorting_step2", 
         text: "Selection Sort", 
         visualType: "sorting", 
         visualState: "selection",
@@ -413,7 +413,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_sorting_step3", 
         text: "Insertion Sort", 
         visualType: "sorting", 
         visualState: "unsorted",
@@ -426,7 +426,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_sorting_step4", 
         text: "Merge Sort", 
         visualType: "sorting", 
         visualState: "merge",
@@ -439,7 +439,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_sorting_step5", 
         text: "Quick Sort", 
         visualType: "sorting", 
         visualState: "unsorted",
@@ -452,7 +452,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step6", 
+        id: "dsa_sorting_step6", 
         text: "Counting Sort", 
         visualType: "sorting", 
         visualState: "unsorted",
@@ -465,7 +465,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step7", 
+        id: "dsa_sorting_step7", 
         text: "Radix Sort", 
         visualType: "sorting", 
         visualState: "unsorted",
@@ -478,7 +478,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step8", 
+        id: "dsa_sorting_step8", 
         text: "Bucket Sort", 
         visualType: "sorting", 
         visualState: "unsorted",
@@ -499,7 +499,7 @@ export const DSA_TOPICS = [
     icon: "🔄",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_recursion_step1", 
         text: "What is a function calling itself?", 
         visualType: "recursion", 
         visualState: "call",
@@ -512,7 +512,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_recursion_step2", 
         text: "The Call Stack building up", 
         visualType: "recursion", 
         visualState: "build",
@@ -525,7 +525,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_recursion_step3", 
         text: "The Base Case (When to stop)", 
         visualType: "recursion", 
         visualState: "base",
@@ -538,7 +538,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_recursion_step4", 
         text: "The Call Stack collapsing", 
         visualType: "recursion", 
         visualState: "collapse",
@@ -559,7 +559,7 @@ export const DSA_TOPICS = [
     icon: "🔗",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_linkedlists_step1", 
         text: "Nodes and Pointers", 
         visualType: "linkedlist", 
         visualState: "node",
@@ -572,7 +572,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_linkedlists_step2", 
         text: "Connecting Nodes (Singly)", 
         visualType: "linkedlist", 
         visualState: "singly",
@@ -585,7 +585,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_linkedlists_step3", 
         text: "Insertion/Deletion/Traversal", 
         visualType: "linkedlist", 
         visualState: "singly",
@@ -598,7 +598,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_linkedlists_step4", 
         text: "Searching", 
         visualType: "linkedlist", 
         visualState: "singly",
@@ -611,7 +611,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_linkedlists_step5", 
         text: "Doubly Linked List", 
         visualType: "linkedlist", 
         visualState: "singly",
@@ -624,7 +624,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step6", 
+        id: "dsa_linkedlists_step6", 
         text: "Circular Linked List", 
         visualType: "linkedlist", 
         visualState: "singly",
@@ -645,7 +645,7 @@ export const DSA_TOPICS = [
     icon: "🥞",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_stack_step1", 
         text: "Push/Pop (LIFO)", 
         visualType: "stack", 
         visualState: "push",
@@ -658,7 +658,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_stack_step2", 
         text: "Stack using Array", 
         visualType: "stack", 
         visualState: "pop",
@@ -671,7 +671,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_stack_step3", 
         text: "Stack using Linked List", 
         visualType: "stack", 
         visualState: "pop",
@@ -692,7 +692,7 @@ export const DSA_TOPICS = [
     icon: "🚶",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_queue_step1", 
         text: "Enqueue/Dequeue (FIFO)", 
         visualType: "queue", 
         visualState: "enqueue",
@@ -705,7 +705,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_queue_step2", 
         text: "Queue using Array/Linked List", 
         visualType: "queue", 
         visualState: "dequeue",
@@ -718,7 +718,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_queue_step3", 
         text: "Stack using Queue", 
         visualType: "queue", 
         visualState: "dequeue",
@@ -731,7 +731,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_queue_step4", 
         text: "Circular Queue", 
         visualType: "queue", 
         visualState: "enqueue",
@@ -744,7 +744,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_queue_step5", 
         text: "Priority Queue", 
         visualType: "queue", 
         visualState: "enqueue",
@@ -757,7 +757,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step6", 
+        id: "dsa_queue_step6", 
         text: "Deque", 
         visualType: "queue", 
         visualState: "enqueue",
@@ -778,7 +778,7 @@ export const DSA_TOPICS = [
     icon: "🗂️",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_maps_step1", 
         text: "What is a Hash Table?", 
         visualType: "hashtable", 
         visualState: "hash",
@@ -791,7 +791,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_maps_step2", 
         text: "Hash Functions", 
         visualType: "hashtable", 
         visualState: "hash",
@@ -804,7 +804,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_maps_step3", 
         text: "Collision Handling", 
         visualType: "hashtable", 
         visualState: "hash",
@@ -817,7 +817,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_maps_step4", 
         text: "Sets vs Maps", 
         visualType: "hashtable", 
         visualState: "hash",
@@ -838,7 +838,7 @@ export const DSA_TOPICS = [
     icon: "🌳",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_trees_step1", 
         text: "Binary Tree", 
         visualType: "tree", 
         visualState: "binary",
@@ -851,7 +851,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_trees_step2", 
         text: "Binary Search Tree (BST)", 
         visualType: "tree", 
         visualState: "bst",
@@ -864,7 +864,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_trees_step3", 
         text: "Tree Traversals", 
         visualType: "tree", 
         visualState: "traverse",
@@ -877,7 +877,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_trees_step4", 
         text: "Balanced Trees", 
         visualType: "tree", 
         visualState: "basic",
@@ -898,7 +898,7 @@ export const DSA_TOPICS = [
     icon: "⛰️",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_heaps_step1", 
         text: "Min-Heap vs Max-Heap", 
         visualType: "heap", 
         visualState: "insert",
@@ -911,7 +911,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_heaps_step2", 
         text: "Insertion and Deletion", 
         visualType: "heap", 
         visualState: "heapify",
@@ -924,7 +924,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_heaps_step3", 
         text: "Heap Sort", 
         visualType: "heap", 
         visualState: "heapify",
@@ -945,7 +945,7 @@ export const DSA_TOPICS = [
     icon: "🕸️",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_graphs_step1", 
         text: "Adjacency List/Matrix", 
         visualType: "graph", 
         visualState: "basic",
@@ -958,7 +958,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_graphs_step2", 
         text: "BFS (Breadth-First Search)", 
         visualType: "graph", 
         visualState: "bfs",
@@ -971,7 +971,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_graphs_step3", 
         text: "DFS (Depth-First Search)", 
         visualType: "graph", 
         visualState: "dfs",
@@ -984,7 +984,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step4", 
+        id: "dsa_graphs_step4", 
         text: "Topological Sort", 
         visualType: "graph", 
         visualState: "directed",
@@ -997,7 +997,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step5", 
+        id: "dsa_graphs_step5", 
         text: "Shortest Path & MST", 
         visualType: "graph", 
         visualState: "bfs",
@@ -1018,7 +1018,7 @@ export const DSA_TOPICS = [
     icon: "⛺",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_tries_step1", 
         text: "Standard Trie", 
         visualType: "trie", 
         visualState: "search",
@@ -1031,7 +1031,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_tries_step2", 
         text: "Compressed Trie / Suffix Trie", 
         visualType: "trie", 
         visualState: "search",
@@ -1052,7 +1052,7 @@ export const DSA_TOPICS = [
     icon: "🧠",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_dp_step1", 
         text: "Memoization (Top-Down)", 
         visualType: "dp", 
         visualState: "memo",
@@ -1065,7 +1065,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_dp_step2", 
         text: "Tabulation (Bottom-Up)", 
         visualType: "dp", 
         visualState: "memo",
@@ -1078,7 +1078,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step3", 
+        id: "dsa_dp_step3", 
         text: "Classic DP Problems", 
         visualType: "dp", 
         visualState: "memo",
@@ -1099,7 +1099,7 @@ export const DSA_TOPICS = [
     icon: "🤑",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_greedy_step1", 
         text: "Local Optimal Choices", 
         visualType: "text", 
         visualState: "text",
@@ -1120,7 +1120,7 @@ export const DSA_TOPICS = [
     icon: "🔙",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_backtracking_step1", 
         text: "Exploring Paths & Reverting", 
         visualType: "recursion", 
         visualState: "build",
@@ -1141,7 +1141,7 @@ export const DSA_TOPICS = [
     icon: "🔗",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_disjointset_step1", 
         text: "Union-Find & Path Compression", 
         visualType: "text", 
         visualState: "text",
@@ -1162,7 +1162,7 @@ export const DSA_TOPICS = [
     icon: "🪟",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "dsa_advancedpatterns_step1", 
         text: "Sliding Window", 
         visualType: "text", 
         visualState: "text",
@@ -1175,7 +1175,7 @@ export const DSA_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "dsa_advancedpatterns_step2", 
         text: "Two Pointers", 
         visualType: "text", 
         visualState: "text",

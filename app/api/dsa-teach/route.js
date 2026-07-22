@@ -6,31 +6,21 @@ const SYSTEM_PROMPT = `You are the 'Logic Coach' teaching a student a brand new 
 The student is currently learning this specific step/concept: "{CONCEPT}".
 Your job is to check their understanding of THIS concept.
 1. Evaluate their response to see if they understand the concept. 
-2. CRITICAL RULE: If they are confused, stuck, ask a question, or give a genuine wrong answer, you MUST set the "understood" JSON field to false. Instead, re-explain it using a DIFFERENT, simpler, real-world everyday analogy, and ask a clarifying question to check their understanding.
-3. CRITICAL RULE: If the student's input is gibberish, too short, unclear, or doesn't attempt to engage with the question, you MUST set the "understood" JSON field to false. DO NOT offer a new analogy. Instead, gently ask them to clarify or attempt a real answer (e.g., "I want to make sure I understand you — could you try explaining in a full sentence? Even a guess is fine!").
+2. CRITICAL RULE: If they are confused, stuck, ask a question, or give a genuine wrong answer, you MUST append :::understood=false::: at the end of your response. Instead, re-explain it using a DIFFERENT, simpler, real-world everyday analogy, and ask a clarifying question to check their understanding.
+3. CRITICAL RULE: If the student's input is gibberish, too short, unclear, or doesn't attempt to engage with the question, you MUST append :::understood=false:::. DO NOT offer a new analogy. Instead, gently ask them to clarify or attempt a real answer.
 4. If they ask to skip, gently decline and ask them to demonstrate understanding first. DO NOT SKIP.
-5. If they do understand and provide a correct or highly plausible answer, praise them briefly, and you MUST set the "understood" JSON field to true.
+5. If they do understand and provide a correct or highly plausible answer, praise them briefly, and you MUST append :::understood=true::: at the end of your response.
 6. CRITICAL RULE: You must NEVER output actual code, code snippets, or direct algorithmic solutions in your responses, even as a greeting or example. Maintain the Socratic teaching style at all times.
 
 VISUALIZER AWARENESS:
-You have access to a live visual diagram component that is already displayed to the student alongside this chat. You do NOT need to describe things purely in text-only analogies when a visual would help — instead, tell the student to look at the diagram, and reference specific elements in it by their visible values/positions. When a student asks to see something visually or asks for a diagram, remind them the visualizer is already showing this concept, and guide their attention to specific parts of it.
-NEVER say things like "I cannot show you diagrams" or "I can only give text descriptions" because this is factually wrong in this app; a visualizer IS already on screen. 
-CRITICAL RULE: NEVER try to draw ASCII art, grids, diagrams, or 2D/3D graphical examples using text/symbols in the chat response. If the student asks for a different graphical example, rely ONLY on the on-screen visualizer component or use a real-world everyday verbal analogy (e.g. 'imagine a line of parking spaces').
+You have access to a live visual diagram component that is already displayed to the student alongside this chat. You do NOT need to describe things purely in text-only analogies when a visual would help — instead, tell the student to look at the diagram.
 
 VISUALIZER CONTROL:
-You can control the visualizer by setting the "state" field in your JSON response. For example: "traverse", "access", "binary", "memory", "string", "substring". Use this to draw attention to specific parts or animations of the visualizer while you explain. Leave it as null if no state change is needed.
+You can control the visualizer by appending a state tag at the end of your response. For example: :::state=traverse:::. Leave it out if no state change is needed.
 
 Do not ask them questions about other topics. Keep your response under 4 sentences. Tone should be extremely encouraging.
 
-CRITICAL RULE: You MUST return your response as a valid JSON object wrapped in a markdown code block exactly like this:
-\`\`\`json
-{
-  "reply": "Your conversational text here",
-  "state": "state_name" (or null if no visualizer change is needed),
-  "understood": true/false
-}
-\`\`\`
-Do NOT output any other text outside this JSON block.`;
+CRITICAL RULE: DO NOT use JSON output. Return plain conversational text. You MUST include :::understood=true::: or :::understood=false::: at the very end of your response. If a visualizer state change is needed, also append :::state=state_name::: at the very end.`;
 
 export async function POST(request) {
   try {
@@ -111,33 +101,43 @@ export async function POST(request) {
     const lastMessage = messages[messages.length - 1];
     
     let result;
-    try {
-      result = await chat.sendMessage(lastMessage.content);
-    } catch (err) {
-      if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
-        return NextResponse.json({ error: "Too many requests. Please wait." }, { status: 429 });
+    let retries = 3;
+    let delay = 3000;
+
+    while (retries > 0) {
+      try {
+        result = await chat.sendMessageStream(lastMessage.content);
+        break;
+      } catch (err) {
+        if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
+          retries--;
+          if (retries === 0) {
+            return NextResponse.json({ error: "I'm analyzing your approach! Give me just a few seconds to process this, and then click 'Try Again'. 🧠" }, { status: 429 });
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2;
+        } else {
+          throw err;
+        }
       }
-      throw err;
     }
 
-    const rawText = result.response.text();
-    
-    let parsedJSON;
-    try {
-      const jsonMatch = rawText.match(/```json\s*([\s\S]*?)\s*```/) || rawText.match(/(\{[\s\S]*?\})/);
-      parsedJSON = JSON.parse(jsonMatch ? jsonMatch[1] : rawText);
-    } catch (e) {
-      parsedJSON = {
-        reply: rawText.replace(/```json/g, '').replace(/```/g, '').trim(),
-        state: null,
-        understood: false
-      };
-    }
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            controller.enqueue(new TextEncoder().encode(chunkText));
+          }
+          controller.close();
+        } catch (e) {
+          controller.error(e);
+        }
+      }
+    });
 
-    return NextResponse.json({ 
-      reply: parsedJSON.reply || "",
-      state: parsedJSON.state || null,
-      understood: parsedJSON.understood || false
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
   } catch (error) {
     console.error("DSA Teach API error:", error);

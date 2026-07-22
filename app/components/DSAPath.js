@@ -19,20 +19,20 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
 
   let previousTopicUnlocked = true;
   const allCompleted = DSA_TOPICS.every(topic => {
-    const isCompleted = progress?.[topic.id]?.level > 0 && userStats?.solved?.some(id => id.startsWith(topic.id + '-'));
+    const isCompleted = progress?.[topic.id]?.level > 0 && userStats?.solved?.some(id => id.startsWith(`dsa_${topic.id}_`));
     return isCompleted;
   });
 
   const getTopicState = (topic, index) => {
     const topicProgress = progress?.[topic.id];
-    const isUnlocked = true; // index === 0 || previousTopicUnlocked;
+    const isUnlocked = index === 0 || previousTopicUnlocked;
     
     let stateClass = "locked";
     let btnText = "Locked";
     let badgeText = "Locked";
     
     const teachingComplete = topicProgress?.level > 0;
-    const hasSolvedProblem = userStats?.solved?.some(id => id.startsWith(topic.id + '-')) || false;
+    const hasSolvedProblem = userStats?.solved?.some(id => id.startsWith(`dsa_${topic.id}_`)) || false;
     const isCompleted = teachingComplete && hasSolvedProblem;
 
     if (isCompleted) {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import CodeEditor from "./CodeEditor";
+import { auth } from "../../lib/firebase";
 
 export default function PracticeCompilerPanel({ language = "Python", isOpen, onClose }) {
   const [code, setCode] = useState("");
@@ -90,9 +91,13 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
     const timeoutId = setTimeout(() => controller.abort(), 15000);
     
     try {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const response = await fetch("/api/analyze-complexity", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({ language, code }),
         signal: controller.signal
       });

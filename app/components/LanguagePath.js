@@ -19,7 +19,7 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
 
   let previousTopicUnlocked = true;
   const allCompleted = LANGUAGE_TOPICS.every(topic => {
-    const isCompleted = progress?.[topic.id]?.level > 0 && userStats?.solved?.some(id => id.startsWith(topic.id + '-'));
+    const isCompleted = progress?.[topic.id]?.level > 0 && userStats?.solved?.some(id => id.startsWith(`lang_${topic.id}_`));
     return isCompleted;
   });
 
@@ -32,7 +32,7 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
     let badgeText = "Locked";
     
     const teachingComplete = topicProgress?.level > 0;
-    const hasSolvedProblem = userStats?.solved?.some(id => id.startsWith(topic.id + '-')) || false;
+    const hasSolvedProblem = userStats?.solved?.some(id => id.startsWith(`lang_${topic.id}_`)) || false;
     const isCompleted = teachingComplete && hasSolvedProblem;
 
     if (isCompleted) {

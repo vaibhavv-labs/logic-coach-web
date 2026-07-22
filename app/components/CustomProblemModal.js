@@ -10,7 +10,13 @@ export default function CustomProblemModal({ onClose, onSubmit, user, language =
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!description.trim() || !user) return;
+    const trimmedDesc = description.trim();
+    if (!trimmedDesc || !user) return;
+
+    if (trimmedDesc.length < 15 || trimmedDesc.split(/\s+/).length < 3) {
+      toast.error(t("toast_problem_too_short", language) || "That doesn't look like a valid problem. Please provide more details!");
+      return;
+    }
 
     try {
       setLoading(true);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { DSA_TOPICS } from '../data/dsaData';
+import ActivityHeatmap from './ActivityHeatmap';
 
 export default function ProgressDashboard({ dsaProgress, userStats, solvedProblems }) {
   const masteryPercent = userStats.totalAttempted > 0 
@@ -39,6 +40,8 @@ export default function ProgressDashboard({ dsaProgress, userStats, solvedProble
           <div style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)', marginTop: '8px' }}>{userStats.totalAttempted}</div>
         </div>
       </div>
+
+      <ActivityHeatmap activity={userStats?.activity || {}} />
 
       {/* Topics Completed Checklist */}
       <div>

@@ -122,26 +122,61 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         })
       });
 
-      const data = await response.json();
       if (!response.ok) {
-        let errorKey = "error_failed";
-        if (data.error?.includes("Too many")) errorKey = "error_rate_limit";
-        else if (data.error?.includes("API key")) errorKey = "error_api_key";
-        else if (data.error) errorKey = "error_generic";
-        throw new Error(t(errorKey, language));
+        let errorText = t("error_failed", language);
+        try {
+          const data = await response.json();
+          if (data.error?.includes("Too many")) errorText = t("error_rate_limit", language);
+          else if (data.error?.includes("API key")) errorText = t("error_api_key", language);
+          else if (data.error) errorText = data.error;
+        } catch(e) {}
+        throw new Error(errorText);
       }
 
-      let cleanReply = data.reply;
-      
-      if (data.state) {
-        setAiVisualState(data.state);
+      setChatHistory(prev => [...prev, { role: "coach", content: "" }]);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let accumulatedText = "";
+      let displayText = "";
+      let isUnderstood = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulatedText += decoder.decode(value, { stream: true });
+        
+        displayText = accumulatedText;
+        
+        const stateMatch = accumulatedText.match(/:::state=(.*?):::/);
+        if (stateMatch) {
+          setAiVisualState(stateMatch[1]);
+          displayText = displayText.replace(stateMatch[0], "").trim();
+        }
+
+        const understoodTrueMatch = accumulatedText.match(/:::understood=true:::/);
+        if (understoodTrueMatch) {
+          isUnderstood = true;
+          displayText = displayText.replace(understoodTrueMatch[0], "").trim();
+        }
+
+        const understoodFalseMatch = accumulatedText.match(/:::understood=false:::/);
+        if (understoodFalseMatch) {
+          isUnderstood = false;
+          displayText = displayText.replace(understoodFalseMatch[0], "").trim();
+        }
+
+        setChatHistory((prev) => {
+          const updatedMsgs = [...prev];
+          updatedMsgs[updatedMsgs.length - 1] = { role: "coach", content: displayText };
+          return updatedMsgs;
+        });
       }
 
-      if (data.understood === true) {
-        setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
-        setLatestAiMessage(cleanReply);
-        if (fromVoice) setIsAiSpeaking(true);
+      setLatestAiMessage(displayText);
+      if (fromVoice) setIsAiSpeaking(true);
 
+      if (isUnderstood) {
         // Add a class for celebration on the container or UI
         const indicator = document.querySelector('.step-indicator');
         if (indicator) indicator.classList.add('pop-celebrate');
@@ -158,9 +193,6 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           setIsLoading(false);
         }, 2500);
       } else {
-        setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
-        setLatestAiMessage(cleanReply);
-        if (fromVoice) setIsAiSpeaking(true);
         setFailedAttempts(prev => prev + 1);
         setIsLoading(false);
       }

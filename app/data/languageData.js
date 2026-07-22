@@ -6,7 +6,7 @@ export const LANGUAGE_TOPICS = [
     icon: "📦",
     teachingSteps: [
       { 
-        id: "step1", 
+        id: "lang_basics_step1", 
         text: "What is a Variable?", 
         visualType: "text", 
         visualState: "text",
@@ -19,7 +19,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       { 
-        id: "step2", 
+        id: "lang_basics_step2", 
         text: "Primitive Data Types", 
         visualType: "text", 
         visualState: "text",
@@ -32,7 +32,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_basics_step3",
         text: "Type Casting / Conversion",
         visualType: "text",
         visualState: "text",
@@ -45,7 +45,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step4",
+        id: "lang_basics_step4",
         text: "Input and Output (I/O)",
         visualType: "text",
         visualState: "text",
@@ -66,7 +66,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🧮",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_operators_step1",
         text: "Arithmetic & Modulo",
         visualType: "text",
         visualState: "math",
@@ -79,7 +79,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_operators_step2",
         text: "Logical & Comparison Operators",
         visualType: "text",
         visualState: "math",
@@ -100,7 +100,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🔀",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_control_flow_step1",
         text: "If, Else If, Else",
         visualType: "text",
         visualState: "text",
@@ -121,7 +121,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🔄",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_loops_step1",
         text: "The For Loop",
         visualType: "text",
         visualState: "text",
@@ -134,7 +134,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_loops_step2",
         text: "The While Loop",
         visualType: "text",
         visualState: "text",
@@ -155,7 +155,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🛠️",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_functions_step1",
         text: "Declaring and Calling Functions",
         visualType: "text",
         visualState: "text",
@@ -168,7 +168,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_functions_step2",
         text: "Scope",
         visualType: "text",
         visualState: "text",
@@ -181,7 +181,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_functions_step3",
         text: "Return Values & Multiple Returns",
         visualType: "text",
         visualState: "text",
@@ -194,7 +194,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step4",
+        id: "lang_functions_step4",
         text: "Recursion",
         visualType: "text",
         visualState: "text",
@@ -207,7 +207,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step5",
+        id: "lang_functions_step5",
         text: "Lambdas & Closures",
         visualType: "text",
         visualState: "text",
@@ -228,7 +228,7 @@ export const LANGUAGE_TOPICS = [
     icon: "📚",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_collections_step1",
         text: "Lists / Dynamic Arrays",
         visualType: "array",
         visualState: "access",
@@ -241,7 +241,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_collections_step2",
         text: "Hash Maps / Dictionaries",
         visualType: "hashtable",
         visualState: "hash",
@@ -254,7 +254,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_collections_step3",
         text: "Tuples (Immutable Data)",
         visualType: "text",
         visualState: "text",
@@ -267,7 +267,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step4",
+        id: "lang_collections_step4",
         text: "Sets (Unique Elements)",
         visualType: "text",
         visualState: "text",
@@ -280,7 +280,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step5",
+        id: "lang_collections_step5",
         text: "Multi-dimensional Arrays",
         visualType: "array",
         visualState: "memory",
@@ -301,7 +301,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🏗️",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_oop1_step1",
         text: "Classes and Objects",
         visualType: "text",
         visualState: "text",
@@ -314,7 +314,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_oop1_step2",
         text: "Encapsulation & Access Modifiers",
         visualType: "text",
         visualState: "text",
@@ -327,7 +327,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_oop1_step3",
         text: "Method Overloading",
         visualType: "text",
         visualState: "text",
@@ -348,7 +348,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🧬",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_oop2_step1",
         text: "Inheritance",
         visualType: "text",
         visualState: "text",
@@ -361,7 +361,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_oop2_step2",
         text: "Polymorphism",
         visualType: "text",
         visualState: "text",
@@ -374,7 +374,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_oop2_step3",
         text: "Abstraction & Interfaces",
         visualType: "text",
         visualState: "text",
@@ -395,7 +395,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🧠",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_memory_step1",
         text: "Pointers and References",
         visualType: "text",
         visualState: "text",
@@ -408,7 +408,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_memory_step2",
         text: "Stack vs Heap",
         visualType: "text",
         visualState: "text",
@@ -421,7 +421,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_memory_step3",
         text: "Garbage Collection",
         visualType: "text",
         visualState: "text",
@@ -442,7 +442,7 @@ export const LANGUAGE_TOPICS = [
     icon: "📄",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_files_step1",
         text: "Reading and Writing Files",
         visualType: "text",
         visualState: "text",
@@ -455,7 +455,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_files_step2",
         text: "Handling JSON",
         visualType: "text",
         visualState: "text",
@@ -476,7 +476,7 @@ export const LANGUAGE_TOPICS = [
     icon: "⚠️",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_errors_step1",
         text: "Try / Catch Blocks",
         visualType: "text",
         visualState: "text",
@@ -497,7 +497,7 @@ export const LANGUAGE_TOPICS = [
     icon: "📦",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_modules_step1",
         text: "Imports & Exports",
         visualType: "text",
         visualState: "text",
@@ -510,7 +510,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_modules_step2",
         text: "Package Managers",
         visualType: "text",
         visualState: "text",
@@ -531,7 +531,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🔄",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_iterators_step1",
         text: "Iterables & Iterators",
         visualType: "text",
         visualState: "text",
@@ -544,7 +544,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_iterators_step2",
         text: "Generators (Yield)",
         visualType: "text",
         visualState: "text",
@@ -565,7 +565,7 @@ export const LANGUAGE_TOPICS = [
     icon: "λ",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_functional_step1",
         text: "Map, Filter, Reduce",
         visualType: "text",
         visualState: "text",
@@ -578,7 +578,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_functional_step2",
         text: "Pure Functions & Immutability",
         visualType: "text",
         visualState: "text",
@@ -599,7 +599,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🧰",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_stdlib_step1",
         text: "Math & Date/Time",
         visualType: "text",
         visualState: "text",
@@ -612,7 +612,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_stdlib_step2",
         text: "Regular Expressions (Regex)",
         visualType: "text",
         visualState: "text",
@@ -633,7 +633,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🐛",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_testing_step1",
         text: "Unit Testing & Assertions",
         visualType: "text",
         visualState: "text",
@@ -654,7 +654,7 @@ export const LANGUAGE_TOPICS = [
     icon: "🚀",
     teachingSteps: [
       {
-        id: "step1",
+        id: "lang_advanced_step1",
         text: "Concurrency & Asynchrony",
         visualType: "text",
         visualState: "text",
@@ -667,7 +667,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step2",
+        id: "lang_advanced_step2",
         text: "Decorators & Annotations",
         visualType: "text",
         visualState: "text",
@@ -680,7 +680,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step3",
+        id: "lang_advanced_step3",
         text: "Generics & Templates",
         visualType: "text",
         visualState: "text",
@@ -693,7 +693,7 @@ export const LANGUAGE_TOPICS = [
         }
       },
       {
-        id: "step4",
+        id: "lang_advanced_step4",
         text: "Design Patterns",
         visualType: "text",
         visualState: "text",
