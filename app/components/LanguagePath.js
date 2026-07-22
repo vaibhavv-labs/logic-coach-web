@@ -84,12 +84,24 @@ export default function LanguagePath({ progress, userStats, roadmap, onSelectTop
               </div>
               
               <div 
-                className="pro-timeline-card"
+                className={`pro-timeline-card ${!isUnlocked ? 'locked-shake' : ''}`}
                 role="button"
                 tabIndex={isUnlocked ? 0 : -1}
                 aria-label={isUnlocked ? `Start topic: ${topic.title}` : `Locked topic: ${topic.title}`}
-                onClick={() => isUnlocked && onSelectTopic(topic)}
+                onClick={() => {
+                  if (isUnlocked) {
+                    onSelectTopic(topic);
+                  } else {
+                    // Quick visual feedback that it's locked
+                    const el = document.getElementById(`lang-card-${topic.id}`);
+                    if (el) {
+                      el.style.animation = 'none';
+                      setTimeout(() => el.style.animation = 'shake 0.4s', 10);
+                    }
+                  }
+                }}
                 onKeyDown={(e) => { if (isUnlocked && (e.key === 'Enter' || e.key === ' ')) onSelectTopic(topic); }}
+                id={`lang-card-${topic.id}`}
               >
                 <div className="pro-timeline-header">
                   <h3 className="pro-timeline-title">{topic.title}</h3>

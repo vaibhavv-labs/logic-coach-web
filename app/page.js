@@ -1,6 +1,8 @@
 "use client";
 import toast from 'react-hot-toast';
 import { t } from './data/translations';
+import { DSA_TOPICS } from './data/dsaData';
+import { LANGUAGE_TOPICS } from './data/languageData';
 import { useState, useRef, useEffect } from "react";
 import * as Diff from 'diff';
 import { auth, db } from "../lib/firebase";
@@ -24,6 +26,13 @@ const LanguagePath = dynamic(() => import('./components/LanguagePath'), { loadin
 const OnboardingScreen = dynamic(() => import('./components/OnboardingScreen'), { loading: () => <LoadingSpinner /> });
 const PracticeCompilerPanel = dynamic(() => import('./components/PracticeCompilerPanel'), { loading: () => <LoadingSpinner /> });
 const LandingPage = dynamic(() => import('./components/LandingPage'), { loading: () => <LoadingSpinner /> });
+const LearnDashboard = dynamic(() => import('./components/LearnDashboard'), { loading: () => <LoadingSpinner /> });
+const ProgressDashboard = dynamic(() => import('./components/ProgressDashboard'), { loading: () => <LoadingSpinner /> });
+const ProfileDashboard = dynamic(() => import('./components/ProfileDashboard'), { loading: () => <LoadingSpinner /> });
+const SettingsDashboard = dynamic(() => import('./components/SettingsDashboard'), { loading: () => <LoadingSpinner /> });
+const LeaderboardDashboard = dynamic(() => import('./components/LeaderboardDashboard'), { loading: () => <LoadingSpinner /> });
+const FeedbackDashboard = dynamic(() => import('./components/FeedbackDashboard'), { loading: () => <LoadingSpinner /> });
+const PracticeDashboard = dynamic(() => import('./components/PracticeDashboard'), { loading: () => <LoadingSpinner /> });
 
 // Visualizers
 const ArrayVisualizer = dynamic(() => import('./components/visualizers/ArrayVisualizer'), { loading: () => <LoadingSpinner /> });
@@ -64,7 +73,7 @@ export default function Home() {
   // DSA states
   const [dsaProgress, setDsaProgress] = useState({});
   const [languageProgress, setLanguageProgress] = useState({});
-  const [viewMode, setViewMode] = useState("logic"); // 'logic' | 'dsa' | 'language'
+  const [viewMode, setViewMode] = useState("dashboard"); // 'dashboard' | 'dsa' | 'language'
   const [activeDsaTopic, setActiveDsaTopic] = useState(null);
   const [activeLanguageTopic, setActiveLanguageTopic] = useState(null);
   const [problemVisualState, setProblemVisualState] = useState(null);
@@ -148,6 +157,8 @@ export default function Home() {
     const savedTheme = localStorage.getItem("theme") || "light";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
+    const savedLang = localStorage.getItem("language");
+    if (savedLang) setLanguage(savedLang);
   }, []);
 
   const toggleTheme = () => {
@@ -157,18 +168,28 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", newTheme);
   };
 
+  const handleLanguageChange = (newLang) => {
+    setLanguage(newLang);
+    localStorage.setItem("language", newLang);
+  };
+
   useEffect(() => {
     let interval = null;
-    if (timerActive && timeLeft > 0) {
+    if (timerActive) {
       interval = setInterval(() => {
-        setTimeLeft(t => t - 1);
+        setTimeLeft(t => {
+          if (t <= 1) {
+            clearInterval(interval);
+            setTimerActive(false);
+            toast.error(t("toast_time_up", language));
+            return 0;
+          }
+          return t - 1;
+        });
       }, 1000);
-    } else if (timeLeft === 0 && timerActive) {
-      setTimerActive(false);
-      toast.error(t("toast_time_up", language));
     }
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft]);
+  }, [timerActive, language]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (u) => {
@@ -181,11 +202,12 @@ export default function Home() {
         await loadUserProgress(u.uid);
       } else {
         setShowLanding(true);
+        setScreen("landing");
       }
       setAuthLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [userStats.totalAttempted]);
 
   const loadUserProgress = async (uid) => {
     try {
@@ -266,12 +288,12 @@ export default function Home() {
         availableProblems.push({ id: doc.id, ...doc.data() });
       });
 
-      const unsolvedProblems = availableProblems.filter(p => !solvedProblems.has(p.id));
+      const unsolvedProblems = availableProblems.filter(p => !solvedProblems.has(p.id) && (!activeProblem || p.id !== activeProblem.id));
 
       let selectedProblem;
 
       if (unsolvedProblems.length > 0) {
-        selectedProblem = unsolvedProblems[0];
+        selectedProblem = unsolvedProblems[Math.floor(Math.random() * unsolvedProblems.length)];
       } else {
         const response = await fetch("/api/generate-problem", {
           method: "POST",
@@ -529,6 +551,10 @@ export default function Home() {
     }
   };
 
+  const handleAnalyzeBigO = () => {
+    handleSend("Please analyze the Time and Space Complexity (Big O) of my current code.");
+  };
+
   const handleSend = async (overrideText = null, fromVoice = false, retryMessage = null) => {
     const textToSend = retryMessage || overrideText || inputText;
     
@@ -627,61 +653,7 @@ export default function Home() {
     }
   };
 
-  if (screen === "landing") {
-    return (
-      <div className="landing-layout">
-        {/* Background Floating Symbols */}
-        <div className="splash-symbol" style={{ left: '10%', animationDuration: '15s', fontSize: '32px' }}>{`{ }`}</div>
-        <div className="splash-symbol" style={{ left: '25%', animationDuration: '18s', animationDelay: '2s', fontSize: '48px' }}>∑</div>
-        <div className="splash-symbol" style={{ left: '40%', animationDuration: '22s', animationDelay: '1s', fontSize: '28px' }}>λ</div>
-        <div className="splash-symbol" style={{ left: '60%', animationDuration: '16s', animationDelay: '3s', fontSize: '40px' }}>{`< />`}</div>
-        <div className="splash-symbol" style={{ left: '75%', animationDuration: '20s', animationDelay: '0.5s', fontSize: '36px' }}>O(n)</div>
-        <div className="splash-symbol" style={{ left: '85%', animationDuration: '19s', animationDelay: '4s', fontSize: '50px' }}>∀</div>
-        <div className="splash-symbol" style={{ left: '50%', animationDuration: '25s', animationDelay: '5s', fontSize: '32px' }}>∃</div>
-
-        {showAuthModal && (
-          <AuthModal 
-            onClose={() => setShowAuthModal(false)} 
-            onSuccess={() => { setShowAuthModal(false); setScreen("app"); }} 
-          />
-        )}
-        <div className="landing-bg-orb orb-1"></div>
-        <div className="landing-bg-orb orb-2"></div>
-        <nav className="landing-nav">
-          <div className="landing-nav-logo">
-            <span className="logo-icon">🧠</span>
-            <span className="logo-text">Logic Coach</span>
-          </div>
-          <div className="landing-nav-actions">
-            {user ? (
-              <button className="start-btn-small" onClick={() => setScreen("app")}>
-                Go to Dashboard
-              </button>
-            ) : (
-              <button className="start-btn-small" onClick={() => setShowAuthModal(true)}>
-                Sign In
-              </button>
-            )}
-          </div>
-        </nav>
-        
-        <div className="landing-container">
-          <div className="landing-icon-wrapper">
-            <div className="landing-icon-glow"></div>
-            <div className="landing-icon">🧠</div>
-          </div>
-          <h1 className="landing-title">Logic Coach</h1>
-          <h2 className="landing-tagline">Learn by thinking, not by copy-pasting</h2>
-          <p className="landing-desc">
-            Your personal Socratic AI tutor. We never give direct code answers — instead we guide you through questions so you discover the logic yourself.
-          </p>
-          <button className="start-btn" onClick={() => { if (user) setScreen("app"); else setShowAuthModal(true); }}>
-            {user ? "Resume Learning" : "Start Learning for Free"}
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Unified Landing Page logic is now handled in the main return statement.
 
   if (user && !onboardingCompleted) {
     return (
@@ -762,6 +734,43 @@ export default function Home() {
     );
   };
 
+  const handleNav = (mode) => {
+    setViewMode(mode);
+    setActiveProblem(null);
+    setActiveDsaTopic(null);
+    setActiveLanguageTopic(null);
+    setSidebarOpen(false);
+  };
+
+  const SidebarButton = ({ icon, label, id }) => {
+    let active = false;
+    if (id === 'practice') {
+      active = viewMode === 'practice' || activeProblem;
+    } else if (id === 'learn') {
+      active = (viewMode === 'learn' || viewMode === 'dsa' || viewMode === 'language') && !activeProblem;
+    } else {
+      active = viewMode === id && !activeProblem;
+    }
+
+    return (
+      <button 
+        className={`action-btn ${active ? 'active' : ''}`} 
+        onClick={() => handleNav(id)}
+        style={{ 
+          width: '100%', padding: '12px', 
+          background: active ? 'var(--bg-surface)' : 'transparent', 
+          textAlign: 'left', display: 'flex', gap: '12px', 
+          alignItems: 'center', marginBottom: '4px', border: 'none', 
+          color: 'var(--text-primary)', borderRadius: 'var(--radius-md)',
+          cursor: 'pointer'
+        }}
+      >
+        <span style={{ fontSize: '18px' }}>{icon}</span> 
+        <span style={{ fontWeight: active ? 600 : 500 }}>{label}</span>
+      </button>
+    );
+  };
+
   return (
     <>
       {(authLoading || appBooting) && (
@@ -782,10 +791,6 @@ export default function Home() {
         </div>
       )}
 
-      {!user && showLanding ? (
-        <LandingPage onStart={() => setShowLanding(false)} />
-      ) : null}
-      
       {showAuthModal && (
         <AuthModal onClose={() => setShowAuthModal(false)} onSuccess={() => setShowAuthModal(false)} />
       )}
@@ -802,7 +807,6 @@ export default function Home() {
           user={user}
         />
       )}
-
       {showProgress && (
         <ProgressScreen 
           onClose={() => setShowProgress(false)} 
@@ -812,6 +816,23 @@ export default function Home() {
         />
       )}
 
+      {(screen === "landing" || (!user && showLanding)) ? (
+        <LandingPage 
+          user={user}
+          onStart={() => {
+            if (user) {
+              setScreen("app");
+              setShowLanding(false);
+            } else {
+              setShowAuthModal(true);
+            }
+          }}
+          onLogin={() => setShowAuthModal(true)}
+        />
+      ) : (
+        <>
+          {/* Main App Content starts here */}
+      
       {(!showLanding || user) && (
         <>
           <div className="app-header">
@@ -830,60 +851,46 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="sidebar-user-section" style={{ padding: '16px', borderBottom: '1px solid var(--border-light)' }}>
-            {user ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 600 }}>👤 {user.isAnonymous ? "Guest" : (userRoadmap?.username || user.email?.split('@')[0] || "User")}</span>
-                  <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle dark/light theme" style={{ padding: '4px 8px' }}>
-                    {theme === "light" ? "🌙" : "☀️"}
-                  </button>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button className="action-btn" onClick={() => setShowProgress(true)} style={{ flex: 1, padding: '4px' }}>Progress</button>
-                  <button className="action-btn" onClick={() => setShowLeaderboard(true)} style={{ flex: 1, padding: '4px', background: 'var(--accent-light)', color: 'var(--accent)', border: '1px solid var(--accent)' }}>🏆 Rank</button>
-                  <button className="action-btn" onClick={async () => {
-                    await signOut(auth);
-                    setShowLanding(true);
-                    setViewMode('logic');
-                    setActiveProblem(null);
-                    setActiveDsaTopic(null);
-                    setActiveLanguageTopic(null);
-                  }} style={{ flex: 1, padding: '4px', background: 'transparent', border: '1px solid var(--border-light)', color: 'var(--text-secondary)' }}>Sign Out</button>
-                </div>
-              </div>
-            ) : (
-              <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '8px', fontSize: '14px' }}>Sign In</button>
-            )}
+          <div className="sidebar-problems" style={{ marginTop: '8px', padding: '0 16px', flex: 1, overflowY: 'auto' }}>
+            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '8px', paddingLeft: '4px', letterSpacing: '0.5px' }}>Menu</h3>
+            <SidebarButton icon="🏠" label="Dashboard" id="dashboard" />
+            <SidebarButton icon="📚" label="Learn" id="learn" />
+            <SidebarButton icon="💻" label="Practice" id="practice" />
+            <SidebarButton icon="📊" label="Progress" id="progress" />
+            <SidebarButton icon="🏆" label="Leaderboard" id="leaderboard" />
+
+            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', margin: '24px 0 8px', paddingLeft: '4px', letterSpacing: '0.5px' }}>Account</h3>
+            <SidebarButton icon="👤" label="Profile" id="profile" />
+            <SidebarButton icon="⚙️" label="Settings" id="settings" />
+            <SidebarButton icon="💬" label="Feedback" id="feedback" />
           </div>
 
-          <div className="sidebar-problems" style={{ marginTop: '16px', padding: '0 16px' }}>
-            <h3 style={{ fontSize: '12px', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px', paddingLeft: '4px' }}>Navigation</h3>
-            <button 
-              className={`action-btn ${viewMode === 'logic' && !activeProblem ? 'active' : ''}`} 
-              onClick={() => { setViewMode('logic'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'logic' && !activeProblem ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '8px', border: 'none', color: 'var(--text-primary)' }}
-            >
-              <span style={{ fontSize: '18px' }}>🏠</span> Dashboard Home
-            </button>
-            <button 
-              className={`action-btn ${viewMode === 'dsa' ? 'active' : ''}`} 
-              onClick={() => { setViewMode('dsa'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'dsa' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)' }}
-            >
-              <span style={{ fontSize: '18px' }}>🗺️</span> DSA Roadmap
-            </button>
-            <button 
-              className={`action-btn ${viewMode === 'language' ? 'active' : ''}`} 
-              onClick={() => { setViewMode('language'); setActiveProblem(null); setActiveDsaTopic(null); setActiveLanguageTopic(null); setSidebarOpen(false); }}
-              style={{ width: '100%', padding: '12px', background: viewMode === 'language' ? 'var(--bg-surface)' : 'transparent', textAlign: 'left', display: 'flex', gap: '12px', alignItems: 'center', border: 'none', color: 'var(--text-primary)', marginTop: '8px' }}
-            >
-              <span style={{ fontSize: '18px' }}>🚀</span> Language Roadmap
-            </button>
-          </div>
-          
-          <div style={{ marginTop: 'auto', paddingTop: '32px' }}>
-            <Footer />
+          <div className="sidebar-user-bottom" style={{ marginTop: 'auto', padding: '16px', borderTop: '1px solid var(--border-light)', background: 'var(--bg-surface)' }}>
+            {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', flexShrink: 0 }}>
+                  {(userRoadmap?.username || user.email || "U")[0].toUpperCase()}
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: 'var(--text-primary)' }}>
+                    {user.isAnonymous ? "Guest User" : (userRoadmap?.username || user.email?.split('@')[0])}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Pro Member</div>
+                </div>
+                <button className="action-btn theme-toggle" onClick={toggleTheme} title="Toggle Theme" aria-label="Toggle dark/light theme" style={{ padding: '6px', background: 'transparent', border: 'none', fontSize: '16px', cursor: 'pointer', flexShrink: 0 }}>
+                  {theme === "light" ? "🌙" : "☀️"}
+                </button>
+                <button className="action-btn" onClick={async () => {
+                  await signOut(auth);
+                  setShowLanding(true);
+                  handleNav('dashboard');
+                }} title="Sign Out" style={{ padding: '6px', background: 'transparent', border: 'none', fontSize: '16px', cursor: 'pointer', flexShrink: 0 }}>
+                  🚪
+                </button>
+              </div>
+            ) : (
+              <button className="start-btn" onClick={() => setShowAuthModal(true)} style={{ width: '100%', padding: '12px', fontSize: '15px' }}>Sign In</button>
+            )}
           </div>
         </aside>
 
@@ -896,7 +903,7 @@ export default function Home() {
                initialStep={dsaProgress[activeDsaTopic.id]?.step || 0}
                progLanguage={userRoadmap?.language || 'Python'}
                language={language}
-               onLanguageChange={setLanguage}
+               onLanguageChange={handleLanguageChange}
                onBack={() => setActiveDsaTopic(null)}
                onProgressUpdate={async (step) => {
                  const newProg = { ...dsaProgress, [activeDsaTopic.id]: { level: 0, step } };
@@ -919,7 +926,7 @@ export default function Home() {
                initialStep={languageProgress[activeLanguageTopic.id]?.step || 0}
                progLanguage={userRoadmap?.language || 'Python'}
                language={language}
-               onLanguageChange={setLanguage}
+               onLanguageChange={handleLanguageChange}
                onBack={() => setActiveLanguageTopic(null)}
                onProgressUpdate={async (step) => {
                  const newProg = { ...languageProgress, [activeLanguageTopic.id]: { level: 0, step } };
@@ -987,7 +994,7 @@ export default function Home() {
                 <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '8px', color: '#991b1b' }}>Failed to Load</h2>
                 <button className="start-btn-small" onClick={() => getProblemForLevel(activeLevel)}>↻ Try Again</button>
               </div>
-            ) : (
+            ) : viewMode === 'dashboard' ? (
               <div className="bento-container">
                 <div className="bento-header">
                   <h1>Welcome back, {userRoadmap?.username || user?.displayName?.split(' ')[0] || 'Developer'}!</h1>
@@ -995,7 +1002,13 @@ export default function Home() {
                 </div>
                 
                 <div className="bento-grid">
-                  <div className="bento-card bento-span-6 bento-roadmap" onClick={() => setViewMode('dsa')}>
+                  <div className="bento-card bento-span-6 bento-roadmap" onClick={() => {
+                    const recentDsa = DSA_TOPICS.find(t => dsaProgress[t.id] && dsaProgress[t.id].level === 0);
+                    if (recentDsa) {
+                      setActiveDsaTopic(recentDsa);
+                    }
+                    setViewMode('dsa');
+                  }}>
                     <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
                       <div>
                         <h2>Data Structures & Algorithms</h2>
@@ -1007,7 +1020,13 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)', borderColor: 'rgba(168, 85, 247, 0.2)' }} onClick={() => setViewMode('language')}>
+                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)', borderColor: 'rgba(168, 85, 247, 0.2)' }} onClick={() => {
+                    const recentLang = LANGUAGE_TOPICS.find(t => languageProgress[t.id] && languageProgress[t.id].level === 0);
+                    if (recentLang) {
+                      setActiveLanguageTopic(recentLang);
+                    }
+                    setViewMode('language');
+                  }}>
                     <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
                       <div>
                         <h2 style={{ background: 'linear-gradient(135deg, #a855f7 0%, #3b82f6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -1022,9 +1041,22 @@ export default function Home() {
                   </div>
 
 
+                  <div className="bento-card bento-span-6 bento-roadmap" style={{ background: 'linear-gradient(135deg, rgba(234, 179, 8, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%)', borderColor: 'rgba(234, 179, 8, 0.2)' }} onClick={() => setViewMode('practice')}>
+                    <div className="bento-roadmap-content" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '24px' }}>
+                      <div>
+                        <h2 style={{ background: 'linear-gradient(135deg, #eab308 0%, #f97316 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                          Logic Problems
+                        </h2>
+                        <p>Raw problem-solving without syntax overhead.</p>
+                      </div>
+                      <button className="bento-btn">
+                        Start Practice <span>→</span>
+                      </button>
+                    </div>
+                  </div>
                   
                   <div 
-                    className="bento-card bento-span-12 bento-custom"
+                    className="bento-card bento-span-6 bento-custom"
                     onClick={() => { if (requireAuth()) setShowCustomModal(true); }}
                   >
                     <div className="bento-practice-icon" style={{ background: 'transparent', fontSize: '40px', marginBottom: '8px' }}>🎯</div>
@@ -1032,6 +1064,59 @@ export default function Home() {
                     <p style={{ opacity: 0.8 }}>Click here to paste your own custom problem and get started</p>
                   </div>
                 </div>
+              </div>
+            ) : viewMode === 'practice' ? (
+              <PracticeDashboard 
+                onSelectLevel={(level) => {
+                  setActiveLevel(level);
+                  setActiveProblem(null);
+                  getProblemForLevel(level);
+                }}
+                onCustomProblem={() => {
+                  if (requireAuth()) setShowCustomModal(true);
+                }}
+              />
+            ) : viewMode === 'learn' ? (
+              <LearnDashboard 
+                dsaProgress={dsaProgress} 
+                languageProgress={languageProgress} 
+                solvedProblems={solvedProblems} 
+                userRoadmap={userRoadmap} 
+                handleNav={handleNav} 
+                onSelectDsa={(topic) => { setActiveDsaTopic(topic); setViewMode('dsa'); setSidebarOpen(false); }}
+                onSelectLanguage={(topic) => { setActiveLanguageTopic(topic); setViewMode('language'); setSidebarOpen(false); }}
+              />
+            ) : viewMode === 'progress' ? (
+              <ProgressDashboard 
+                dsaProgress={dsaProgress} 
+                userStats={userStats} 
+                solvedProblems={solvedProblems} 
+              />
+            ) : viewMode === 'profile' ? (
+              <ProfileDashboard 
+                user={user} 
+                userRoadmap={userRoadmap} 
+                userStats={userStats} 
+                dsaProgress={dsaProgress} 
+              />
+            ) : viewMode === 'settings' ? (
+              <SettingsDashboard 
+                language={language}
+                setLanguage={handleLanguageChange}
+                theme={theme}
+                toggleTheme={toggleTheme}
+                user={user}
+                onSignOut={async () => { await signOut(auth); }}
+              />
+            ) : viewMode === 'leaderboard' ? (
+              <LeaderboardDashboard user={user} />
+            ) : viewMode === 'feedback' ? (
+              <FeedbackDashboard user={user} />
+            ) : (
+              <div className="landing-container" style={{ background: 'none', textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="landing-icon" style={{ boxShadow: 'none', background: 'var(--bg-surface)', color: 'var(--text-muted)' }}>🚧</div>
+                <h2 style={{ fontSize: '28px', fontWeight: 700, margin: '24px 0 12px', color: 'var(--text-primary)' }}>Coming Soon</h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>This section ({viewMode}) is currently under development.</p>
               </div>
             )
           ) : (
@@ -1142,6 +1227,20 @@ export default function Home() {
                          document.addEventListener("mousemove", onMouseMove);
                          document.addEventListener("mouseup", onMouseUp);
                        }}
+                       onTouchStart={(e) => {
+                         const startY = e.touches[0].clientY;
+                         const startHeight = terminalHeight;
+                         const onTouchMove = (moveEvent) => {
+                           const newHeight = startHeight - (moveEvent.touches[0].clientY - startY);
+                           setTerminalHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
+                         };
+                         const onTouchEnd = () => {
+                           document.removeEventListener("touchmove", onTouchMove);
+                           document.removeEventListener("touchend", onTouchEnd);
+                         };
+                         document.addEventListener("touchmove", onTouchMove);
+                         document.addEventListener("touchend", onTouchEnd);
+                       }}
                        style={{ height: '8px', background: '#333', cursor: 'row-resize', width: '100%', borderTop: '1px solid #444', borderBottom: '1px solid #444' }}
                      />
                      <div style={{ background: '#1e1e1e', height: `${terminalHeight}px`, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1227,6 +1326,8 @@ export default function Home() {
       </>
       )}
       <PracticeCompilerPanel language={userRoadmap?.language || 'Python'} />
+        </>
+      )}
     </>
   );
 }

@@ -37,28 +37,44 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
     setOutput("Executing...");
     setIsError(false);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
     try {
       const response = await fetch("/api/execute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language, code, stdin: "" })
+        body: JSON.stringify({ language, code, stdin: "" }),
+        signal: controller.signal
       });
       
-      const data = await response.json();
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         setIsError(true);
-        setOutput(data.error || "Execution failed.");
-      } else if (data.stderr || data.code !== 0) {
-        setIsError(true);
-        setOutput(data.stderr || data.output || "Runtime Error");
+        try {
+          const data = await response.json();
+          setOutput(data.error || "Execution failed.");
+        } catch(e) {
+          setOutput(`Server Error: ${response.status}`);
+        }
       } else {
-        setIsError(false);
-        setOutput(data.stdout || "Success (No output)");
+        const data = await response.json();
+        if (data.stderr || data.code !== 0) {
+          setIsError(true);
+          setOutput(data.stderr || data.output || "Runtime Error");
+        } else {
+          setIsError(false);
+          setOutput(data.stdout || "Success (No output)");
+        }
       }
     } catch (err) {
       setIsError(true);
-      setOutput("Error connecting to compilation server.");
+      if (err.name === 'AbortError') {
+        setOutput("Execution timed out (Possible infinite loop or server hanging).");
+      } else {
+        setOutput("Error connecting to compilation server.");
+      }
     } finally {
       setIsExecuting(false);
     }
@@ -70,19 +86,29 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
     setOutput("AI is analyzing Big-O complexity...");
     setIsError(false);
     
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    
     try {
       const response = await fetch("/api/analyze-complexity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language, code })
+        body: JSON.stringify({ language, code }),
+        signal: controller.signal
       });
       
-      const data = await response.json();
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
         setIsError(true);
-        setOutput(data.error || "Analysis failed.");
+        try {
+          const data = await response.json();
+          setOutput(data.error || "Analysis failed.");
+        } catch(e) {
+          setOutput(`Server Error: ${response.status}`);
+        }
       } else {
+        const data = await response.json();
         setIsError(false);
         const { timeComplexity, timeExplanation, spaceComplexity, spaceExplanation } = data.analysis;
         setOutput(
@@ -92,7 +118,11 @@ export default function PracticeCompilerPanel({ language = "Python", isOpen, onC
       }
     } catch (err) {
       setIsError(true);
-      setOutput("Error connecting to AI Analyzer.");
+      if (err.name === 'AbortError') {
+        setOutput("Analysis timed out.");
+      } else {
+        setOutput("Error connecting to AI Analyzer.");
+      }
     } finally {
       setIsAnalyzing(false);
     }

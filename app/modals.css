@@ -12,9 +12,7 @@
 }
 
 .modal-content {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-base);
   padding: 32px;
   border-radius: var(--radius-xl);
   width: 90%;
@@ -23,7 +21,7 @@
   overflow-y: auto;
   position: relative;
   box-shadow: var(--shadow-lg);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border-light);
   animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

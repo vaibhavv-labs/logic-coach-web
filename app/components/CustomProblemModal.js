@@ -21,6 +21,7 @@ export default function CustomProblemModal({ onClose, onSubmit, user, language =
         category: "User Submitted",
         difficulty: "Custom",
         uid: user.uid,
+        testCases: [],
         createdAt: serverTimestamp()
       };
 
@@ -35,6 +36,7 @@ export default function CustomProblemModal({ onClose, onSubmit, user, language =
 
       toast.success(t("toast_problem_submitted", language));
       onSubmit(newProblem);
+      onClose();
     } catch (error) {
       console.error("Error adding custom problem: ", error);
       if (error.code === 'permission-denied') {

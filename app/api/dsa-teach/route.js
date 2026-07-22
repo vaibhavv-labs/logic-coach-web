@@ -87,6 +87,10 @@ export async function POST(request) {
 
     const { messages, concept, language } = await request.json();
 
+    if (!messages || messages.length === 0) {
+      return NextResponse.json({ error: "Messages array cannot be empty." }, { status: 400 });
+    }
+
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
@@ -111,7 +115,7 @@ export async function POST(request) {
       result = await chat.sendMessage(lastMessage.content);
     } catch (err) {
       if (err.status === 429 || err.message?.includes('429') || err.message?.includes('quota')) {
-        return NextResponse.json({ reply: "My circuits are a bit busy at the moment! Please wait about 10 seconds and tell me your answer again. 🤖💨" });
+        return NextResponse.json({ error: "Too many requests. Please wait." }, { status: 429 });
       }
       throw err;
     }

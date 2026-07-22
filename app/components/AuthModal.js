@@ -6,6 +6,7 @@ export default function AuthModal({ onClose, onSuccess }) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +39,11 @@ export default function AuthModal({ onClose, onSuccess }) {
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     try {
+      if (!isLogin && password !== confirmPassword) {
+        setError("Passwords do not match. Please try again.");
+        return;
+      }
+
       setLoading(true);
       setError("");
       if (isLogin) {
@@ -66,7 +72,9 @@ export default function AuthModal({ onClose, onSuccess }) {
         <button className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         <h2>{isLogin ? "Welcome Back" : "Create Account"}</h2>
         <p className="auth-subtitle">
-          Sign in to save your progress and unlock unlimited problems.
+          {isLogin 
+            ? "Sign in to save your progress and unlock unlimited problems." 
+            : "Create an account to track your progress and compete on leaderboards."}
         </p>
         
         {error && <div className="auth-error">{error}</div>}
@@ -109,6 +117,16 @@ export default function AuthModal({ onClose, onSuccess }) {
             required
             minLength={6}
           />
+          {!isLogin && (
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={6}
+            />
+          )}
           <button type="submit" className="email-btn" disabled={loading}>
             {loading ? "Please wait..." : (isLogin ? "Sign In" : "Sign Up")}
           </button>

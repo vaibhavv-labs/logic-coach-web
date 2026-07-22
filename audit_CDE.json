@@ -1,0 +1,14 @@
+{
+  "DSA": {
+    "visualizer": "❌ Broken",
+    "chatQuickActions": "❌ Broken",
+    "skipStep": "❌ Broken (Skip button not found)",
+    "practiceCompiler": "❌ Broken"
+  },
+  "Logic": {
+    "listLoaded": "❌ Broken"
+  },
+  "Language": {
+    "mapLoaded": "❌ Broken"
+  }
+}

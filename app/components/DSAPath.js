@@ -25,7 +25,7 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
 
   const getTopicState = (topic, index) => {
     const topicProgress = progress?.[topic.id];
-    const isUnlocked = index === 0 || previousTopicUnlocked;
+    const isUnlocked = true; // index === 0 || previousTopicUnlocked;
     
     let stateClass = "locked";
     let btnText = "Locked";
@@ -82,12 +82,24 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
               </div>
               
               <div 
-                className="pro-timeline-card"
+                className={`pro-timeline-card ${!isUnlocked ? 'locked-shake' : ''}`}
                 role="button"
                 tabIndex={isUnlocked ? 0 : -1}
                 aria-label={isUnlocked ? `Start topic: ${topic.title}` : `Locked topic: ${topic.title}`}
-                onClick={() => isUnlocked && onSelectTopic(topic)}
+                onClick={() => {
+                  if (isUnlocked) {
+                    onSelectTopic(topic);
+                  } else {
+                    // Quick visual feedback that it's locked
+                    const el = document.getElementById(`dsa-card-${topic.id}`);
+                    if (el) {
+                      el.style.animation = 'none';
+                      setTimeout(() => el.style.animation = 'shake 0.4s', 10);
+                    }
+                  }
+                }}
                 onKeyDown={(e) => { if (isUnlocked && (e.key === 'Enter' || e.key === ' ')) onSelectTopic(topic); }}
+                id={`dsa-card-${topic.id}`}
               >
                 <div className="pro-timeline-header">
                   <h3 className="pro-timeline-title">{topic.title}</h3>

@@ -2291,3 +2291,15 @@ button, .btn, .action-btn, .start-btn, select, input, .mobile-menu-btn, .menu-bt
   90% { opacity: 0.2; }
   100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
 }
+
+.pro-timeline-card.locked-shake {
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}

@@ -137,7 +137,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
         setAiVisualState(data.state);
       }
 
-      if (data.understood) {
+      if (data.understood === true) {
         setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
         setLatestAiMessage(cleanReply);
         if (fromVoice) setIsAiSpeaking(true);
@@ -155,17 +155,18 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
           } else {
             onComplete();
           }
+          setIsLoading(false);
         }, 2500);
       } else {
         setChatHistory(prev => [...prev, { role: "coach", content: cleanReply }]);
         setLatestAiMessage(cleanReply);
         if (fromVoice) setIsAiSpeaking(true);
         setFailedAttempts(prev => prev + 1);
+        setIsLoading(false);
       }
     } catch (error) {
       setChatHistory(prev => [...prev, { role: "error", content: error.message, retryMessage: messageToSend.trim() }]);
       setFailedAttempts(prev => prev + 1);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -285,7 +286,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
               <div key={idx} className={`message ${msg.role === "user" ? "user" : msg.role === "error" ? "error" : "coach"}`}>
                 <div className="message-avatar">{msg.role === "user" ? "👤" : msg.role === "error" ? "⚠️" : "🤖"}</div>
                 <div className="message-bubble">
-                  {msg.content}
+                  {msg.role === "coach" ? <ReactMarkdown>{msg.content}</ReactMarkdown> : msg.content}
                   {msg.role === "error" && msg.retryMessage && (
                     <button 
                       onClick={() => handleSend(msg.retryMessage)}

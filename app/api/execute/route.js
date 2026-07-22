@@ -18,6 +18,12 @@ export async function POST(request) {
       return NextResponse.json({ error: `Language ${language} not supported by execution engine.` }, { status: 400 });
     }
 
+    // Fix Java execution for Godbolt which requires filename for public classes
+    let sourceCode = code;
+    if (gbLang === "java") {
+      sourceCode = sourceCode.replace(/public\s+class/g, 'class');
+    }
+
     // Execute code using Godbolt Compiler Explorer API
     const executeRes = await fetch(`https://godbolt.org/api/compiler/${compiler}/compile`, {
       method: "POST",
@@ -26,7 +32,7 @@ export async function POST(request) {
         "Accept": "application/json"
       },
       body: JSON.stringify({
-        source: code,
+        source: sourceCode,
         lang: gbLang,
         options: {
             userArguments: "",

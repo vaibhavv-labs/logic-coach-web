@@ -1,0 +1,72 @@
+{
+  "navigation": {
+    "Dashboard": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Learn": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Practice": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Progress": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Leaderboard": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Profile": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Settings": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    },
+    "Feedback": {
+      "status": "❌ Broken",
+      "errors": [],
+      "rendered": false
+    }
+  },
+  "mobileMenu": {
+    "status": "✅ Working"
+  },
+  "theme": {
+    "Dashboard": {
+      "status": "❌ Broken"
+    },
+    "Settings": {
+      "status": "❌ Broken"
+    },
+    "Profile": {
+      "status": "❌ Broken"
+    }
+  },
+  "learn": {
+    "Continue_DSA": {
+      "status": "❌ Broken"
+    },
+    "Continue_Logic": {
+      "status": "❌ Broken"
+    },
+    "Continue_Language": {
+      "status": "❌ Broken"
+    },
+    "recentlyOpened": {
+      "status": "✅ Working"
+    }
+  }
+}
