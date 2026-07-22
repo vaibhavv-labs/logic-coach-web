@@ -998,11 +998,15 @@ export default function Home() {
         </aside>
 
         <main className="main-content">
-          {(viewMode !== 'dashboard' || activeProblem || activeDsaTopic || activeLanguageTopic) && (
+          {(viewMode !== 'dashboard' || activeProblem || activeLanguageTopic) && !activeDsaTopic && (
              <div style={{ padding: '20px 20px 0 20px', maxWidth: '1200px', margin: '0 auto', width: '100%', display: 'flex' }}>
-               <button onClick={handleUiBack} className="action-btn" style={{ padding: '8px 16px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontWeight: 600 }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                  Back
+               <button 
+                 onClick={handleUiBack} 
+                 className="action-btn" 
+                 title="Back"
+                 style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-surface-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
+               >
+                 ←
                </button>
              </div>
           )}
