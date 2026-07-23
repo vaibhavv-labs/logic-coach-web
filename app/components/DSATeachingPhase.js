@@ -31,7 +31,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
   const [aiVisualState, setAiVisualState] = useState(null);
   const [isAiSpeaking, setIsAiSpeaking] = useState(false);
   const [latestAiMessage, setLatestAiMessage] = useState("");
@@ -39,7 +39,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
+    const savedTheme = localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
   }, []);

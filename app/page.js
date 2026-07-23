@@ -141,7 +141,7 @@ export default function Home() {
   const [fetchingProblem, setFetchingProblem] = useState(false);
   const [problemFetchError, setProblemFetchError] = useState(null);
   const [activeLevel, setActiveLevel] = useState('Beginner');
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState("dark");
 
   // Execution Engine States
   const [isExecuting, setIsExecuting] = useState(false);
@@ -153,7 +153,7 @@ export default function Home() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") || "light";
+    const savedTheme = localStorage.getItem("theme") || "dark";
     setTheme(savedTheme);
     document.documentElement.setAttribute("data-theme", savedTheme);
     const savedLang = localStorage.getItem("language");
