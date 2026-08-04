@@ -24,7 +24,7 @@ CRITICAL RULE: DO NOT use JSON output. Return plain conversational text. You MUS
 
 export async function POST(request) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
     const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
     if (!apiKey || !fbApiKey) {
@@ -81,11 +81,61 @@ export async function POST(request) {
       return NextResponse.json({ error: "Messages array cannot be empty." }, { status: 400 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const systemInstruction = SYSTEM_PROMPT.replace("{CONCEPT}", concept) + 
+      (language ? `\nRespond in this spoken language: ${language}.` : "");
+
+    const groqApiKey = process.env.GROQ_API_KEY;
+    if (groqApiKey) {
+      try {
+        const Groq = (await import("groq-sdk")).default;
+        const groq = new Groq({ apiKey: groqApiKey });
+
+        const groqMessages = [
+          { role: "system", content: systemInstruction },
+          ...messages.map((msg) => ({
+            role: msg.role === "user" ? "user" : "assistant",
+            content: msg.content,
+          })),
+        ];
+
+        const completion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: groqMessages,
+          stream: true,
+          temperature: 0.7,
+        });
+
+        const stream = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of completion) {
+                const content = chunk.choices[0]?.delta?.content || "";
+                if (content) {
+                  controller.enqueue(new TextEncoder().encode(content));
+                }
+              }
+              controller.close();
+            } catch (e) {
+              controller.error(e);
+            }
+          },
+        });
+
+        return new Response(stream, {
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
+      } catch (groqErr) {
+        console.warn("Groq API error in dsa-teach, falling back to Gemini:", groqErr);
+        if (!process.env.GEMINI_API_KEY) throw groqErr;
+      }
+    }
+
+    // Gemini Fallback
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
-      systemInstruction: SYSTEM_PROMPT.replace("{CONCEPT}", concept) + 
-        (language ? `\nRespond in this spoken language: ${language}.` : ""),
+      systemInstruction: systemInstruction,
     });
 
     const history = messages.slice(0, -1).map((msg) => ({

@@ -14,7 +14,7 @@ const INTERVIEWER_PROMPT = `You are an elite Senior Engineer conducting a strict
 
 export async function POST(request) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
     const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
     if (!apiKey || !fbApiKey) {
@@ -79,8 +79,63 @@ export async function POST(request) {
       );
     }
 
-    // Dynamically fetch available models
-    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const instructions = (isLevel2 ? INTERVIEWER_PROMPT : SYSTEM_PROMPT) + 
+      (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
+      (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
+      (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
+      (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
+      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag by appending :::state=state_name::: at the VERY END of your response. Valid states are: ${dsaVisuals}` : "") +
+      `\n\nCRITICAL RULE: DO NOT use JSON output. Return plain conversational text. If a visualizer state change is needed, append :::state=state_name::: at the very end of the text. If no state change is needed, do not include the tag.`;
+
+    const groqApiKey = process.env.GROQ_API_KEY;
+    if (groqApiKey) {
+      try {
+        const Groq = (await import("groq-sdk")).default;
+        const groq = new Groq({ apiKey: groqApiKey });
+
+        const groqMessages = [
+          { role: "system", content: instructions },
+          ...messages.map((msg) => ({
+            role: msg.role === "user" ? "user" : "assistant",
+            content: msg.content,
+          })),
+        ];
+
+        const completion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: groqMessages,
+          stream: true,
+          temperature: 0.7,
+        });
+
+        const stream = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const chunk of completion) {
+                const content = chunk.choices[0]?.delta?.content || "";
+                if (content) {
+                  controller.enqueue(new TextEncoder().encode(content));
+                }
+              }
+              controller.close();
+            } catch (e) {
+              controller.error(e);
+            }
+          },
+        });
+
+        return new Response(stream, {
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        });
+      } catch (groqErr) {
+        console.warn("Groq API error, falling back to Gemini if available:", groqErr);
+        if (!process.env.GEMINI_API_KEY) throw groqErr;
+      }
+    }
+
+    // Fallback to Gemini API if GROQ is absent or fails
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
     const modelsData = await modelsRes.json();
     
     let modelName = "gemini-pro"; // ultimate fallback
@@ -95,16 +150,8 @@ export async function POST(request) {
       }
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
     const isLegacyPro = modelName === "gemini-pro" || modelName === "gemini-1.0-pro";
-    
-    const instructions = (isLevel2 ? INTERVIEWER_PROMPT : SYSTEM_PROMPT) + 
-      (problemContext ? `\n\nThe student is working on: "${problemContext.title}".\nDescription: ${problemContext.description}\n` : "") +
-      (progLanguage ? `\n\nThe student is coding in this programming language: ${progLanguage}. Ensure all coding concepts and guidance strictly align with this language.` : "") +
-      (!isLevel2 && language ? `\n\nThe user prefers the AI to respond in this spoken language/style: ${language}.` : "") +
-      (editorCode ? `\n\nCURRENT CODE IN EDITOR:\n\`\`\`\n${editorCode}\n\`\`\`\n(If the user asks you to review their code, critique the above code).` : "") +
-      (!isLevel2 && dsaTopic ? `\n\nCRITICAL: A live visualizer for "${dsaTopic}" is currently above the student's code editor. To help them debug visually, you MUST include a state tag by appending :::state=state_name::: at the VERY END of your response. Valid states are: ${dsaVisuals}` : "") +
-      `\n\nCRITICAL RULE: DO NOT use JSON output. Return plain conversational text. If a visualizer state change is needed, append :::state=state_name::: at the very end of the text. If no state change is needed, do not include the tag.`;
 
     const modelConfig = { model: modelName };
     if (!isLegacyPro) {
@@ -128,7 +175,6 @@ export async function POST(request) {
        });
     }
 
-    // Gemini API requires the first message in history to be from a 'user'
     if (history.length > 0 && history[0].role === "model") {
       history.unshift({
         role: "user",

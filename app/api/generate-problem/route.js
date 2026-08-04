@@ -4,7 +4,7 @@ import { enforceRateLimit } from "../../../lib/rateLimit";
 
 export async function POST(request) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
     const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
     if (!apiKey || !fbApiKey) {
@@ -67,11 +67,6 @@ export async function POST(request) {
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-    });
-
     let prompt = `
 Generate a single programming logic problem for a student at the "${level}" level. 
 The levels progress as: Beginner (variables, simple if/else) -> Easy (loops) -> Medium (arrays/lists) -> Hard (nested logic, simple functions) -> Advanced (combining concepts).
@@ -105,6 +100,38 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
     }
   ] // generate exactly 3 test cases
 }`;
+
+    const groqApiKey = process.env.GROQ_API_KEY;
+    if (groqApiKey) {
+      try {
+        const Groq = (await import("groq-sdk")).default;
+        const groq = new Groq({ apiKey: groqApiKey });
+
+        const completion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: "You are a programming problem author. Respond strictly with valid JSON." },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7,
+        });
+
+        const responseText = completion.choices[0]?.message?.content || "";
+        const problemData = JSON.parse(responseText.trim());
+        return NextResponse.json(problemData);
+      } catch (groqErr) {
+        console.warn("Groq API error in generate-problem, falling back to Gemini:", groqErr);
+        if (!process.env.GEMINI_API_KEY) throw groqErr;
+      }
+    }
+
+    // Gemini Fallback
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
 
     let result;
     let retries = 3;
@@ -140,13 +167,13 @@ Respond ONLY with a valid JSON object in this exact format, with no markdown for
     
     // Clean up potential markdown formatting
     let cleanJson = responseText.trim();
-    if (cleanJson.startsWith('\`\`\`json')) {
+    if (cleanJson.startsWith('```json')) {
       cleanJson = cleanJson.substring(7);
     }
-    if (cleanJson.startsWith('\`\`\`')) {
+    if (cleanJson.startsWith('```')) {
       cleanJson = cleanJson.substring(3);
     }
-    if (cleanJson.endsWith('\`\`\`')) {
+    if (cleanJson.endsWith('```')) {
       cleanJson = cleanJson.substring(0, cleanJson.length - 3);
     }
 

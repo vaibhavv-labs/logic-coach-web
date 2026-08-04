@@ -4,7 +4,7 @@ import { enforceRateLimit } from "../../../lib/rateLimit";
 
 export async function POST(request) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY;
     const fbApiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
     if (!apiKey || !fbApiKey) {
@@ -68,15 +68,51 @@ export async function POST(request) {
       );
     }
 
-    // Dynamically fetch available models to prevent 404 errors on restricted API keys
-    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const prompt = `You are an expert software engineer analyzing code complexity. 
+You must evaluate the provided code and return ONLY a raw JSON object with the following keys exactly:
+- "timeComplexity" (string: The Big O time complexity, e.g. O(N))
+- "timeExplanation" (string: 1-2 sentence explanation)
+- "spaceComplexity" (string: The Big O space complexity, e.g. O(1))
+- "spaceExplanation" (string: 1-2 sentence explanation)
+
+Analyze the complexity of this ${language || 'code'}:
+${code}`;
+
+    const groqApiKey = process.env.GROQ_API_KEY;
+    if (groqApiKey) {
+      try {
+        const Groq = (await import("groq-sdk")).default;
+        const groq = new Groq({ apiKey: groqApiKey });
+
+        const completion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: "You are a code complexity analyzer. Return ONLY raw JSON." },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.2,
+        });
+
+        const rawText = completion.choices[0]?.message?.content || "";
+        const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/) || rawText.match(/(\{[\s\S]*?\})/);
+        const analysis = JSON.parse(jsonMatch ? jsonMatch[1] : rawText);
+        return NextResponse.json({ analysis });
+      } catch (groqErr) {
+        console.warn("Groq API error in analyze-complexity, falling back to Gemini:", groqErr);
+        if (!process.env.GEMINI_API_KEY) throw groqErr;
+      }
+    }
+
+    // Gemini Fallback
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiApiKey}`);
     const modelsData = await modelsRes.json();
     
     if (!modelsData.models || modelsData.models.length === 0) {
         return NextResponse.json({ error: "No models available for this API key. Check billing or quota." }, { status: 500 });
     }
 
-    // Find the first valid gemini text model
     const validModel = modelsData.models.find(m => 
       m.supportedGenerationMethods && 
       m.supportedGenerationMethods.includes("generateContent") && 
@@ -88,20 +124,8 @@ export async function POST(request) {
     }
 
     const modelName = validModel.name.replace("models/", "");
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ model: modelName });
-
-    const prompt = `You are an expert software engineer analyzing code complexity. 
-You must evaluate the provided code and return ONLY a raw JSON object with the following keys exactly:
-- "timeComplexity" (string: The Big O time complexity, e.g. O(N))
-- "timeExplanation" (string: 1-2 sentence explanation)
-- "spaceComplexity" (string: The Big O space complexity, e.g. O(1))
-- "spaceExplanation" (string: 1-2 sentence explanation)
-
-Do not wrap in markdown or backticks. Return valid JSON only.
-
-Analyze the complexity of this ${language || 'code'}:
-${code}`;
 
     let result;
     let retries = 3;
