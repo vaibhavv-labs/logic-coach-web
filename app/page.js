@@ -33,6 +33,8 @@ const SettingsDashboard = dynamic(() => import('./components/SettingsDashboard')
 const LeaderboardDashboard = dynamic(() => import('./components/LeaderboardDashboard'), { loading: () => <LoadingSpinner /> });
 const FeedbackDashboard = dynamic(() => import('./components/FeedbackDashboard'), { loading: () => <LoadingSpinner /> });
 const PracticeDashboard = dynamic(() => import('./components/PracticeDashboard'), { loading: () => <LoadingSpinner /> });
+const StitchWorkspace = dynamic(() => import('./components/StitchWorkspace'), { loading: () => <LoadingSpinner /> });
+
 
 // Visualizers
 const ArrayVisualizer = dynamic(() => import('./components/visualizers/ArrayVisualizer'), { loading: () => <LoadingSpinner /> });
@@ -1269,249 +1271,46 @@ export default function Home() {
               </div>
             )
           ) : (
-            <div className="split-layout">
-              <div className="chat-pane">
-              <div className="chat-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <button 
-                    className="action-btn" 
-                    onClick={() => setActiveProblem(null)} 
-                    title="Back to Dashboard"
-                    style={{ fontSize: '18px', padding: '4px 12px', background: 'var(--bg-surface-raised)', color: 'var(--text-primary)', border: '1px solid var(--border)' }}
-                  >
-                    ←
-                  </button>
-                  <div className="chat-header-info">
-                    <div className="chat-header-icon">{activeProblem.icon || "🧩"}</div>
-                    <div className="chat-header-text">
-                      <h3>{activeProblem.title}</h3>
-                      <p>{activeProblem.category}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="header-actions">
-                  {solvedProblems.has(activeProblem?.id) && ((viewMode === 'dsa' && activeDsaTopic) || (viewMode === 'language' && activeLanguageTopic)) && (
-                    <button 
-                      className="action-btn"
-                      onClick={() => {
-                        if (viewMode === 'dsa' && activeDsaTopic) {
-                          const currentIndex = DSA_TOPICS.findIndex(t => t.id === activeDsaTopic.id);
-                          if (currentIndex !== -1 && currentIndex < DSA_TOPICS.length - 1) {
-                            setActiveDsaTopic(DSA_TOPICS[currentIndex + 1]);
-                            setActiveProblem(null);
-                          }
-                        } else if (viewMode === 'language' && activeLanguageTopic) {
-                          const currentIndex = LANGUAGE_TOPICS.findIndex(t => t.id === activeLanguageTopic.id);
-                          if (currentIndex !== -1 && currentIndex < LANGUAGE_TOPICS.length - 1) {
-                            setActiveLanguageTopic(LANGUAGE_TOPICS[currentIndex + 1]);
-                            setActiveProblem(null);
-                          }
-                        }
-                      }}
-                      title="Jump to Next Topic"
-                      style={{ background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)' }}
-                    >
-                      Next Topic ⏭
-                    </button>
-                  )}
-                  <button 
-                    className="action-btn" 
-                    onClick={() => {
-                      if (activeProblem?.difficulty === 'Custom') {
-                        setShowCustomModal(true);
-                      } else {
-                        getProblemForLevel(activeLevel || 'Beginner');
-                      }
-                    }} 
-                    title={activeProblem?.difficulty === 'Custom' ? "New Custom Problem" : "Next Problem"}
-                    style={{ background: 'var(--bg-surface-raised)', border: '1px solid var(--border)' }}
-                  >
-                    {
-                      (activeProblem?.difficulty === 'Custom') ? (solvedProblems.has(activeProblem?.id) ? "New Custom ⏭" : "↻ Skip") : 
-                      (solvedProblems.has(activeProblem?.id) ? "Next Problem ⏭" : "↻ Skip")
-                    }
-                  </button>
-                  <select className="lang-select" value={progLanguage} onChange={(e) => setProgLanguage(e.target.value)}>
-                    <option value="Python">Python</option>
-                    <option value="JavaScript">JavaScript</option>
-                    <option value="Java">Java</option>
-                    <option value="C++">C++</option>
-                  </select>
-                  {/* Theme toggle moved to sidebar */}
-                  <button className={`mark-solved-btn ${solvedProblems.has(activeProblem.id) ? 'solved' : ''}`} onClick={toggleSolved}>
-                    {solvedProblems.has(activeProblem.id) ? '✓ Solved' : 'Mark Solved'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="chat-messages">
-                {currentMessages.length === 0 && !isLoading && (
-                  <EmptyState 
-                    icon="💬" 
-                    title="empty_chat_title" 
-                    description="empty_chat_desc" 
-                    language={language}
-                  />
-                )}
-                {currentMessages.map((msg, idx) => (
-                  <div key={idx} className={`message ${msg.role === "error" ? "error" : msg.role}`}>
-                    <div className="message-avatar">{msg.role === "user" ? "👤" : msg.role === "error" ? "⚠️" : "🤖"}</div>
-                    <div className="message-bubble">
-                      {msg.content}
-                      {msg.role === "error" && msg.retryMessage && (
-                        <button 
-                          onClick={() => handleSend(msg.retryMessage)}
-                          style={{ display: 'block', marginTop: '8px', padding: '6px 12px', background: 'var(--error, #f43f5e)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
-                        >
-                          ↻ Try Again
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-                {isLoading && <div className="message coach"><div className="typing-dots"><span></span><span></span><span></span></div></div>}
-                <div ref={messagesEndRef} />
-              </div>
-
-              <div className="chat-bottom">
-                <div className="chat-input-wrapper">
-                  <textarea ref={inputRef} className="chat-input" value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={handleKeyDown} />
-                  <VoiceChat onTranscript={(text) => handleSend(text, true)} />
-                  <button className="send-btn" onClick={() => handleSend()} disabled={!inputText.trim() || isLoading}>➤</button>
-                </div>
-              </div>
-            </div>
-
-              <div className="editor-pane" style={{ display: 'flex', flexDirection: 'column' }}>
-                 {(viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2) && (
-
-                   <div style={{ background: '#1e1e1e', color: '#ff4d4f', padding: '12px', textAlign: 'center', fontWeight: 'bold' }}>
-                     ⏱️ {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
-                   </div>
-                 )}
-                 {renderProblemVisualizer()}
-                 <div style={{ padding: '8px', borderBottom: '1px solid var(--border)' }}>
-                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', cursor: 'pointer' }}>
-                     <input type="checkbox" checked={showCustomInput} onChange={(e) => setShowCustomInput(e.target.checked)} />
-                     Use Custom Input
-                   </label>
-                   {showCustomInput && (
-                     <textarea className="chat-input" value={customInput} onChange={(e) => setCustomInput(e.target.value)} placeholder="Enter input (stdin) here..." style={{ marginTop: '8px', height: '60px' }} />
-                   )}
-                 </div>
-                 <CodeEditor language={progLanguage} value={code} onChange={setCode} onRun={handleRunTests} onAnalyze={handleAnalyzeBigO} />
-                 
-                 {showTestPanel && (
-                   <>
-                     <div 
-                       onMouseDown={(e) => {
-                         e.preventDefault();
-                         const startY = e.clientY;
-                         const startHeight = terminalHeight;
-                         const onMouseMove = (moveEvent) => {
-                           const newHeight = startHeight - (moveEvent.clientY - startY);
-                           setTerminalHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
-                         };
-                         const onMouseUp = () => {
-                           document.removeEventListener("mousemove", onMouseMove);
-                           document.removeEventListener("mouseup", onMouseUp);
-                         };
-                         document.addEventListener("mousemove", onMouseMove);
-                         document.addEventListener("mouseup", onMouseUp);
-                       }}
-                       onTouchStart={(e) => {
-                         const startY = e.touches[0].clientY;
-                         const startHeight = terminalHeight;
-                         const onTouchMove = (moveEvent) => {
-                           const newHeight = startHeight - (moveEvent.touches[0].clientY - startY);
-                           setTerminalHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
-                         };
-                         const onTouchEnd = () => {
-                           document.removeEventListener("touchmove", onTouchMove);
-                           document.removeEventListener("touchend", onTouchEnd);
-                         };
-                         document.addEventListener("touchmove", onTouchMove);
-                         document.addEventListener("touchend", onTouchEnd);
-                       }}
-                       style={{ height: '8px', background: '#333', cursor: 'row-resize', width: '100%', borderTop: '1px solid #444', borderBottom: '1px solid #444' }}
-                     />
-                     <div style={{ background: '#1e1e1e', height: `${terminalHeight}px`, overflowY: 'auto', padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                       <h3 style={{ margin: 0, color: '#e5e7eb', fontSize: '14px' }}>Test Results</h3>
-                       <button onClick={() => setShowTestPanel(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer' }}>✕</button>
-                     </div>
-                     
-                     {isExecuting || isAnalyzingBigO ? (
-                       <div style={{ color: '#9ca3af', fontSize: '14px' }}>{isExecuting ? "Executing code on server..." : "Analyzing complexity..."} ⏳</div>
-                     ) : testResults ? (
-                       testResults.map((tr, idx) => (
-                         <div key={idx} style={{ background: tr.passed ? 'rgba(10, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', border: `1px solid ${tr.passed ? '#10b981' : '#ef4444'}`, padding: '12px', borderRadius: '6px' }}>
-                           <div style={{ fontWeight: 'bold', color: tr.passed ? '#10b981' : '#ef4444', marginBottom: '8px' }}>
-                             {tr.isManual ? (tr.passed ? "SUCCESS ✅" : "FAILED ❌") : `Test Case ${idx + 1}: ${tr.passed ? "PASSED ✅" : "FAILED ❌"}`}
-                           </div>
-                           {tr.error ? (
-                             <div style={{ color: '#ef4444', fontFamily: 'monospace', fontSize: '12px', whiteSpace: 'pre-wrap' }}>{tr.error}</div>
-                           ) : (
-                             <>
-                               {tr.isManual && (
-                                 <>
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Actual Output:</div>
-                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>
-                                 </>
-                               )}
-                               {!tr.isManual && (
-                                 <>
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Input (stdin):</div>
-                                   <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.input}</pre>
-                                   
-                                   <div style={{ fontSize: '12px', color: '#9ca3af', marginBottom: '4px' }}>Output Diff (Red=Actual, Green=Expected):</div>
-                                   {!tr.passed ? renderDiff(tr.expectedOutput, tr.actualOutput) : <pre style={{ background: '#2d2d2d', color: '#f3f4f6', padding: '8px', borderRadius: '4px', fontSize: '12px', margin: '0 0 8px 0', whiteSpace: 'pre-wrap' }}>{tr.actualOutput || "(No output)"}</pre>}
-                                 </>
-                               )}
-                               
-                               {tr.stderr && (
-                                 <>
-                                   <div style={{ fontSize: '12px', color: '#ef4444', marginBottom: '4px' }}>Error (stderr):</div>
-                                   <pre style={{ background: '#2d2d2d', padding: '8px', borderRadius: '4px', fontSize: '12px', color: '#ef4444', margin: '0', whiteSpace: 'pre-wrap' }}>{tr.stderr}</pre>
-                                 </>
-                               )}
-                             </>
-                           )}
-                         </div>
-                       ))
-                     ) : null}
-                   </div>
-                   </>
-                 )}
-
-                 <div className="editor-actions-mobile-fix" style={{ display: 'flex', gap: '8px', padding: '8px', flexWrap: 'wrap' }}>
-                    <button 
-                      className="review-btn" 
-                      onClick={handleAnalyzeBigO}
-                      disabled={isAnalyzingBigO || isExecuting || !code.trim()}
-                      style={{ flex: 1, minWidth: '140px', background: 'var(--bg-surface)', color: 'var(--accent)', border: '1px solid var(--accent)' }}
-                    >
-                      {isAnalyzingBigO ? "Analyzing..." : "⚡ Analyze Big-O"}
-                    </button>
-                    <button 
-                      className="review-btn" 
-                      onClick={handleRunTests}
-                      disabled={isExecuting || isAnalyzingBigO || !code.trim()}
-                      style={{ flex: 1, minWidth: '140px', background: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                    >
-                      {isExecuting ? "Executing..." : (!activeProblem?.testCases || activeProblem.testCases.length === 0 ? "▶ Run Code" : "▶ Run Tests")}
-                    </button>
-                    <button 
-                      className="review-btn" 
-                      onClick={() => handleSend("Please review the code I have written in the editor.")}
-                      disabled={isLoading || isExecuting || isAnalyzingBigO || !code.trim()}
-                      style={{ flex: '1 1 100%', minWidth: '200px' }}
-                    >
-                      Ask AI to Review Code
-                    </button>
-                  </div>
-              </div>
-            </div>
+            <StitchWorkspace
+              user={user}
+              activeProblem={activeProblem}
+              messages={currentMessages}
+              onSendMessage={handleSend}
+              editorCode={code}
+              setEditorCode={setCode}
+              progLanguage={progLanguage}
+              setProgLanguage={setProgLanguage}
+              isLevel2={viewMode === 'dsa' && activeDsaTopic && dsaProgress[activeDsaTopic.id]?.level >= 2}
+              setIsLevel2={() => {}}
+              language={language}
+              setLanguage={handleLanguageChange}
+              dsaTopic={activeDsaTopic?.title || activeProblem?.category}
+              dsaState={problemVisualState}
+              visualizerComponent={renderProblemVisualizer()}
+              onRunCode={handleRunTests}
+              onAnalyzeComplexity={handleAnalyzeBigO}
+              onGenerateProblem={() => {
+                if (activeProblem?.difficulty === 'Custom') {
+                  setShowCustomModal(true);
+                } else {
+                  getProblemForLevel(activeLevel || 'Beginner');
+                }
+              }}
+              stdinInput={customInput}
+              setStdinInput={setCustomInput}
+              stdoutOutput={
+                testResults ? testResults.map(tr => (
+                  `${tr.isManual ? (tr.passed ? '✓ SUCCESS' : '❌ FAILED') : `Test Case ${tr.passed ? 'PASSED ✅' : 'FAILED ❌'}`}\n${tr.error ? tr.error + '\n' : ''}${tr.actualOutput ? 'Output:\n' + tr.actualOutput + '\n' : ''}${tr.stderr ? 'Stderr:\n' + tr.stderr + '\n' : ''}`
+                )).join('\n---\n') : null
+              }
+              complexityAnalysis={bigOAnalysis}
+              isAnalyzing={isAnalyzingBigO}
+              isExecuting={isExecuting}
+              isChatLoading={isLoading}
+              onBackToDashboard={() => setActiveProblem(null)}
+              solvedProblems={solvedProblems}
+              onToggleSolved={toggleSolved}
+            />
           )}
         </main>
       </div>
