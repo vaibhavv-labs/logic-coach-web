@@ -1,44 +1,44 @@
 {
   "navigation": {
     "Dashboard": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Learn": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Practice": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Progress": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Leaderboard": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Profile": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Settings": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     },
     "Feedback": {
-      "status": "❌ Broken",
+      "status": "✅ Working",
       "errors": [],
-      "rendered": false
+      "rendered": true
     }
   },
   "mobileMenu": {
@@ -57,7 +57,7 @@
   },
   "learn": {
     "Continue_DSA": {
-      "status": "❌ Broken"
+      "status": "✅ Working"
     },
     "Continue_Logic": {
       "status": "❌ Broken"
@@ -66,7 +66,7 @@
       "status": "❌ Broken"
     },
     "recentlyOpened": {
-      "status": "✅ Working"
+      "status": "❌ Broken"
     }
   }
 }

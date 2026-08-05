@@ -254,6 +254,7 @@ export default function Home() {
       setUser(u);
       if (u) {
         setShowLanding(false);
+        setScreen("app");
         await loadUserProgress(u.uid);
       } else {
         setShowLanding(true);
@@ -313,7 +314,30 @@ export default function Home() {
           setOnboardingCompleted(false);
         }
       } else {
-        setOnboardingCompleted(false);
+        if (auth.currentUser?.isAnonymous) {
+          // Auto-initialize guest progress to bypass onboarding!
+          const defaultRoadmap = {
+            role: "Student",
+            interest: ["Programming Languages", "Data Structures & Algorithms"],
+            language: "Python",
+            goal: "Logic Building",
+            username: "Guest Developer",
+            onboardingCompleted: true
+          };
+          await setDoc(progressRef, {
+            roadmap: defaultRoadmap,
+            onboardingCompleted: true,
+            totalAttempted: 0,
+            streak: 0,
+            solved: [],
+            dsaProgress: {},
+            languageProgress: {}
+          });
+          setOnboardingCompleted(true);
+          setUserRoadmap(defaultRoadmap);
+        } else {
+          setOnboardingCompleted(false);
+        }
       }
     } catch (error) {
       console.error("Error loading progress:", error);

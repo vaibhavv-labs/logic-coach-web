@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
 
-const SCREENSHOT_DIR = 'C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded';
+const SCREENSHOT_DIR = '/app/screenshots';
 
 (async () => {
   console.log('Starting Full Audit: Sections A & B');

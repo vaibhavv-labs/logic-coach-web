@@ -69,11 +69,11 @@ export default function ArrayVisualizer({ state }) {
 
   return (
     <div className="visualizer-container array-visualizer">
-      {state === "matrix" ? (
+      {state === "matrix" && elements.length > 0 && Array.isArray(elements[0]) ? (
         <div className="matrix-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {elements.map((row, rIdx) => (
             <div key={rIdx} className="array-row">
-              {row.map((el, cIdx) => {
+              {Array.isArray(row) && row.map((el, cIdx) => {
                 const isActive = activeIndex && activeIndex[0] === rIdx && activeIndex[1] === cIdx;
                 return (
                   <div key={cIdx} className="array-cell-container">

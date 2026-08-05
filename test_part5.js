@@ -30,7 +30,7 @@ const fs = require('fs');
 
   // Take screenshot of default dashboard on mobile
   console.log('Screenshot: Mobile Dashboard');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part5_mobile_dashboard.png` });
+  await page.screenshot({ path: `/app/screenshots/part5_mobile_dashboard.png` });
 
   // Open sidebar
   console.log('Opening mobile sidebar...');
@@ -41,7 +41,7 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 1000));
 
   console.log('Screenshot: Mobile Sidebar');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part5_mobile_sidebar.png` });
+  await page.screenshot({ path: `/app/screenshots/part5_mobile_sidebar.png` });
 
   // Toggle theme to dark
   console.log('Toggling theme to Dark...');
@@ -62,7 +62,7 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 1000));
 
   console.log('Screenshot: Dark Mode Dashboard');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part5_dark_mode.png` });
+  await page.screenshot({ path: `/app/screenshots/part5_dark_mode.png` });
 
   // Test 2: i18n Hindi Translation in DSATeachingPhase
   // Go to Learn, then DSATeachingPhase
@@ -93,7 +93,7 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 1000));
 
   console.log('Screenshot: Hindi Language');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part5_hindi.png` });
+  await page.screenshot({ path: `/app/screenshots/part5_hindi.png` });
 
   await browser.close();
   console.log('Done!');

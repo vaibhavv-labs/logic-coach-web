@@ -49,7 +49,7 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 2000));
 
   console.log('Taking screenshot of Level 0...');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part2_level0.png` });
+  await page.screenshot({ path: `/app/screenshots/part2_level0.png` });
 
   // Skip through Level 0
   console.log('Skipping Level 0...');
@@ -78,7 +78,7 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 2000));
 
   console.log('Taking screenshot of Level 1...');
-  await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part2_level1.png` });
+  await page.screenshot({ path: `/app/screenshots/part2_level1.png` });
 
   await browser.close();
   console.log('Done!');

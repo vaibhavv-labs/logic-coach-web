@@ -51,12 +51,16 @@ const fs = require('fs');
   await new Promise(r => setTimeout(r, 2000));
 
   // Verify it loaded PracticeProblemPane
-  const hasEditor = await page.evaluate(() => !!document.querySelector('.cm-editor'));
+  await new Promise(r => setTimeout(r, 4000)); // wait a bit longer for generation/loading
+  const hasEditor = await page.evaluate(() => !!document.querySelector('.monaco-editor'));
   if (hasEditor) {
     console.log('Taking screenshot of Logic Problem view...');
-    await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part3_problem.png` });
+    await page.screenshot({ path: `/app/screenshots/part3_problem.png` });
   } else {
     console.error('FAILED: Editor did not load for standard logic problem.');
+    await page.screenshot({ path: `/app/screenshots/part3_problem_failed.png` });
+    const text = await page.evaluate(() => document.body.innerText);
+    console.log("Page text is:", text.slice(0, 1000));
   }
 
   // Go back to Practice Dashboard
@@ -84,25 +88,24 @@ const fs = require('fs');
   });
   await new Promise(r => setTimeout(r, 1000));
 
-  // Fill modal
+  // Fill modal using native Puppeteer actions for React state updates
+  console.log('Typing custom problem into textarea...');
+  await page.focus('textarea');
+  await page.type('textarea', "Find the missing number in an array containing 1 to n.");
+  await new Promise(r => setTimeout(r, 500));
+
   await page.evaluate(() => {
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.value = "Find the missing number in an array containing 1 to n.";
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    
     const btns = Array.from(document.querySelectorAll('button'));
     const submitBtn = btns.find(b => b.textContent.includes('Start Solving'));
     if (submitBtn) submitBtn.click();
   });
-  await new Promise(r => setTimeout(r, 2000));
+  await new Promise(r => setTimeout(r, 3000));
 
   // Verify custom problem loaded
-  const hasCustomEditor = await page.evaluate(() => !!document.querySelector('.cm-editor'));
+  const hasCustomEditor = await page.evaluate(() => !!document.querySelector('.monaco-editor'));
   if (hasCustomEditor) {
     console.log('Taking screenshot of Custom Problem view...');
-    await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\part3_custom.png` });
+    await page.screenshot({ path: `/app/screenshots/part3_custom.png` });
   } else {
     console.error('FAILED: Editor did not load for custom problem.');
   }

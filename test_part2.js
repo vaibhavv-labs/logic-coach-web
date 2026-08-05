@@ -59,7 +59,7 @@ const fs = require('fs');
     });
     await new Promise(r => setTimeout(r, 1000));
     
-    await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\debug_learn.png` });
+    await page.screenshot({ path: `/app/screenshots/debug_learn.png` });
     
     await page.evaluate(() => {
       // Then find the map button on the Learn dashboard
@@ -69,13 +69,7 @@ const fs = require('fs');
     });
     await new Promise(r => setTimeout(r, 1000));
     
-    await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\debug_map.png` });
-
-    const bodyHTML = await page.evaluate(() => document.body.innerHTML);
-    const fs = require('fs');
-    fs.writeFileSync('C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\debug_dom.html', bodyHTML);
-    console.log('DOM dumped.');
-    process.exit(0);
+    await page.screenshot({ path: `/app/screenshots/debug_map.png` });
 
     // Wait for the topic cards to render
     const topicExists = await page.evaluate((idx) => {
@@ -111,25 +105,30 @@ const fs = require('fs');
       console.log(`  Skipping through teaching phase...`);
       let isCompleted = false;
       for (let steps = 0; steps < 15; steps++) {
-        isCompleted = await page.evaluate(() => {
-          // Check if completion screen (Practice Mode header) is visible
-          if (document.body.innerText.includes('Practice Mode')) return true;
+        const status = await page.evaluate((stepIdx) => {
+          const bodyText = document.body.innerText;
+          const isDone = bodyText.includes('Practice Mode') || bodyText.includes('Level 1');
+          if (isDone) return { isCompleted: true, message: "Found completion screen!" };
           
-          // Find and click skip button
           const btns = Array.from(document.querySelectorAll('button'));
-          const skipBtn = btns.find(b => b.textContent.includes('Skip Step'));
+          const skipBtn = btns.find(b => b.textContent.includes('Skip Step') || b.textContent.includes('चरण छोड़ें') || b.textContent.includes('टप्पा वगळा') || b.textContent.includes('skip karein'));
           if (skipBtn) {
             skipBtn.click();
-            return false;
+            return { isCompleted: false, message: `Clicked Skip Step button at substep ${stepIdx}` };
           }
-          return false;
-        });
+          return { isCompleted: false, message: "Skip button not found" };
+        }, steps);
         
-        if (isCompleted) break;
-        await new Promise(r => setTimeout(r, 500));
+        console.log(`    Substep ${steps}: ${status.message}`);
+        if (status.isCompleted) {
+          isCompleted = true;
+          break;
+        }
+        await new Promise(r => setTimeout(r, 1000)); // Wait 1 second for dialog & UI update
       }
 
       if (!isCompleted) {
+        await page.screenshot({ path: `/app/screenshots/debug_stuck_teaching.png` });
         throw new Error("Could not complete teaching phase (Skip button not found or stuck).");
       }
 
@@ -143,9 +142,9 @@ const fs = require('fs');
 
       await new Promise(r => setTimeout(r, 2000));
 
-      const hasEditor = await page.evaluate(() => !!document.querySelector('.cm-editor'));
+      const hasEditor = await page.evaluate(() => !!document.querySelector('.monaco-editor'));
       if (!hasEditor) {
-        throw new Error("Level 1 Practice Mode did not load the CodeMirror editor.");
+        throw new Error("Level 1 Practice Mode did not load the Monaco editor.");
       }
       
       topicResult.practice = true;
@@ -153,7 +152,7 @@ const fs = require('fs');
 
       // Optionally take a screenshot of the first and last to prove it works
       if (i === 0 || i === 9) {
-        await page.screenshot({ path: `C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\audit_topic_${i}.png` });
+        await page.screenshot({ path: `/app/screenshots/audit_topic_${i}.png` });
       }
 
     } catch (e) {

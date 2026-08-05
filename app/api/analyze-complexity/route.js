@@ -20,8 +20,14 @@ export async function POST(request) {
     }
     const token = authHeader.split("Bearer ")[1];
 
-    // Verify token using Firebase REST API
-    const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`, {
+    // Verify token using Firebase REST API (with support for local Auth Emulator)
+    const verifyUrl = process.env.FIREBASE_AUTH_EMULATOR_HOST
+      ? `http://${process.env.FIREBASE_AUTH_EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`
+      : process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.startsWith('demo-')
+        ? `http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`
+        : `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${fbApiKey}`;
+
+    const verifyRes = await fetch(verifyUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ idToken: token })
@@ -35,7 +41,9 @@ export async function POST(request) {
     const userInfo = verifyData.users?.[0];
     const uid = userInfo?.localId;
     
-    if (!userInfo || !userInfo.providerUserInfo || userInfo.providerUserInfo.length === 0) {
+    // Check if user is anonymous (providerUserInfo is empty) - allow guests in development/emulator
+    const isEmulator = process.env.FIREBASE_AUTH_EMULATOR_HOST || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID?.startsWith('demo-');
+    if (!isEmulator && (!userInfo || !userInfo.providerUserInfo || userInfo.providerUserInfo.length === 0)) {
       return NextResponse.json({ error: "Guests are not allowed to access this feature." }, { status: 403 });
     }
 

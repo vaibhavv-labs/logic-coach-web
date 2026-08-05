@@ -34,7 +34,7 @@ const fs = require('fs');
 
   // Take baseline screenshot
   console.log('Taking screenshot of Dashboard...');
-  await page.screenshot({ path: 'C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\dashboard_ok.png' });
+  await page.screenshot({ path: '/app/screenshots/dashboard_ok.png' });
 
   // 1. Click "Practice" sidebar button
   console.log('Clicking "Practice"...');
@@ -46,7 +46,7 @@ const fs = require('fs');
 
   await new Promise(r => setTimeout(r, 1000));
   console.log('Taking screenshot of Practice view bug...');
-  await page.screenshot({ path: 'C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\bug_practice.png' });
+  await page.screenshot({ path: '/app/screenshots/bug_practice.png' });
 
   // 2. Go back to Learn
   console.log('Clicking "Learn"...');
@@ -67,7 +67,7 @@ const fs = require('fs');
 
   await new Promise(r => setTimeout(r, 1000));
   console.log('Taking screenshot of Continue routing bug...');
-  await page.screenshot({ path: 'C:\\Users\\Admin\\.gemini\\antigravity\\brain\\141289b7-09ad-45d2-b10d-61d5298870e3\\.user_uploaded\\bug_dsa_continue.png' });
+  await page.screenshot({ path: '/app/screenshots/bug_dsa_continue.png' });
 
   console.log('Closing browser...');
   await browser.close();
