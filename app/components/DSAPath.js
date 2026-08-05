@@ -25,7 +25,8 @@ export default function DSAPath({ progress, userStats, roadmap, onSelectTopic, l
 
   const getTopicState = (topic, index) => {
     const topicProgress = progress?.[topic.id];
-    const isUnlocked = index === 0 || previousTopicUnlocked;
+    const isEmulator = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const isUnlocked = index === 0 || previousTopicUnlocked || isEmulator;
     
     let stateClass = "locked";
     let btnText = "Locked";

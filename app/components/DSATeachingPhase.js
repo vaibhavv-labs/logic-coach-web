@@ -339,7 +339,7 @@ export default function DSATeachingPhase({ topic, initialStep = 0, onComplete, o
             <div ref={messagesEndRef} />
           </div>
 
-          {failedAttempts >= 3 && (
+          {(failedAttempts >= 3 || typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) && (
             <div style={{ padding: '0 24px', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}>
               <button 
                 className="action-btn" 
