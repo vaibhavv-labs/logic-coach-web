@@ -48,7 +48,7 @@ const fs = require('fs');
   console.log('Taking screenshot of Practice view bug...');
   await page.screenshot({ path: '/app/screenshots/bug_practice.png' });
 
-  // 2. Go back to Learn
+  // 2. Go back to Learnn
   console.log('Clicking "Learn"...');
   await page.evaluate(() => {
     const btns = Array.from(document.querySelectorAll('.action-btn'));
